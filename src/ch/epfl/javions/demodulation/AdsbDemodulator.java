@@ -1,7 +1,6 @@
-package ch.epfl.javions.adsb;
+package ch.epfl.javions.demodulation;
 
-import ch.epfl.javions.ByteString;
-import ch.epfl.javions.demodulation.PowerWindow;
+import ch.epfl.javions.adsb.RawMessage;
 
 import java.io.FileInputStream;
 import java.io.IOException;

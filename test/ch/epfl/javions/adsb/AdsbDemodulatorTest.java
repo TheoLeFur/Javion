@@ -1,11 +1,10 @@
 package ch.epfl.javions.adsb;
+import ch.epfl.javions.demodulation.AdsbDemodulator;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class AdsbDemodulatorTest {
 
