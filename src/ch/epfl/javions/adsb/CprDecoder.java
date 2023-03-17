@@ -10,6 +10,15 @@ public class CprDecoder {
     final static double deltaPhi0 = 1/(double)Zphi0;
     final static double deltaPhi1 = 1/(double)Zphi1;
 
+    /**
+     *
+     * @param x0 even longitude
+     * @param y0 even latitude
+     * @param x1 uneven longitude
+     * @param y1 uneven latitude
+     * @param mostRecent 0 if the most recent of position of the plane is even, 1 if it is uneven
+     * @return corresponding latitude and longitude
+     */
     public static GeoPos decodePosition(double x0, double y0,
                                         double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
@@ -27,7 +36,7 @@ public class CprDecoder {
         }
         //phi0 -> even latitude, phi1 -> uneven latitude
         double phi0 = Units.convert(deltaPhi0 * (zphi0 + y0), Units.Angle.TURN, Units.Angle.RADIAN);
-        double phi1 = Units.convert(deltaPhi1 * (zphi1 + y1),Units.Angle.TURN ,Units.Angle.RADIAN);
+        double phi1 = Units.convert(deltaPhi1 * (zphi1 + y1), Units.Angle.TURN ,Units.Angle.RADIAN);
 
         final double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(phi0), 2));
         int Zlambda0 = (int)Math.floor((2*Math.PI)/A);
@@ -38,9 +47,9 @@ public class CprDecoder {
             lambda0 = x0;
 
             if(mostRecent == 0) {
-                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.RADIAN, Units.Angle.T32)) );
+                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
             } else {
-                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.RADIAN, Units.Angle.T32)) );
+                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
             }
         } else {
             double zLambda0;
@@ -57,13 +66,13 @@ public class CprDecoder {
             double deltaLambda0 = 1/(double)Zlambda0;
             double deltaLambda1 = 1/(double)Zlambda1;
 
-            lambda0 = deltaLambda0 * (zphi0 + x0);
-            lambda1 = deltaLambda1 * (zphi1 + x1);
+            lambda0 = deltaLambda0 * (zLambda0 + x0);
+            lambda1 = deltaLambda1 * (zLamdba1 + x1);
 
             if(mostRecent == 0) {
-                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.RADIAN, Units.Angle.T32)) );
+                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
             } else {
-                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.RADIAN, Units.Angle.T32)) );
+                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
             }
         }
 
