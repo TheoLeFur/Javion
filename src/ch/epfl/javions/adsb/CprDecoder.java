@@ -35,10 +35,10 @@ public class CprDecoder {
             zphi1 = zphi;
         }
         //phi0 -> even latitude, phi1 -> uneven latitude
-        double phi0 = Units.convert(deltaPhi0 * (zphi0 + y0), Units.Angle.TURN, Units.Angle.RADIAN);
-        double phi1 = Units.convert(deltaPhi1 * (zphi1 + y1), Units.Angle.TURN ,Units.Angle.RADIAN);
+        double phi0 = deltaPhi0 * (zphi0 + y0);
+        double phi1 = deltaPhi1 * (zphi1 + y1);
 
-        final double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(phi0), 2));
+        final double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
         int Zlambda0 = (int)Math.floor((2*Math.PI)/A);
         int Zlambda1 = Zlambda0 - 1;
 
@@ -46,11 +46,6 @@ public class CprDecoder {
             lambda1 = x1;
             lambda0 = x0;
 
-            if(mostRecent == 0) {
-                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
-            } else {
-                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
-            }
         } else {
             double zLambda0;
             double zLamdba1;
@@ -68,13 +63,31 @@ public class CprDecoder {
 
             lambda0 = deltaLambda0 * (zLambda0 + x0);
             lambda1 = deltaLambda1 * (zLamdba1 + x1);
-
-            if(mostRecent == 0) {
-                return (new GeoPos((int)Units.convert(phi0, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
-            } else {
-                return (new GeoPos((int)Units.convert(phi1, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
-            }
         }
+        if(mostRecent == 0) {
+            if(phi0 >= 0.5 * Units.Angle.TURN) {
+                phi0 = -(phi0 - 0.5 * Units.Angle.TURN);
+            }
+            if(lambda0 >= 0.5 * Units.Angle.TURN) {
+                lambda0 = -(lambda0 - 0.5 * Units.Angle.TURN);
+            }
+            if(Units.convert(phi0, Units.Angle.TURN, Units.Angle.DEGREE) >= 90 || Units.convert(phi0, Units.Angle.TURN, Units.Angle.DEGREE) <= -90) {
+                return null;
+            }
 
+            return (new GeoPos((int)Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
+        } else {
+            if(phi1 >= 0.5 * Units.Angle.TURN) {
+                phi1 = -(phi0 - 0.5 * Units.Angle.TURN);
+            }
+            if(lambda1 >= 0.5 * Units.Angle.TURN) {
+                lambda1 = -(lambda0 - 0.5 * Units.Angle.TURN);
+            }
+            if(Units.convert(phi1, Units.Angle.TURN, Units.Angle.DEGREE) >= 90 || Units.convert(phi1, Units.Angle.TURN, Units.Angle.DEGREE) <= -90) {
+                return null;
+            }
+
+            return (new GeoPos((int)Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
+        }
     }
 }
