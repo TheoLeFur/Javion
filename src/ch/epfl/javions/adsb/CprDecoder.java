@@ -27,6 +27,7 @@ public class CprDecoder {
 
         int zphi = (int)Math.rint(y0*Zphi1 - y1*Zphi0);
         int zphi0, zphi1;
+
         if(zphi < 0) {
             zphi0 = zphi + Zphi0;
             zphi1 = zphi + Zphi1;
@@ -38,7 +39,10 @@ public class CprDecoder {
         double phi0 = deltaPhi0 * (zphi0 + y0);
         double phi1 = deltaPhi1 * (zphi1 + y1);
 
-        final double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        Double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        if(A.isNaN()) {
+            A = (double)1;
+        }
         int Zlambda0 = (int)Math.floor((2*Math.PI)/A);
         int Zlambda1 = Zlambda0 - 1;
 
@@ -64,6 +68,7 @@ public class CprDecoder {
             lambda0 = deltaLambda0 * (zLambda0 + x0);
             lambda1 = deltaLambda1 * (zLamdba1 + x1);
         }
+
         if(mostRecent == 0) {
             if(phi0 >= 0.5 * Units.Angle.TURN) {
                 phi0 = -(phi0 - 0.5 * Units.Angle.TURN);
