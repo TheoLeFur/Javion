@@ -25,7 +25,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the ADS-B message as it is with the same time stamps and bytes as the input
      * if the bytes have a CRC24 of 0
      */
-    static RawMessage of(long timeStampsNs, byte[] bytes) {
+    public static RawMessage of(long timeStampsNs, byte[] bytes) {
         Crc24 crc24 = new Crc24(Crc24.GENERATOR);
 
         if(crc24.crc(bytes) != 0) {
@@ -41,7 +41,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @param byte0 first byte of the message
      * @return length of a message if it is of a known type, and 0 if that's not the case
      */
-    static int size(byte byte0) {
+    public static int size(byte byte0) {
         if(Bits.extractUInt(byte0, 3, 5) == (byte)17) { //extracting the DF part from byte0
             return LENGTH;
         } else { //returning 0 if the message is not known
@@ -54,7 +54,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @param payload long from which the ME attribute will be extracted
      * @return the ME attribute of the long
      */
-    static int typeCode(long payload) {
+    public static int typeCode(long payload) {
         payload = Bits.extractUInt(payload, 51, 5);
         return (int)payload;
     }
