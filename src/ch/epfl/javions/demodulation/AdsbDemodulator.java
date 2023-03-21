@@ -41,7 +41,7 @@ public final class AdsbDemodulator {
 
                 byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
 
-                for (int i : IntStream.range(0, demodulatedMessage.length).toArray()) {
+                for (int i = 0 ; i < demodulatedMessage.length ; i++) {
                     demodulatedMessage[i] = this.bytes(8 * i);
                 }
 
@@ -108,13 +108,9 @@ class PrintRawMessages {
         try (InputStream s = new FileInputStream(f)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
-            int n = 0;
             while ((m = d.nextMessage()) != null) {
                 System.out.println(m);
-                n++;
             }
-            System.out.println(n);
-
         }
     }
 }
