@@ -80,7 +80,7 @@ public class CprDecoder {
                 return null;
             }
 
-            return (new GeoPos((int)Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32), (int)Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)) );
+            return (new GeoPos((int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32))));
         } else {
             if(phi1 >= 0.5 * Units.Angle.TURN) {
                 phi1 = -(phi0 - 0.5 * Units.Angle.TURN);
@@ -92,7 +92,7 @@ public class CprDecoder {
                 return null;
             }
 
-            return (new GeoPos((int)Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32), (int)Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)) );
+            return (new GeoPos((int)Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32))));
         }
     }
 }
