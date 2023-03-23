@@ -18,9 +18,9 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     }
 
     private static int grayDecoder(int grayCode, int nbrBits) {
-        int decoded = 0;
-        for(int i = 0; i < nbrBits; i++) {
-            decoded ^= grayCode >> i;
+        int decoded = grayCode;
+        for(int i = 1; i < nbrBits; i++) {
+            decoded = decoded ^ (grayCode >> i);
         }
         return decoded;
     }
@@ -39,7 +39,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         else {
             int[] bits = new int[12];
             for(int j = 0; j < bits.length; j++) {
-                bits[j] = Bits.extractUInt(bitAltitude, j, 1);
+                bits[j] = Bits.extractUInt(bitAltitude, bits.length - j - 1, 1);
             }
 
             int demelage = (bits[7]<<11 | bits[9]<<10 | bits[11]<<9 | bits[1]<<8 | bits[3]<<7 | bits[5]<<6 |
