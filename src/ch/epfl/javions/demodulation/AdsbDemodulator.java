@@ -20,6 +20,7 @@ public final class AdsbDemodulator {
     }
 
     /**
+     * @author Theo Le Fur
      * @return new message
      * @throws IOException if input/output error is encountered
      * @author : Theo Le Fur
@@ -57,7 +58,10 @@ public final class AdsbDemodulator {
         return null;
     }
 
+
+
     /**
+     * @author Theo Le Fur
      * Builds bytes from a stream of bits
      * @param index index of element in the power window
      * @return byte
@@ -72,6 +76,8 @@ public final class AdsbDemodulator {
     }
 
     /**
+
+     * @author Theo Le Fur
      * Computes the bits according to the demodulation convention
      * @param index index of the signal in Power Window we are trying to demodulate
      * @return Demodulated bit signal
@@ -96,7 +102,10 @@ public final class AdsbDemodulator {
         return pSum;
     }
 
+
     /**
+     * @author Theo Le Fur
+
      * Auxiliary function for determining sums of peaks
      * @return sum of peeks
      */
@@ -110,6 +119,7 @@ public final class AdsbDemodulator {
     }
 
     /**
+     * @author Theo Le Fur
      * Auxiliary function for determining sums of "valleys"
      * @return sum of valleys signals
      */
