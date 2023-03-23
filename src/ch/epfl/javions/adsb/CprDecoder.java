@@ -46,7 +46,7 @@ public class CprDecoder {
         int Zlambda0 = (int)Math.floor((2*Math.PI)/A);
         int Zlambda1 = Zlambda0 - 1;
 
-        if(Zlambda1 == 1) {
+        if(Zlambda0 == 1) {
             lambda1 = x1;
             lambda0 = x0;
 
