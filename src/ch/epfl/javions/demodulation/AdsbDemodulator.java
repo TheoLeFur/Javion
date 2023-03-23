@@ -20,6 +20,7 @@ public final class AdsbDemodulator {
     }
 
     /**
+     * @author Theo Le Fur
      * @return new message
      * @throws IOException if input/output error is encountered
      * @author : Theo Le Fur
@@ -60,6 +61,14 @@ public final class AdsbDemodulator {
         return null;
     }
 
+
+    /**
+     * @author Theo Le Fur
+     * Builds bytes from a stream of bits
+     * @param index index of element in the power window
+     * @return byte
+     */
+
     private byte bytes(int index) {
         int b = 0;
         for (int i = 0; i < Byte.SIZE; i++) {
@@ -68,12 +77,25 @@ public final class AdsbDemodulator {
         return (byte) b;
     }
 
+    /**
+     * @author Theo Le Fur
+     * Computes the bits according to the demodulation convention
+     * @param index index of the signal in Power Window we are trying to demodulate
+     * @return Demodulated bit signal
+     */
+
+
     private int b(int index) {
         if (this.powerWindow.get(80 + 10 * index) < this.powerWindow.get(85 + 10 * index)) {
             return 0;
         } else return 1;
     }
 
+    /**
+     * @author Theo Le Fur
+     * Auxiliary function for determining sums of peaks
+     * @return posterior sum of peeks
+     */
     private int PosteriorPSum() {
         int[] indices = new int[]{0, 10, 35, 45};
         int pSum = 0;
@@ -83,6 +105,12 @@ public final class AdsbDemodulator {
         return pSum;
     }
 
+
+    /**
+     * @author Theo Le Fur
+     * Auxiliary function for determining sums of peaks
+     * @return sum of peeks
+     */
     private int pSum() {
         int[] indices = new int[]{0, 10, 35, 45};
         int pSum = 0;
@@ -92,6 +120,11 @@ public final class AdsbDemodulator {
         return pSum;
     }
 
+    /**
+     * @author Theo Le Fur
+     * Auxiliary function for determining sums of "valleys"
+     * @return sum of valleys signals
+     */
     private int vSum() {
         int[] indices = new int[]{5, 15, 20, 25, 30, 40};
         int vSum = 0;
