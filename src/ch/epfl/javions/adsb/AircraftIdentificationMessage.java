@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) implements Message{
 
     /**
-     *
+     * @author Rudolf Yazbeck
      * @param timeStampNs timestamp in nano seconds
      * @param icaoAddress of the aircraft
      * @param category category of the aircraft which indicates its type
@@ -23,7 +23,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     }
 
     /**
-     *
+     * @author Rudolf Yazbeck
      * @param rawMessage raw message that has been intercepted from the aircraft
      * @return the identification message corresponding to the raw message that has been given, or null if one of the
      * callSign characters if invalid
@@ -44,10 +44,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         String callSignString = "";
         String stringToAdd;
         int callsignInt;
-        //int[] callSignBytes = new int[8];
         for(int i = 0; i < 8; i++) {
-            //callSignBytes[i] = (byte)Bits.extractUInt(rawMessage.payload(), 4 + 6*i, 6);
-
             callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6*i, 6);
             if(callsignInt >= 1 && callsignInt <= 26) {
                 stringToAdd = letters[callsignInt - 1];
@@ -64,24 +61,23 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
         callSignString=callSignString.trim();
 
-
         CallSign callSign = new CallSign(callSignString);
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
-
-        /*try{
-            CallSign callSign = new CallSign(callSignString);
-            return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
-        } catch(IllegalArgumentException i) {
-            return null;
-        } */
-
     }
 
+    /**
+     *
+     * @return the time stamp in nano seconds
+     */
     @Override
     public long timeStampNs() {
         return timeStampNs;
     }
 
+    /**
+     *
+     * @return the icao address of the aircraft
+     */
     @Override
     public IcaoAddress icaoAddress() {
         return icaoAddress;

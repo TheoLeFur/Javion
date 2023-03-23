@@ -8,6 +8,15 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                                       double altitude, int parity, double x, double y) {
 
+    /**
+     * @author Rudolf Yazbeck
+     * @param timeStampNs time-stamp in nano seconds
+     * @param icaoAddress ICAO address of the message's expediter
+     * @param altitude of the aircraft at the time the message was sent
+     * @param parity of the message (0 or 1)
+     * @param x normalized local longitude
+     * @param y normalized local latitude
+     */
     public AirbornePositionMessage {
         if(icaoAddress == null) {
             throw new NullPointerException();
@@ -17,6 +26,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 (0 <= y && y < 1));
     }
 
+    /**
+     * @author Rudolf Yazbeck
+     * @param grayCode int that has been encoded with Gray's algorithm
+     * @param nbrBits number of bits that the encoded message contains
+     * @return decoded message
+     */
     private static int grayDecoder(int grayCode, int nbrBits) {
         int decoded = grayCode;
         for(int i = 1; i < nbrBits; i++) {
@@ -25,6 +40,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         return decoded;
     }
 
+    /**
+     * @author Rudolf Yazbeck
+     * @param rawMessage of the aircraft
+     * @return the airborne position message corresponding to the raw message given, or null if
+     * the altitude is invalid
+     */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
         int bitAltitude = Bits.extractUInt(rawMessage.payload(), 36, 12);
         int Q = Bits.extractUInt(bitAltitude, 4, 1);
