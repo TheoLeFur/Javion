@@ -3,7 +3,7 @@ package ch.epfl.javions.adsb;
 import java.util.regex.Pattern;
 
 public record CallSign(String string) {
-    static Pattern allowedStrings = Pattern.compile("[A-Z0-9]{0,8}");
+    static Pattern allowedStrings = Pattern.compile("[A-Z0-9 ]{0,8}");
 
     /**
      * @param string representing the callsign

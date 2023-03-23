@@ -31,25 +31,49 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         int codeType = rawMessage.typeCode();
-        int CA = Bits.extractUInt(rawMessage.payload(), 0, 3);
-        codeType -= 14;
+        int CA = Bits.extractUInt(rawMessage.payload(), 48, 3);
+        codeType = 14 - codeType;
         int category = 0b00000000;
-        category = (byte)category | (byte)CA;
         codeType <<= 4;
-        category = (byte)category | (byte)codeType;
+        category = ((codeType&0b11110000) | CA);
 
-        String callSignString = new String(new byte[] {(byte)Bits.extractUInt(rawMessage.payload(), 4, 48)});
+        String[] letters = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I",
+                "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X",
+                "Y", "Z"};
 
-        while(callSignString.length() < 8) {
-            callSignString += " ";
+        String callSignString = "";
+        String stringToAdd;
+        int callsignInt;
+        //int[] callSignBytes = new int[8];
+        for(int i = 0; i < 8; i++) {
+            //callSignBytes[i] = (byte)Bits.extractUInt(rawMessage.payload(), 4 + 6*i, 6);
+
+            callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6*i, 6);
+            if(callsignInt >= 1 && callsignInt <= 26) {
+                stringToAdd = letters[callsignInt - 1];
+            } else if (callsignInt >= 48 && callsignInt <= 57) {
+                stringToAdd = Integer.toString(callsignInt - 48);
+            } else if(callsignInt == 32) {
+                stringToAdd = " ";
+            } else {
+                return null;
+            }
+
+            callSignString += stringToAdd;
         }
 
-        try{
+        callSignString=callSignString.trim();
+
+
+        CallSign callSign = new CallSign(callSignString);
+        return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
+
+        /*try{
             CallSign callSign = new CallSign(callSignString);
             return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
         } catch(IllegalArgumentException i) {
             return null;
-        }
+        } */
 
     }
 
