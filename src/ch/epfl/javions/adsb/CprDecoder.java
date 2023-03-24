@@ -71,29 +71,33 @@ public class CprDecoder {
         }
 
         if(mostRecent == 0) {
-            if(phi0 >= 0.5 * Units.Angle.TURN) {
-                phi0 = -(phi0 - 0.5 * Units.Angle.TURN);
+            if(phi0 >= 0.5) {
+                phi0 = phi0 - 1;
             }
-            if(lambda0 >= 0.5 * Units.Angle.TURN) {
-                lambda0 = -(lambda0 - 0.5 * Units.Angle.TURN);
+            if(lambda0 >= 0.5) {
+                lambda0 = lambda0 - 1;
             }
-            if(Units.convert(phi0, Units.Angle.TURN, Units.Angle.DEGREE) >= 90 || Units.convert(phi0, Units.Angle.TURN, Units.Angle.DEGREE) <= -90) {
+            try{
+                return (new GeoPos((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32))));
+            } catch(IllegalArgumentException i) {
                 return null;
             }
-
-            return (new GeoPos((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32))));
         } else {
-            if(phi1 >= 0.5 * Units.Angle.TURN) {
-                phi1 = -(phi0 - 0.5 * Units.Angle.TURN);
+            if(phi1 >= 0.5) {
+                phi1 = phi1 - 1;
             }
-            if(lambda1 >= 0.5 * Units.Angle.TURN) {
-                lambda1 = -(lambda0 - 0.5 * Units.Angle.TURN);
+            if(lambda1 >= 0.5) {
+                lambda1 = lambda1 - 1;
             }
-            if(Units.convert(phi1, Units.Angle.TURN, Units.Angle.DEGREE) >= 90 || Units.convert(phi1, Units.Angle.TURN, Units.Angle.DEGREE) <= -90) {
+            if(!GeoPos.isValidLatitudeT32((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)))) {
                 return null;
             }
 
-            return (new GeoPos((int)Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32))));
+            try{
+                return (new GeoPos((int)Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32))));
+            } catch(IllegalArgumentException i) {
+                return null;
+            }
         }
     }
 }
