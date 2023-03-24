@@ -25,7 +25,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param rawMessage Raw Message.
      * @return instance of Velocity Message.
      */
-    AirborneVelocityMessage of(RawMessage rawMessage) {
+    public static AirborneVelocityMessage of(RawMessage rawMessage) {
 
         if (rawMessage.typeCode() == 19) {
 

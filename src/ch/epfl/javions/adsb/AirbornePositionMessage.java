@@ -6,7 +6,7 @@ import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
-                                      double altitude, int parity, double x, double y) {
+                                      double altitude, int parity, double x, double y) implements Message{
 
     public AirbornePositionMessage {
         if(icaoAddress == null) {
