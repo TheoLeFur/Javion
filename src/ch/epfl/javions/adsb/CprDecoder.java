@@ -40,13 +40,14 @@ public class CprDecoder {
         double phi1 = deltaPhi1 * (zphi1 + y1);
 
         Double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        int Zlambda0;
         if(A.isNaN()) {
-            A = (double)1;
+            Zlambda0 = 1;
         }
-        int Zlambda0 = (int)Math.floor((2*Math.PI)/A);
+        else {Zlambda0 = (int)Math.floor((2*Math.PI)/A);}
         int Zlambda1 = Zlambda0 - 1;
 
-        if(Zlambda1 == 1) {
+        if(Zlambda0 == 1) {
             lambda1 = x1;
             lambda0 = x0;
 
@@ -80,7 +81,7 @@ public class CprDecoder {
                 return null;
             }
 
-            return (new GeoPos((int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32))));
+            return (new GeoPos((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32))));
         } else {
             if(phi1 >= 0.5 * Units.Angle.TURN) {
                 phi1 = -(phi0 - 0.5 * Units.Angle.TURN);
@@ -92,7 +93,7 @@ public class CprDecoder {
                 return null;
             }
 
-            return (new GeoPos((int)Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32))));
+            return (new GeoPos((int)Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32))));
         }
     }
 }
