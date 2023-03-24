@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class AirbornePositionMessageTest {
     private static final AirbornePositionMessage positionMessage1 = AirbornePositionMessage.of(new RawMessage(0, new ByteString(HexFormat.of().parseHex("8D39203559B225F07550ADBE328F"))));
     private static final AirbornePositionMessage positionMessage2 = AirbornePositionMessage.of(new RawMessage(1, new ByteString(HexFormat.of().parseHex("8DAE02C85864A5F5DD4975A1A3F5"))));
-
+    private final String URL = "/Users/theolefur/Downloads/Javions/resources/samples_20230304_1442.bin";
     @Test
     public void testAirbornePositionMessage() throws IOException {
 
         //String stream2 = Objects.requireNonNull(getClass().getResource("/home/rudolf/IdeaProjects/javion2/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin")).getFile();
-        String stream2 = URLDecoder.decode("/home/rudolf/IdeaProjects/javion2/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin", StandardCharsets.UTF_8);
+        String stream2 = URLDecoder.decode(URL, StandardCharsets.UTF_8);
         try (InputStream s = new FileInputStream(stream2)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
@@ -110,7 +110,7 @@ public class AirbornePositionMessageTest {
 
     @Test
     void ofWorksOnTheGivenExamples() throws IOException {
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream(URL)) {
             String message = "8D49529958B302E6E15FA352306B";
             ByteString byteString = ByteString.ofHexadecimalString(message);
             long timestamps = 75898000;
@@ -223,7 +223,7 @@ public class AirbornePositionMessageTest {
     //Visually Check First 5.
     @Test
     void GenerallyWorksWithTypeCodeCondition() throws IOException{
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream(URL)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
             int i = 0;
@@ -243,7 +243,7 @@ public class AirbornePositionMessageTest {
 
     @Test
     void GenerallyWorksWithNoCondition() throws IOException{
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream(URL)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
             int i = 0;

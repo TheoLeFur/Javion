@@ -9,13 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CprDecoderTest {
 
-    @Test
-    void decodePosition() {
-        int a = 0b1001;
-        System.out.println(Bits.extractUInt(a, 0, 1));
-        assertEquals(CprDecoder.decodePosition(0.851440, 0.720558,0.830574, 0.591721, 0),
-                new GeoPos((int)(Units.convert(46.323349, Units.Angle.DEGREE, Units.Angle.T32)), (int)(Units.convert(7.476062, Units.Angle.DEGREE, Units.Angle.T32))));
-    }
+
 
     @Test
     void decodePositionWorksOnTheGivenExample(){

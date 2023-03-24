@@ -17,9 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AircraftIdentificationMessageTest {
+
+    private final String URL = "/Users/theolefur/Downloads/Javions/resources/samples_20230304_1442.bin";
     @Test
     public void testAircraftIdentificationMessage() throws IOException {
-        String stream2 = URLDecoder.decode("/home/rudolf/IdeaProjects/javion2/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin", StandardCharsets.UTF_8);
+        String stream2 = URLDecoder.decode(URL, StandardCharsets.UTF_8);
         try (InputStream s = new FileInputStream(stream2)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
@@ -58,7 +60,7 @@ public class AircraftIdentificationMessageTest {
 
     @Test
     void ofWorksOnTheGivenExamples() throws IOException {
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream((URL))) {
             String message = "8D4D2228234994B7284820323B81";
             ByteString byteString = ByteString.ofHexadecimalString(message);
             long timestamps = 1499146900L;
@@ -134,7 +136,7 @@ public class AircraftIdentificationMessageTest {
     //Visually Check First 5.
     @Test
     void GenerallyWorksWithTypeCodeCondition() throws IOException{
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream((URL))) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
             int i = 0;
@@ -154,7 +156,7 @@ public class AircraftIdentificationMessageTest {
 
     @Test
     void GenerallyWorksWithNoCondition() throws IOException{
-        try (InputStream s = new FileInputStream(("/home/rudolf/IdeaProjects/JavionsVersion/Javion/test/ch/epfl/javions/demodulation/samples_0304/samples_20230304_1442.bin"))) {
+        try (InputStream s = new FileInputStream(URL)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
             int i = 0;

@@ -19,5 +19,5 @@ public class AircraftStateAcumulator<T> {
         return this.stateSetter;
     }
 
-    public void update(Message message)
+    public void update(Message message){}
 }
