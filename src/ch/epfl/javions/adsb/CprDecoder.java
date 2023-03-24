@@ -39,12 +39,23 @@ public class CprDecoder {
         double phi0 = deltaPhi0 * (zphi0 + y0);
         double phi1 = deltaPhi1 * (zphi1 + y1);
 
-        Double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+
+        double B = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+
         int Zlambda0;
-        if(A.isNaN()) {
+        int ZlambdaTest;
+        if(((Double)A).isNaN()) {
             Zlambda0 = 1;
+            ZlambdaTest = 1;
         }
-        else {Zlambda0 = (int)Math.floor((2*Math.PI)/A);}
+        else {Zlambda0 = (int)Math.floor((2*Math.PI)/A);
+            ZlambdaTest = (int)Math.floor((2*Math.PI)/B);
+        }
+
+        if(Zlambda0 != ZlambdaTest) {
+            return null;
+        }
         int Zlambda1 = Zlambda0 - 1;
 
         if(Zlambda0 == 1) {
