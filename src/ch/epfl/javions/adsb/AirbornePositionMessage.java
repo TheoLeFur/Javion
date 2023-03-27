@@ -84,6 +84,9 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
 
         altitude = Units.convert(altitude, Units.Length.FOOT, Units.Length.METER);
+        if(altitude < 0) {
+            return null;
+        }
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), altitude,
                 Bits.extractUInt(rawMessage.payload(), 34, 1), Bits.extractUInt(rawMessage.payload(), 0, 17)/Math.pow(2, 17),
                 Bits.extractUInt(rawMessage.payload(), 17, 17)/Math.pow(2, 17));

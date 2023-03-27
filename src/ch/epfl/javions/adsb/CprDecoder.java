@@ -38,6 +38,12 @@ public class CprDecoder {
         //phi0 -> even latitude, phi1 -> uneven latitude
         double phi0 = deltaPhi0 * (zphi0 + y0);
         double phi1 = deltaPhi1 * (zphi1 + y1);
+        if(phi0 >= 0.5) {
+            phi0 = phi0 - 1;
+        }
+        if(phi1 >= 0.5) {
+            phi1 = phi1 - 1;
+        }
 
         double A = Math.acos(1 - (1 - Math.cos(2*Math.PI*deltaPhi0))/Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
 
@@ -79,27 +85,21 @@ public class CprDecoder {
 
             lambda0 = deltaLambda0 * (zLambda0 + x0);
             lambda1 = deltaLambda1 * (zLamdba1 + x1);
-        }
-
-        if(mostRecent == 0) {
-            if(phi0 >= 0.5) {
-                phi0 = phi0 - 1;
-            }
             if(lambda0 >= 0.5) {
                 lambda0 = lambda0 - 1;
             }
+            if(lambda1 >= 0.5) {
+                lambda1 = lambda1 - 1;
+            }
+        }
+
+        if(mostRecent == 0) {
             try{
                 return (new GeoPos((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)), (int)Math.rint(Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32))));
             } catch(IllegalArgumentException i) {
                 return null;
             }
         } else {
-            if(phi1 >= 0.5) {
-                phi1 = phi1 - 1;
-            }
-            if(lambda1 >= 0.5) {
-                lambda1 = lambda1 - 1;
-            }
             if(!GeoPos.isValidLatitudeT32((int)Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)))) {
                 return null;
             }
