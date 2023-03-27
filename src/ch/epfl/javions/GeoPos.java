@@ -5,7 +5,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
         if (!isValidLatitudeT32(latitudeT32)) throw new IllegalArgumentException();
     }
     /**
-     * checks wether the latitude is in the correct T32 interval
+     * checks whether the latitude is in the correct T32 interval
      * @param latitudeT32 latitude that will be checked for validity
      * */
 
