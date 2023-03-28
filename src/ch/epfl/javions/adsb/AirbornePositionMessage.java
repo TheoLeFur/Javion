@@ -5,8 +5,9 @@ import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
-                                      double altitude, int parity, double x, double y) implements Message {
+import java.util.Objects;
+
+public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x, double y) implements Message {
 
     /**
      * @param timeStampNs time-stamp in nano seconds
@@ -18,9 +19,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @author Rudolf Yazbeck
      */
     public AirbornePositionMessage {
-        if (icaoAddress == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0 &&
                 (parity == 0 || parity == 1) && (0 <= x && x < 1) &&
                 (0 <= y && y < 1));

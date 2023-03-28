@@ -1,5 +1,7 @@
 package ch.epfl.javions.adsb;
 
+import java.util.Objects;
+
 public final class MessageParser {
     /**
      * @param rawMessage Message we are parsing
@@ -10,13 +12,15 @@ public final class MessageParser {
      * the type code it carries.
      */
     public static Message parse(RawMessage rawMessage) {
-        if (AirbornePositionMessage.of(rawMessage) != null) {
+        if (!Objects.isNull(AirbornePositionMessage.of(rawMessage)))
             return AirbornePositionMessage.of(rawMessage);
-        } else {
-            if (AircraftIdentificationMessage.of(rawMessage) != null) {
+        else {
+            if (!Objects.isNull(AircraftIdentificationMessage.of(rawMessage))){
                 return AircraftIdentificationMessage.of(rawMessage);
             } else {
-                return AirborneVelocityMessage.of(rawMessage);
+                if (!Objects.isNull(AirborneVelocityMessage.of(rawMessage))){
+                    return AirborneVelocityMessage.of(rawMessage);
+                } else return null;
             }
         }
     }

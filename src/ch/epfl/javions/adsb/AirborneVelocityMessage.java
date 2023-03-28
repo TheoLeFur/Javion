@@ -53,7 +53,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                 int sgnEW = 2 * dew - 1;
                 int sgnNS = 1 - 2 * dns;
 
-                if (dns == 0 || vew == 0) {
+                if (vns == 0 || vew == 0) {
                     return null;
                 } else {
                     trackOrHeading = Units.convertTo(Math.atan2(sgnNS * vy, sgnEW * vx), Units.Angle.DEGREE);
@@ -62,9 +62,9 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                     } else {
                         velocity = 4 * Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT);
                     }
-
                     return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
                 }
+
 
             } else if (subType == 3 || subType == 4) {
 
