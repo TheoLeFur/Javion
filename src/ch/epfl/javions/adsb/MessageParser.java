@@ -10,13 +10,14 @@ public final class MessageParser {
      * @author Theo Le Fur
      * Parses a raw message into an Identification Message, Position Message or Velocity Message, according to
      * the type code it carries.
+
      */
     public static Message parse(RawMessage rawMessage) {
-        if (!Objects.isNull(AirbornePositionMessage.of(rawMessage)))
-            return AirbornePositionMessage.of(rawMessage);
+        if (!Objects.isNull(AircraftIdentificationMessage.of(rawMessage)))
+            return AircraftIdentificationMessage.of(rawMessage);
         else {
-            if (!Objects.isNull(AircraftIdentificationMessage.of(rawMessage))){
-                return AircraftIdentificationMessage.of(rawMessage);
+            if (!Objects.isNull(AirbornePositionMessage.of(rawMessage))){
+                return AirbornePositionMessage.of(rawMessage);
             } else {
                 if (!Objects.isNull(AirborneVelocityMessage.of(rawMessage))){
                     return AirborneVelocityMessage.of(rawMessage);

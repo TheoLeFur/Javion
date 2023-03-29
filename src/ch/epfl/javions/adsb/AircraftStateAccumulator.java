@@ -1,16 +1,14 @@
 package ch.epfl.javions.adsb;
-
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Units;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     private AircraftStateSetter stateSetter;
-    private ArrayList<AirbornePositionMessage> previousMessages;
+    private AirbornePositionMessage[] previousMessageMemory;
     private final double POSITION_THRESHOLD_NS = 10 * Math.pow(10, 9);
 
     /**
@@ -22,7 +20,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     public AircraftStateAccumulator(T stateSetter) {
         Objects.requireNonNull(stateSetter);
         this.stateSetter = stateSetter;
-        this.previousMessages = new ArrayList<>(2);
+        this.previousMessageMemory = new AirbornePositionMessage[2];
     }
 
     /**
@@ -48,23 +46,20 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
                 this.stateSetter.setCallSign(aim.callSign());
                 this.stateSetter.setCategory(aim.category());
             }
-
             case AirbornePositionMessage aim -> {
                 this.stateSetter.setAltitude(aim.altitude());
-                if (this.previousMessages.size() == 2) {
-                    if (this.posMessageCondition(aim, this.getPreviousMessageOfOppositeParity(aim))) {
-                        this.stateSetter.setPosition(this.GeoPosFromNormalized(aim.x(), aim.y()));
+                try {
+                    AirbornePositionMessage prevMessage = this.oppParRecentMessage(aim);
+                    if(this.posMessageCondition(aim, prevMessage)){
+                        this.stateSetter.setPosition(this.getPosition(aim));
                     }
-                    this.previousMessages.set(aim.parity(), aim);
-                } else this.previousMessages.add(aim);
-
+                } catch (NullPointerException ignored){}
+                this.addToMemory(aim);
             }
-
             case AirborneVelocityMessage aim -> {
-                this.stateSetter.setVelocity(aim.velocity());
+                this.stateSetter.setVelocity(aim.speed());
                 this.stateSetter.setTrackOrHeading(aim.trackOrHeading());
             }
-
             case default -> {
             }
         }
@@ -79,9 +74,8 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * Verifies if position can be updated, by looking at the previous message of different parity
      */
     private boolean posMessageCondition(AirbornePositionMessage message, AirbornePositionMessage previousMessage) {
-        return (message.timeStampNs() - previousMessage.timeStampNs() <= POSITION_THRESHOLD_NS);
+        return (message.timeStampNs() - previousMessage.timeStampNs()) <= POSITION_THRESHOLD_NS;
     }
-
 
     /**
      * @param x {0,1} variable, representing the parity of the message.
@@ -95,22 +89,42 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
         } else return 1;
     }
 
-    private AirbornePositionMessage getPreviousMessageOfOppositeParity(AirbornePositionMessage message) {
-        return this.previousMessages.stream().filter(e -> e.parity() == this.oppositeParity(message.parity())).toList().get(0);
-    }
 
     /**
-     * @param x normalized latitude
-     * @param y normalized longitude
-     * @return A GeoPos object with recovered latitude and longitude from x and y
-     * Creates a GeoPos obejct from normalized local coordinates x and y
-     * @author Theo Le Fur
+     * 0 pair, 1 impair
+     * @param message
+     * @return
      */
-    private GeoPos GeoPosFromNormalized(double x, double y) {
-        System.out.println(y * Math.pow(2, 17));
-        System.out.println(x * Math.pow(2, 17));
-        return new GeoPos((int) (y * Math.pow(2, 17)), (int) (x * Math.pow(2, 17)));
+    private GeoPos getPosition(AirbornePositionMessage message) {
+
+        int mostRecent = message.parity();
+        if (mostRecent == 1) {
+            AirbornePositionMessage previousMessage = previousMessageMemory[0];
+            return CprDecoder.decodePosition(previousMessage.x(), previousMessage.y(), message.x(),  message.y(), mostRecent);
+        } else {
+            AirbornePositionMessage previousMessage = previousMessageMemory[1];
+            return CprDecoder.decodePosition(message.x(), message.y(), previousMessage.x(), previousMessage.y(), mostRecent);
+        }
+
     }
+
+    private void addToMemory(AirbornePositionMessage message){
+        this.previousMessageMemory[message.parity()] = message;
+    }
+
+    private AirbornePositionMessage oppParRecentMessage(AirbornePositionMessage currentMessage){
+        int oppPar = this.oppositeParity(currentMessage.parity());
+        AirbornePositionMessage prevMessage = this.previousMessageMemory[oppPar];
+        if (Objects.isNull(prevMessage)){
+            throw new NullPointerException();
+        }
+        return prevMessage;
+    }
+
+
+
+
+
 
 }
 
