@@ -61,4 +61,14 @@ class AirborneVelocityMessageTest {
         assertEquals(4.25833066717054 , avm.trackOrHeading());
     }
 
+    @Test
+    void Subtype2Works() {
+        String message =  "8D4B1A00EA0DC89E8F7C0857D5F5";
+        ByteString byteString = ByteString.ofHexadecimalString(message);
+        long timeStampsNs = 0;
+        RawMessage testMessage = new RawMessage(timeStampsNs, byteString);
+        AirborneVelocityMessage avm = AirborneVelocityMessage.of(testMessage);
+        System.out.println(avm);
+    }
+
 }
