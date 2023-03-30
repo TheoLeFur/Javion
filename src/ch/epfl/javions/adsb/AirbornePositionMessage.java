@@ -70,7 +70,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
             //500 feet
             int strongBits = grayDecoder(Bits.extractUInt(demelage, 3, 9), 9);
 
-            if(weakBits == 0 || weakBits == 5 || weakBits == 6) {
+            if (weakBits == 0 || weakBits == 5 || weakBits == 6) {
                 return null;
             } else if (weakBits == 7) {
                 weakBits = 5;

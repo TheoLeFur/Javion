@@ -10,19 +10,18 @@ public final class MessageParser {
      * @author Theo Le Fur
      * Parses a raw message into an Identification Message, Position Message or Velocity Message, according to
      * the type code it carries.
-
      */
     public static Message parse(RawMessage rawMessage) {
-        if (!Objects.isNull(AircraftIdentificationMessage.of(rawMessage)))
+        int typeCode = rawMessage.typeCode();
+        if (1 <= typeCode && typeCode <= 4) {
             return AircraftIdentificationMessage.of(rawMessage);
-        else {
-            if (!Objects.isNull(AirbornePositionMessage.of(rawMessage))){
-                return AirbornePositionMessage.of(rawMessage);
-            } else {
-                if (!Objects.isNull(AirborneVelocityMessage.of(rawMessage))){
-                    return AirborneVelocityMessage.of(rawMessage);
-                } else return null;
-            }
-        }
+        } else if ((9 <= typeCode && typeCode <= 18) || (20 <= typeCode && typeCode <= 22)) {
+            return AirbornePositionMessage.of(rawMessage);
+        } else if (typeCode == 19) {
+            return AirborneVelocityMessage.of(rawMessage);
+        } else return null;
     }
 }
+
+
+

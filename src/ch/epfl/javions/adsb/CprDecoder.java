@@ -14,6 +14,7 @@ public class CprDecoder {
      * @param x0         even longitude
      * @param y0         even latitude
      * @param x1         uneven longitude
+     *
      * @param y1         uneven latitude
      * @param mostRecent 0 if the most recent of position of the plane is even, 1 if it is uneven
      * @return corresponding latitude and longitude
@@ -45,7 +46,6 @@ public class CprDecoder {
         }
 
         double A = Math.acos(1 - (1 - Math.cos(2 * Math.PI * deltaPhi0)) / Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
-
         double B = Math.acos(1 - (1 - Math.cos(2 * Math.PI * deltaPhi0)) / Math.pow(Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
 
         int Zlambda0;
@@ -100,6 +100,7 @@ public class CprDecoder {
             }
         } else {
             if (!GeoPos.isValidLatitudeT32((int) Math.rint(Units.convert(lambda0, Units.Angle.TURN, Units.Angle.T32)))) {
+                System.out.println("hi");
                 return null;
             }
 

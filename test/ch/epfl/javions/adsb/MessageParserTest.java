@@ -20,11 +20,11 @@ class MessageParserTest {
         RawMessage test = new RawMessage(timestamps, byteString);
         AirbornePositionMessage apm = AirbornePositionMessage.of(test);
         AircraftIdentificationMessage aim = AircraftIdentificationMessage.of(test);
-      //  AirborneVelocityMessage avm = AirborneVelocityMessage.of(test);
+        AirborneVelocityMessage avm = AirborneVelocityMessage.of(test);
         Message test1 = MessageParser.parse(test);
         assertEquals(apm, test1);
         assertNotEquals(aim, test1);
-       // assertNotEquals(avm, test1);
+        assertNotEquals(avm, test1);
 
         String message2 = "8D4D2228234994B7284820323B81";
         ByteString byteString2 = ByteString.ofHexadecimalString(message2);
@@ -32,11 +32,11 @@ class MessageParserTest {
         RawMessage test2 = new RawMessage(timestamps2, byteString2);
         AircraftIdentificationMessage aim2 = AircraftIdentificationMessage.of(test2);
         AirbornePositionMessage apm2 = AirbornePositionMessage.of(test2);
-       // AirborneVelocityMessage avm2 = AirborneVelocityMessage.of(test2);
+        AirborneVelocityMessage avm2 = AirborneVelocityMessage.of(test2);
         Message test3 = MessageParser.parse(test2);
         assertEquals(aim2, test3);
         assertNotEquals(apm2, test3);
-       // assertNotEquals(avm2, test3);
+        assertNotEquals(avm2, test3);
 
         String message3 = "8D4D029F9914E09BB8240567C1D6";
         ByteString byteString3 = ByteString.ofHexadecimalString(message3);
@@ -44,9 +44,9 @@ class MessageParserTest {
         RawMessage test4 = new RawMessage(timestamps3, byteString3);
         AircraftIdentificationMessage aim3 = AircraftIdentificationMessage.of(test4);
         AirbornePositionMessage apm3 = AirbornePositionMessage.of(test4);
-        //AirborneVelocityMessage avm3 = AirborneVelocityMessage.of(test4);
+        AirborneVelocityMessage avm3 = AirborneVelocityMessage.of(test4);
         Message test5 = MessageParser.parse(test4);
-        //assertEquals(avm3, test5);
+        assertEquals(avm3, test5);
         assertNotEquals(apm3, test5);
         assertNotEquals(aim3, test5);
 
@@ -56,7 +56,7 @@ class MessageParserTest {
         RawMessage test6 = new RawMessage(timestamps4, byteString4);
         AircraftIdentificationMessage aim4 = AircraftIdentificationMessage.of(test6);
         AirbornePositionMessage apm4 = AirbornePositionMessage.of(test6);
-        //AirborneVelocityMessage avm4 = AirborneVelocityMessage.of(test6);
+        AirborneVelocityMessage avm4 = AirborneVelocityMessage.of(test6);
         Message test7 = MessageParser.parse(test6);
         assertNull(test7);
     }

@@ -1,18 +1,20 @@
 package ch.epfl.javions.adsb;
+
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Units;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
-    private AircraftStateSetter stateSetter;
-    private AirbornePositionMessage[] previousMessageMemory;
+    private final T stateSetter;
+    private final AirbornePositionMessage[] previousMessageMemory;
     private final double POSITION_THRESHOLD_NS = 10 * Math.pow(10, 9);
 
     /**
-     * @param stateSetter state Setter
+     * @param stateSetter state setter.
      * @author Theo Le Fur
      * Returns an AircraftStateAccumulator object. We will be storing the previous messages of different parity in\
      * an array of size 2. This will be convenient for updates.
@@ -29,13 +31,15 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * Access the state setter
      */
     public T stateSetter() {
-        return (T) this.stateSetter;
+        return  this.stateSetter;
     }
 
     /**
      * @param message message
      * @author Theo Le Fur
-     * Updates the message, according to its type
+     * Updates the state of the aircraft using the data passed into the message. Verifies of whoch of the three
+     * type, AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage the message is, and then updates
+     * the state with the data carried by the message.
      */
     public void update(Message message) {
 
@@ -50,10 +54,11 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
                 this.stateSetter.setAltitude(aim.altitude());
                 try {
                     AirbornePositionMessage prevMessage = this.oppParRecentMessage(aim);
-                    if(this.posMessageCondition(aim, prevMessage)){
-                        this.stateSetter.setPosition(this.getPosition(aim));
+                    if (this.posMessageCondition(aim, prevMessage)) {
+                        this.stateSetter.setPosition(this.getPosition(aim, prevMessage));
                     }
-                } catch (NullPointerException ignored){}
+                } catch (NullPointerException ignored) {
+                }
                 this.addToMemory(aim);
             }
             case AirborneVelocityMessage aim -> {
@@ -91,39 +96,51 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
 
     /**
-     * 0 pair, 1 impair
-     * @param message
-     * @return
+     * @param message     currently updated message
+     * @param prevMessage most recent message of opposite parity to the current message, stored in the memory buffer.
+     * @return an instance of GeoPos.
+     * @author Theo Le Fur
+     * Evaluates the position of the aircraft based on the most recent pair of messages of opposite parity. Passes data carried
+     * by the pair of messages to the static method CprDecoder.decodePosition.
      */
-    private GeoPos getPosition(AirbornePositionMessage message) {
-
-        int mostRecent = message.parity();
-        if (mostRecent == 1) {
-            AirbornePositionMessage previousMessage = previousMessageMemory[0];
-            return CprDecoder.decodePosition(previousMessage.x(), previousMessage.y(), message.x(),  message.y(), mostRecent);
+    private GeoPos getPosition(AirbornePositionMessage message, AirbornePositionMessage prevMessage) {
+        int messageParity = message.parity();
+        int prevMessageParity = prevMessage.parity();
+        if (messageParity == 1) {
+            GeoPos position = CprDecoder.decodePosition(prevMessage.x(), prevMessage.y(), message.x(), message.y(), messageParity);
+            return position;
         } else {
-            AirbornePositionMessage previousMessage = previousMessageMemory[1];
-            return CprDecoder.decodePosition(message.x(), message.y(), previousMessage.x(), previousMessage.y(), mostRecent);
+            GeoPos position = CprDecoder.decodePosition(message.x(), message.y(), prevMessage.x(), prevMessage.y(), messageParity);
+            return position;
         }
 
     }
 
-    private void addToMemory(AirbornePositionMessage message){
+    /**
+     * @param message message we want to save
+     * @author Theo Le Fur
+     * Adds a message to the memory buffer
+     */
+
+    private void addToMemory(AirbornePositionMessage message) {
         this.previousMessageMemory[message.parity()] = message;
     }
 
-    private AirbornePositionMessage oppParRecentMessage(AirbornePositionMessage currentMessage){
+    /**
+     * @param currentMessage Current message being updated
+     * @return The most recent message of opposite parity to the current message, stored in the memory buffer.
+     * @author Theo Le Fur
+     * Returns the most recent message of parity opposite to the parity of the current message. Useful for position calculations.
+     */
+
+    private AirbornePositionMessage oppParRecentMessage(AirbornePositionMessage currentMessage) {
         int oppPar = this.oppositeParity(currentMessage.parity());
         AirbornePositionMessage prevMessage = this.previousMessageMemory[oppPar];
-        if (Objects.isNull(prevMessage)){
+        if (Objects.isNull(prevMessage)) {
             throw new NullPointerException();
         }
         return prevMessage;
     }
-
-
-
-
 
 
 }

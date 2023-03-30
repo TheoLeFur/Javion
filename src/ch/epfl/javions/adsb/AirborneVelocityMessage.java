@@ -51,19 +51,14 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                 vx = vew - 1;
                 vy = vns - 1;
 
-                int sgnEW = 2 * dew - 1;
+                int sgnEW = 1 - 2 * dew;
                 int sgnNS = 1 - 2 * dns;
 
                 if (vns == 0 || vew == 0) {
                     return null;
                 } else {
-                    System.out.println(vx);
-                    double value = Math.atan2(sgnNS * vy, sgnEW * vx);
-                    if (sgnEW == 1) {
-                        trackOrHeading = Units.convertTo(value, Units.Angle.DEGREE);
-                    } else {
-                        trackOrHeading = Units.convertTo(2 * Math.PI - value, Units.Angle.DEGREE);
-                    }
+                    trackOrHeading = Math.atan2(sgnEW * vx, sgnNS * vy);
+                    if (trackOrHeading < 0) trackOrHeading = trackOrHeading + 2 * Math.PI;
                     if (subType == 1) {
                         velocity = Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT);
                     } else {
@@ -71,30 +66,28 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                     }
                     return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
                 }
-
-
             } else if (subType == 3 || subType == 4) {
 
                 int sh = Bits.extractUInt(information, 21, 1);
-
                 if (sh == 0) {
                     return null;
                 } else {
 
                     double cap = Bits.extractUInt(information, 11, 10);
-                    double capTours = cap / Math.pow(2, 10);
-
-                    trackOrHeading = Units.convert(capTours, Units.Angle.TURN, Units.Angle.DEGREE);
-
-                    int airVelocity = Bits.extractUInt(information, 0, 10);
-
-                    if (subType == 3) {
-                        velocity = Units.convertFrom(airVelocity, Units.Speed.KNOT);
+                    double capTours = cap / (1 << 10);
+                    trackOrHeading = Units.convert(capTours, Units.Angle.TURN, Units.Angle.RADIAN);
+                    int as = Bits.extractUInt(information, 0, 10);
+                    if (as == 0) {
+                        return null;
                     } else {
-                        velocity =  Units.convertFrom(airVelocity, 4 * Units.Speed.KNOT);
+                        double airVelocity = as - 1;
+                        if (subType == 3) {
+                            velocity = Units.convertFrom(airVelocity, Units.Speed.KNOT);
+                        } else {
+                            velocity = Units.convertFrom(airVelocity, 4 * Units.Speed.KNOT);
+                        }
+                        return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
                     }
-
-                    return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
                 }
 
 
