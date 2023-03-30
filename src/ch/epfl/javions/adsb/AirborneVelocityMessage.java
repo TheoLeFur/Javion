@@ -11,7 +11,6 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                                       double trackOrHeading) implements Message {
     public AirborneVelocityMessage {
         Objects.requireNonNull(icaoAddress);
-
         Preconditions.checkArgument(
                 timeStampNs >= 0 &&
                         speed >= 0 &&
