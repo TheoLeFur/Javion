@@ -96,7 +96,7 @@ public class PowerWindow {
 
     public void advanceBy(int offset) throws IOException {
         Preconditions.checkArgument(offset >= 0);
-        for (int i : IntStream.range(0, offset).toArray()){
+        for (int i = 0 ; i < offset ; i++){
             advance();
         }
     }

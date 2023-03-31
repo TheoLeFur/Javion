@@ -49,7 +49,6 @@ class AirborneVelocityMessageTest {
             assertEquals(230,i);
         }
     }
-
     @Test
     void SousType3Or4Works(){
         String message = "8DA05F219B06B6AF189400CBC33F";
@@ -70,27 +69,4 @@ class AirborneVelocityMessageTest {
         AirborneVelocityMessage avm = AirborneVelocityMessage.of(testMessage);
         System.out.println(avm);
     }
-
-    @Test
-    void testSubType12(){
-        var message1 = RawMessage.of(100, ByteString.ofHexadecimalString("8D485020994409940838175B284F").getBytes());
-        assert message1 != null;
-        System.out.println(AirborneVelocityMessage.of(message1));
-        var message2  = RawMessage.of(1000, ByteString.ofHexadecimalString("8D4B1A00EA0DC89E8F7C0857D5F5").getBytes());
-        assert message2 != null;
-        System.out.println(AirborneVelocityMessage.of(message2));
-    }
-
-    @Test
-    void testSubType34() {
-
-        var message1  = RawMessage.of(100, ByteString.ofHexadecimalString("8DA05F219B06B6AF189400CBC33F").t());
-        assert message1 != null;
-        System.out.println(AirborneVelocityMessage.of(message1));
-        var message2  = RawMessage.of(10000, ByteString.ofHexadecimalString("8D485020994409940838175B284F").getBytes());
-        assert message2 != null;
-        System.out.println(AirborneVelocityMessage.of(message2));
-    }
-
-
 }
