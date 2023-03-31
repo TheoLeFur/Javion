@@ -88,10 +88,9 @@ public final class AdsbDemodulator {
     }
 
     /**
+     * @return posterior sum of peeks
      * @author Theo Le Fur
      * Auxiliary function for determining sums of peaks
-     *
-     * @return posterior sum of peeks
      */
     private int PosteriorPSum() {
         return this.powerWindow.get(1) + this.powerWindow.get(11) + this.powerWindow.get(36) + this.powerWindow.get(46);
@@ -101,7 +100,6 @@ public final class AdsbDemodulator {
     /**
      * @return sum of peeks
      * @author Theo Le Fur
-     * <p>
      * Auxiliary function for determining sums of peaks
      */
     private int pSum() {
@@ -124,7 +122,7 @@ class PrintRawMessages {
         try (InputStream s = new FileInputStream(f)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
-            int i =0;
+            int i = 0;
             while ((m = d.nextMessage()) != null) {
                 System.out.println(m);
                 i++;

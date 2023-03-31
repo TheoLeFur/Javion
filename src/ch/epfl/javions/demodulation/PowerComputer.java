@@ -28,6 +28,7 @@ public final class PowerComputer {
 
     /**
      * Computes the powers of the decoded messages, stores them in the inputted batch.
+     *
      * @param batch batch where we store computed powers
      * @return number of powers thrown in batch
      * @throws IOException if Input/Output Exception occurs.
@@ -53,6 +54,6 @@ public final class PowerComputer {
             numberOfPowers++;
 
         }
-        return count/2;
+        return count / 2;
     }
 }
