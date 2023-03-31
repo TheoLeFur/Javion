@@ -58,7 +58,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                 if (subType == 1) {
                     velocity = Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT);
                 } else {
-                    velocity = Units.convertFrom(Math.hypot(vx, vy),  Units.Speed.KNOT);
+                    velocity = Units.convertFrom(Math.hypot(vx, vy),  4 * Units.Speed.KNOT);
                 }
                 return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
             }
