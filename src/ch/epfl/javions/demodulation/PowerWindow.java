@@ -28,6 +28,7 @@ public class PowerWindow {
 
     /**
      * Get size of window
+     *
      * @return size of window
      */
     public int size() {
@@ -36,6 +37,7 @@ public class PowerWindow {
 
     /**
      * Gives position of window.
+     *
      * @return position
      */
 
@@ -45,25 +47,27 @@ public class PowerWindow {
 
     /**
      * Indicates whether the window is full or not
+     *
      * @return true if the window is full, else false.
      */
 
-    public boolean isFull(){
-        return !(this.batchSize < staticConstant && windowSize + position%staticConstant > this.batchSize);
+    public boolean isFull() {
+        return !(this.batchSize < staticConstant && windowSize + position % staticConstant > this.batchSize);
     }
 
 
     /**
-     * Returns the element at index i in the window
      * @param i index
      * @return element at index i
+     * @author Theo Le Fur
+     * Returns the element at index i in the window
      */
 
     public int get(int i) {
         if (!((i >= 0) && (windowSize > i))) {
             throw new IndexOutOfBoundsException();
         }
-        if (i + position% staticConstant < staticConstant) {
+        if (i + position % staticConstant < staticConstant) {
             return tab1[i + position % staticConstant];
         } else {
             return tab2[(i - (staticConstant - position % staticConstant))];
@@ -71,32 +75,34 @@ public class PowerWindow {
     }
 
     /**
-     * Advances the window by one increment
      * @throws IOException if error occurs whenever we read the batch
+     * @author Theo Le Fur
+     * Advances the window by one increment
      */
     public void advance() throws IOException {
         position += 1;
         int[] tempTable;
-        if (position % staticConstant == 0){
+        if (position % staticConstant == 0) {
             tempTable = tab1.clone();
             tab1 = tab2.clone();
             tab2 = tempTable.clone();
         }
-        if ((position + windowSize - 1) % staticConstant == 0){
+        if ((position + windowSize - 1) % staticConstant == 0) {
             this.batchSize = calculator.readBatch(tab2);
         }
 
     }
 
     /**
-     * Advances the window by an offset
      * @param offset offset
      * @throws IOException if error occurs while calling readBatch()
+     * @author Theo Le Fur
+     * Advances the window by an offset
      */
 
     public void advanceBy(int offset) throws IOException {
         Preconditions.checkArgument(offset >= 0);
-        for (int i : IntStream.range(0, offset).toArray()){
+        for (int i = 0; i < offset; i++) {
             advance();
         }
     }

@@ -14,13 +14,12 @@ public class CprDecoder {
      * @param x0         even longitude
      * @param y0         even latitude
      * @param x1         uneven longitude
-     *
      * @param y1         uneven latitude
      * @param mostRecent 0 if the most recent of position of the plane is even, 1 if it is uneven
      * @return corresponding latitude and longitude
+     * @author Rudolf Yazbeck
      */
-    public static GeoPos decodePosition(double x0, double y0,
-                                        double x1, double y1, int mostRecent) {
+    public static GeoPos decodePosition(double x0, double y0, double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
         double lambda0;
         double lambda1;

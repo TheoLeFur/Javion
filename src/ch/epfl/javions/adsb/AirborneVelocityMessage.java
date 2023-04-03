@@ -21,8 +21,10 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
 
     /**
      * Creates an AirborneVelocityMessage out of a raw message.
+     *
      * @param rawMessage Raw Message.
      * @return instance of Velocity Message.
+     * @author Theo Le Fur
      */
     public static AirborneVelocityMessage of(RawMessage rawMessage) {
 
@@ -53,12 +55,12 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
                 vy = velocities[1];
                 trackOrHeading = Math.atan2(vx, vy);
                 if (trackOrHeading < 0) {
-                    trackOrHeading = trackOrHeading  + 2 * Math.PI;
+                    trackOrHeading = trackOrHeading + 2 * Math.PI;
                 }
                 if (subType == 1) {
                     velocity = Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT);
                 } else {
-                    velocity = Units.convertFrom(Math.hypot(vx, vy),  Units.Speed.KNOT);
+                    velocity = Units.convertFrom(Math.hypot(vx, vy), 4 * Units.Speed.KNOT);
                 }
                 return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
             }

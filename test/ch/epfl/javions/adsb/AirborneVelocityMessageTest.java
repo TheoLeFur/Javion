@@ -49,7 +49,6 @@ class AirborneVelocityMessageTest {
             assertEquals(230,i);
         }
     }
-
     @Test
     void SousType3Or4Works(){
         String message = "8DA05F219B06B6AF189400CBC33F";
@@ -70,5 +69,4 @@ class AirborneVelocityMessageTest {
         AirborneVelocityMessage avm = AirborneVelocityMessage.of(testMessage);
         System.out.println(avm);
     }
-
 }

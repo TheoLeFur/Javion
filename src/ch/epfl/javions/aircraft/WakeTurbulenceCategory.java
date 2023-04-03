@@ -7,9 +7,9 @@ public enum WakeTurbulenceCategory {
     UNKNOWN;
 
     /**
-     * @author Rudolf Yazbeck
      * @param s string
      * @return the wake turbulence category corresponding to the string given
+     * @author Rudolf Yazbeck
      */
     public static WakeTurbulenceCategory of(String s) {
         return switch (s) {

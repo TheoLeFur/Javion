@@ -30,6 +30,7 @@ public final class SamplesDecoder {
      * @param batch batch where values from stream are stored
      * @return Number of elements that have been transformed
      * @throws IOException
+     * @author Theo le Fur
      */
     public int readBatch(short[] batch) throws IOException {
         int N;

@@ -11,8 +11,9 @@ public final class AdsbDemodulator {
 
     InputStream samplesStream;
     PowerWindow powerWindow;
-    private final int MESSAGE_LENGTH = 112;
+    private static final int MESSAGE_LENGTH = 112;
     private final int WINDOW_SIZE = 1200;
+    private static byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
 
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
         this.samplesStream = samplesStream;
@@ -20,17 +21,17 @@ public final class AdsbDemodulator {
     }
 
     /**
-     * @author Theo Le Fur
      * @return new message
      * @throws IOException if input/output error is encountered
+     * @author Theo Le Fur
      * @author : Theo Le Fur
      * Returns the next message in the stream
      */
 
     public RawMessage nextMessage() throws IOException {
 
-        int pSum = this.pSum();
-        int vSum = this.vSum();
+        int pSum = 0;
+        int vSum = 0;
         int pSumPrevious = 0;
         int pSumPosterior = this.PosteriorPSum();
 
@@ -38,15 +39,14 @@ public final class AdsbDemodulator {
             pSum = pSumPosterior;
             vSum = this.vSum();
             pSumPosterior = this.PosteriorPSum();
-            if (pSumPrevious < pSum && pSumPosterior < pSum && pSum >= 2 * vSum ) {
-                byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
+            if (pSumPrevious < pSum && pSumPosterior < pSum && pSum >= 2 * vSum) {
                 for (int i = 0; i < demodulatedMessage.length; i++) {
                     demodulatedMessage[i] = this.bytes(8 * i);
                 }
                 long timeStampsNs = 100 * this.powerWindow.position();
-                RawMessage message = RawMessage.of(timeStampsNs, demodulatedMessage);
-                if (message != null) {
-                    if (message.downLinkFormat() == 17) {
+                if (RawMessage.size(demodulatedMessage[0]) == 14) {
+                    RawMessage message = RawMessage.of(timeStampsNs, demodulatedMessage);
+                    if (message != null) {
                         this.powerWindow.advanceBy(WINDOW_SIZE);
                         return message;
                     }
@@ -59,12 +59,11 @@ public final class AdsbDemodulator {
     }
 
 
-
     /**
-     * @author Theo Le Fur
-     * Builds bytes from a stream of bits
      * @param index index of element in the power window
      * @return byte
+     * @author Theo Le Fur
+     * Builds bytes from a stream of bits
      */
 
     private byte bytes(int index) {
@@ -76,11 +75,10 @@ public final class AdsbDemodulator {
     }
 
     /**
-
-     * @author Theo Le Fur
-     * Computes the bits according to the demodulation convention
      * @param index index of the signal in Power Window we are trying to demodulate
      * @return Demodulated bit signal
+     * @author Theo Le Fur
+     * Computes the bits according to the demodulation convention
      */
 
     private int b(int index) {
@@ -90,46 +88,31 @@ public final class AdsbDemodulator {
     }
 
     /**
-     * Auxiliary function for determining sums of peaks
      * @return posterior sum of peeks
+     * @author Theo Le Fur
+     * Auxiliary function for determining sums of peaks
      */
     private int PosteriorPSum() {
-        int[] indices = new int[]{0, 10, 35, 45};
-        int pSum = 0;
-        for (int i : indices) {
-            pSum += this.powerWindow.get(i + 1);
-        }
-        return pSum;
+        return this.powerWindow.get(1) + this.powerWindow.get(11) + this.powerWindow.get(36) + this.powerWindow.get(46);
     }
 
 
     /**
-     * @author Theo Le Fur
-
-     * Auxiliary function for determining sums of peaks
      * @return sum of peeks
+     * @author Theo Le Fur
+     * Auxiliary function for determining sums of peaks
      */
     private int pSum() {
-        int[] indices = new int[]{0, 10, 35, 45};
-        int pSum = 0;
-        for (int i : indices) {
-            pSum += this.powerWindow.get(i);
-        }
-        return pSum;
+        return this.powerWindow.get(0) + this.powerWindow.get(10) + this.powerWindow.get(35) + this.powerWindow.get(45);
     }
 
     /**
+     * @return sum of valleys signals
      * @author Theo Le Fur
      * Auxiliary function for determining sums of "valleys"
-     * @return sum of valleys signals
      */
     private int vSum() {
-        int[] indices = new int[]{5, 15, 20, 25, 30, 40};
-        int vSum = 0;
-        for (int i : indices) {
-            vSum += this.powerWindow.get(i);
-        }
-        return vSum;
+        return this.powerWindow.get(5) + this.powerWindow.get(15) + this.powerWindow.get(20) + this.powerWindow.get(25) + this.powerWindow.get(30) + this.powerWindow.get(40);
     }
 }
 
@@ -139,9 +122,12 @@ class PrintRawMessages {
         try (InputStream s = new FileInputStream(f)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
+            int i = 0;
             while ((m = d.nextMessage()) != null) {
                 System.out.println(m);
+                i++;
             }
+            System.out.println(i);
         }
     }
 }
