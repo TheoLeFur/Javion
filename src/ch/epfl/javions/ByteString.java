@@ -14,8 +14,10 @@ public final class ByteString {
 
     /**
      * Parses a string of hexadecimal numbers to a ByteString
+     *
      * @param hexString String to be parsed
      * @return Parsed ByteString
+     * @author Theo Le Fur
      */
     public static ByteString ofHexadecimalString(String hexString) {
         HexFormat hf = HexFormat.of().withUpperCase();
@@ -24,7 +26,9 @@ public final class ByteString {
 
     /**
      * Size of the String
+     *
      * @return SIze of the String
+     * @author Theo Le Fur
      */
 
     public int size() {
@@ -33,8 +37,10 @@ public final class ByteString {
 
     /**
      * Returns the byte at a specific index
+     *
      * @param index Index from which we want to take the byte
      * @return Byte at index
+     * @author Theo Le Fur
      */
     public int byteAt(int index) {
         if (index >= this.bytes.length) {
@@ -44,9 +50,11 @@ public final class ByteString {
 
     /**
      * Long in a certain range
+     *
      * @param fromIndex Starting index
-     * @param toIndex End index
+     * @param toIndex   End index
      * @return Long containing the bytes from fromIndex to toIndex.
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public long bytesInRange(int fromIndex, int toIndex) {
@@ -61,8 +69,6 @@ public final class ByteString {
             return value;
         }
     }
-
-
 
 
     @Override

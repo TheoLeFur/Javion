@@ -3,13 +3,13 @@ package ch.epfl.javions.aircraft;
 import java.util.Objects;
 
 /**
- *@author : Theo Le Fur
- * Record tracking data of the aircraft. Parameters' name state what is being tracked.
  * @param registration
  * @param typeDesignator
  * @param model
  * @param description
  * @param wakeTurbulenceCategory
+ * @author : Theo Le Fur SCIPER : 363294
+ * Record tracking data of the aircraft. Parameters' name state what is being tracked.
  */
 
 public record AircraftData(AircraftRegistration registration, AircraftTypeDesignator typeDesignator, String model,

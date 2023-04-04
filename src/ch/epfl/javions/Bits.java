@@ -12,7 +12,7 @@ public final class Bits {
      * @return an extracted vector from a 64 bit vector
      * @throws IllegalArgumentException  if the length of the bit to be extracted is >= 32
      * @throws IndexOutOfBoundsException if the interval described by the start and size is not entirely comprised between 0 included and 64 excluded
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public static int extractUInt(long value, int start, int size) {
@@ -29,7 +29,7 @@ public final class Bits {
     /**
      * @return true if and only if the indexed bit is a 1 going from right to left
      * @throws IndexOutOfBoundsException if the described interval is not between 0 included and 64 excluded
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public static boolean testBit(long value, int index) {
         if (index < 0 || index >= 64) throw new IndexOutOfBoundsException();

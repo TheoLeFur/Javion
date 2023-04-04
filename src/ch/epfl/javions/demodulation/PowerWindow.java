@@ -30,6 +30,7 @@ public class PowerWindow {
      * Get size of window
      *
      * @return size of window
+     * @author Theo Le Fur SCIPER : 363294
      */
     public int size() {
         return windowSize;
@@ -39,6 +40,7 @@ public class PowerWindow {
      * Gives position of window.
      *
      * @return position
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public long position() {
@@ -46,9 +48,10 @@ public class PowerWindow {
     }
 
     /**
-     * Indicates whether the window is full or not
+     * Indicates whether the power window is full or not
      *
      * @return true if the window is full, else false.
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public boolean isFull() {
@@ -59,7 +62,7 @@ public class PowerWindow {
     /**
      * @param i index
      * @return element at index i
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Returns the element at index i in the window
      */
 
@@ -76,7 +79,7 @@ public class PowerWindow {
 
     /**
      * @throws IOException if error occurs whenever we read the batch
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Advances the window by one increment
      */
     public void advance() throws IOException {
@@ -96,7 +99,7 @@ public class PowerWindow {
     /**
      * @param offset offset
      * @throws IOException if error occurs while calling readBatch()
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Advances the window by an offset
      */
 

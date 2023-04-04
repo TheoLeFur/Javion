@@ -32,7 +32,7 @@ public final class PowerComputer {
      * @param batch batch where we store computed powers
      * @return number of powers thrown in batch
      * @throws IOException if Input/Output Exception occurs.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public int readBatch(int[] batch) throws IOException {

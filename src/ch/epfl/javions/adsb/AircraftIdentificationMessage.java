@@ -6,27 +6,28 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.nio.charset.StandardCharsets;
 
-public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) implements Message{
+public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
+                                            CallSign callSign) implements Message {
 
     /**
-     * @author Rudolf Yazbeck
      * @param timeStampNs timestamp in nano seconds
      * @param icaoAddress of the aircraft
-     * @param category category of the aircraft which indicates its type
-     * @param callSign of the aircraft
+     * @param category    category of the aircraft which indicates its type
+     * @param callSign    of the aircraft
+     * @author Rudolf Yazbeck
      */
     public AircraftIdentificationMessage {
-        if(icaoAddress == null || callSign == null) {
+        if (icaoAddress == null || callSign == null) {
             throw new NullPointerException();
         }
         Preconditions.checkArgument(timeStampNs >= 0);
     }
 
     /**
-     * @author Rudolf Yazbeck
      * @param rawMessage raw message that has been intercepted from the aircraft
      * @return the identification message corresponding to the raw message that has been given, or null if one of the
      * callSign characters if invalid
+     * @author Rudolf Yazbeck
      */
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
@@ -35,7 +36,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         codeType = 14 - codeType;
         int category = 0b00000000;
         codeType <<= 4;
-        category = ((codeType&0b11110000) | CA);
+        category = ((codeType & 0b11110000) | CA);
 
         String[] letters = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I",
                 "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X",
@@ -44,13 +45,13 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         String callSignString = "";
         String stringToAdd;
         int callsignInt;
-        for(int i = 0; i < 8; i++) {
-            callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6*i, 6);
-            if(callsignInt >= 1 && callsignInt <= 26) {
+        for (int i = 0; i < 8; i++) {
+            callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
+            if (callsignInt >= 1 && callsignInt <= 26) {
                 stringToAdd = letters[callsignInt - 1];
             } else if (callsignInt >= 48 && callsignInt <= 57) {
                 stringToAdd = Integer.toString(callsignInt - 48);
-            } else if(callsignInt == 32) {
+            } else if (callsignInt == 32) {
                 stringToAdd = " ";
             } else {
                 return null;
@@ -59,14 +60,13 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             callSignString += stringToAdd;
         }
 
-        callSignString=callSignString.trim();
+        callSignString = callSignString.trim();
 
         CallSign callSign = new CallSign(callSignString);
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
     }
 
     /**
-     *
      * @return the time stamp in nano seconds
      */
     @Override
@@ -75,7 +75,6 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     }
 
     /**
-     *
      * @return the icao address of the aircraft
      */
     @Override

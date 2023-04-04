@@ -7,7 +7,8 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.Objects;
 
-public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x, double y) implements Message {
+public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
+                                      double y) implements Message {
 
     /**
      * @param timeStampNs time-stamp in nano seconds
@@ -83,7 +84,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
 
         altitude = Units.convert(altitude, Units.Length.FOOT, Units.Length.METER);
-        if(altitude < 0) {
+        if (altitude < 0) {
             return null;
         }
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), altitude,
