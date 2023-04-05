@@ -33,8 +33,7 @@ public final class Units {
     }
 
     public static class Time {
-        private Time() {
-        }
+        private Time() {}
 
         public static final double SECOND = 1;
         public static final double MINUTE = 60 * SECOND;

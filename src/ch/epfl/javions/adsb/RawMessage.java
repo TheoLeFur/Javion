@@ -7,11 +7,15 @@ import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 public record RawMessage(long timeStampNs, ByteString bytes) {
-    public static final int LENGTH = 14; //constant that represents the length in bytes of ADSB messages
+
+
+
+    //Length in bytes of ADSB messages
+    public static final int LENGTH = 14;
 
     /**
      * @author Rudolf Yazbeck (SCIPER: 360700)
-     * @param timeStampNs time stamp of the message in nano seconds
+     * @param timeStampNs time stamp of the message in nanoseconds
      * @param bytes 14 bytes that make up an ADS-B  message
      */
     public RawMessage {
@@ -20,7 +24,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
 
     /**
      * @author Rudolf Yazbeck (SCIPER: 360700)
-     * @param timeStampsNs time stamp of the message in nano seconds
+     * @param timeStampsNs time stamp of the message in nanoseconds
      * @param bytes 14 bytes that make up an ADS-B  message
      * @return the ADS-B message with the same time stamps and bytes as the input
      * if the bytes have a CRC24 of 0
@@ -42,9 +46,11 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return length of a message if it is of a known type, and 0 if that's not the case
      */
     public static int size(byte byte0) {
-        if(Bits.extractUInt(byte0, 3, 5) == (byte)17) { //extracting the DF part from byte0
+        if(Bits.extractUInt(byte0, 3, 5) == (byte)17) {
+            //extracting the DF part from byte0
             return LENGTH;
-        } else { //returning 0 if the message is not known
+        } else {
+            //returning 0 if the message is not known
             return 0;
         }
     }
@@ -74,7 +80,8 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     public IcaoAddress icaoAddress() {
         StringBuilder icaoStr = new StringBuilder(Long.toHexString(bytes.bytesInRange(1, 4)));
 
-        //when turning a long to a string the zeros at the beginning are not accounted for so they have to be added back manually
+        //when turning a long to a string the zeros at the beginning
+        // are not accounted for so they have to be added back manually
         while (icaoStr.length() < 6) {
             icaoStr.insert(0, "0");
         }

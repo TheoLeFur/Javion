@@ -8,7 +8,7 @@ public interface Message {
      * Extract the time stamp in nanoseconds from the message
      *
      * @return time stamp (in ns)
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public abstract long timeStampNs();
 
@@ -16,7 +16,7 @@ public interface Message {
      * Extract the address from a message
      *
      * @return instance of IcaoAddress
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public abstract IcaoAddress icaoAddress();
 }

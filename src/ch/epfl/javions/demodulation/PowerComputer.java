@@ -17,6 +17,13 @@ public final class PowerComputer {
     private SamplesDecoder decoder;
     private int batchSize;
 
+    /**
+     * Instantiates a Power Computer objet. Processes input stream batch-wise.Then computes the powers associated to the input signal
+     *
+     * @param stream    stream we will be processing batch by batch
+     * @param batchSize sie of batch
+     * @author Theo Le Fur
+     */
     public PowerComputer(InputStream stream, int batchSize) {
         Preconditions.checkArgument(batchSize % 8 == 0 || batchSize <= 0);
         this.batchSize = batchSize;
