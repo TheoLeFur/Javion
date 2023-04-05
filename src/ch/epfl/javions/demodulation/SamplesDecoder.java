@@ -15,6 +15,9 @@ public final class SamplesDecoder {
     private final int batchSize;
     private byte[] buffer;
 
+    //constant used for adjusting the values read from the batch
+    private final int THRESHOLD = 2048;
+
 
     public SamplesDecoder(InputStream stream, int batchSize) {
         Preconditions.checkArgument(batchSize > 0);
@@ -42,7 +45,6 @@ public final class SamplesDecoder {
             byte strongByte = this.buffer[bufferIndex];
             byte weakByte = this.buffer[bufferIndex + 1];
             short concat = (short) (strongByte << 8 | weakByte);
-            int THRESHOLD = 2048;
             batch[i] = (short) (Short.reverseBytes(concat) - THRESHOLD);
         }
 

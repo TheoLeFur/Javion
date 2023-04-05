@@ -17,7 +17,7 @@ public final class ByteString {
      *
      * @param hexString String to be parsed
      * @return Parsed ByteString
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public static ByteString ofHexadecimalString(String hexString) {
         HexFormat hf = HexFormat.of().withUpperCase();
@@ -25,10 +25,10 @@ public final class ByteString {
     }
 
     /**
-     * Size of the String
+     * Getter for a size of the Byte String
      *
-     * @return SIze of the String
-     * @author Theo Le Fur
+     * @return Size of the String
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public int size() {
@@ -36,11 +36,11 @@ public final class ByteString {
     }
 
     /**
-     * Returns the byte at a specific index
+     * Accesses the byte at a given index
      *
      * @param index Index from which we want to take the byte
      * @return Byte at index
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public int byteAt(int index) {
         if (index >= this.bytes.length) {
@@ -49,7 +49,7 @@ public final class ByteString {
     }
 
     /**
-     * Long in a certain range
+     * Extracts long value in a specified range
      *
      * @param fromIndex Starting index
      * @param toIndex   End index

@@ -107,11 +107,11 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
         int messageParity = message.parity();
         int prevMessageParity = prevMessage.parity();
         if (messageParity == 1) {
-            GeoPos position = CprDecoder.decodePosition(prevMessage.x(), prevMessage.y(), message.x(), message.y(), messageParity);
-            return position;
+            return CprDecoder.decodePosition(prevMessage.x(), prevMessage.y(), message.x(), message.y(), messageParity);
+
         } else {
-            GeoPos position = CprDecoder.decodePosition(message.x(), message.y(), prevMessage.x(), prevMessage.y(), messageParity);
-            return position;
+            return CprDecoder.decodePosition(message.x(), message.y(), prevMessage.x(), prevMessage.y(), messageParity);
+
         }
 
     }

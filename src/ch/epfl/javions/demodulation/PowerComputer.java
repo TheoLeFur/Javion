@@ -11,11 +11,11 @@ import java.util.stream.IntStream;
 
 public final class PowerComputer {
 
-    private short[] buffer;
+    private final short[] buffer;
 
-    private short[] powerMemory;
-    private SamplesDecoder decoder;
-    private int batchSize;
+    private final short[] powerMemory;
+    private final SamplesDecoder decoder;
+    private final int batchSize;
 
     /**
      * Instantiates a Power Computer objet. Processes input stream batch-wise.Then computes the powers associated to the input signal

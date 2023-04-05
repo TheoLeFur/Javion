@@ -48,38 +48,48 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
             int vew = Bits.extractUInt(information, 11, 10);
 
             if (vns == 0 || vew == 0) {
+                //components of the velocity are not carried by the message in that case
                 return null;
             } else {
                 double[] velocities = computeVelocityComponents(vns, vew, dns, dew);
                 vx = velocities[0];
                 vy = velocities[1];
                 trackOrHeading = Math.atan2(vx, vy);
+
                 if (trackOrHeading < 0) {
+                    // Translate the negative value modulo 2 * PI so that the angle is contained in the interval [0, 2*PI]
                     trackOrHeading = trackOrHeading + 2 * Math.PI;
                 }
                 if (subType == 1) {
+                    // velocity inferior to the speed of sound
                     velocity = Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT);
                 } else {
+                    // velocity exceeds sound barrier
                     velocity = Units.convertFrom(Math.hypot(vx, vy), 4 * Units.Speed.KNOT);
                 }
                 return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
             }
         } else if (subType == 3 || subType == 4) {
+
             int sh = Bits.extractUInt(information, 21, 1);
             if (sh == 0) {
                 return null;
             } else {
+
                 double cap = Bits.extractUInt(information, 11, 10);
                 double capTours = cap / (1 << 10);
                 trackOrHeading = Units.convert(capTours, Units.Angle.TURN, Units.Angle.RADIAN);
                 int as = Bits.extractUInt(information, 0, 10);
                 if (as == 0) {
+                    // the value of the velocity is not carried by the message in that case
                     return null;
                 } else {
                     double airVelocity = as - 1;
                     if (subType == 3) {
+                        // velocity inferior to the seed of sound
                         velocity = Units.convertFrom(airVelocity, Units.Speed.KNOT);
                     } else {
+                        // velocity exceeds the sound barrier
                         velocity = Units.convertFrom(airVelocity, Units.Speed.KNOT * 4);
                     }
                     return new AirborneVelocityMessage(timeStampNs, icaoAddress, velocity, trackOrHeading);
