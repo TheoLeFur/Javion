@@ -109,6 +109,7 @@ public class CprDecoder {
                 return (new GeoPos((int) Math.rint(Units.convert(lambda1, Units.Angle.TURN, Units.Angle.T32)), (int) Math.rint(Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32))));
             } catch (IllegalArgumentException i) {
                 return null;
+                //test
             }
         }
     }
