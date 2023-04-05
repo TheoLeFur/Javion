@@ -23,8 +23,7 @@ public final class AdsbDemodulator {
     /**
      * @return new message
      * @throws IOException if input/output error is encountered
-     * @author Theo Le Fur
-     * @author : Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Returns the next message in the stream
      */
 
@@ -62,7 +61,7 @@ public final class AdsbDemodulator {
     /**
      * @param index index of element in the power window
      * @return byte
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Builds bytes from a stream of bits
      */
 
@@ -77,7 +76,7 @@ public final class AdsbDemodulator {
     /**
      * @param index index of the signal in Power Window we are trying to demodulate
      * @return Demodulated bit signal
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Computes the bits according to the demodulation convention
      */
 
@@ -89,7 +88,7 @@ public final class AdsbDemodulator {
 
     /**
      * @return posterior sum of peeks
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of peaks
      */
     private int PosteriorPSum() {
@@ -99,7 +98,7 @@ public final class AdsbDemodulator {
 
     /**
      * @return sum of peeks
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of peaks
      */
     private int pSum() {
@@ -108,7 +107,7 @@ public final class AdsbDemodulator {
 
     /**
      * @return sum of valleys signals
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of "valleys"
      */
     private int vSum() {
@@ -116,18 +115,5 @@ public final class AdsbDemodulator {
     }
 }
 
-class PrintRawMessages {
-    public static void main(String[] args) throws IOException {
-        String f = "/Users/theolefur/Downloads/Javions/resources/samples_20230304_1442.bin";
-        try (InputStream s = new FileInputStream(f)) {
-            AdsbDemodulator d = new AdsbDemodulator(s);
-            RawMessage m;
-            int i = 0;
-            while ((m = d.nextMessage()) != null) {
-                System.out.println(m);
-                i++;
-            }
-            System.out.println(i);
-        }
-    }
-}
+
+

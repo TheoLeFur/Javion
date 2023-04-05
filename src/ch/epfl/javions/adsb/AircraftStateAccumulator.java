@@ -15,7 +15,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @param stateSetter state setter.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Returns an AircraftStateAccumulator object. We will be storing the previous messages of different parity in\
      * an array of size 2. This will be convenient for updates.
      */
@@ -27,16 +27,16 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @return state setter passed in the constructor.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Access the state setter
      */
     public T stateSetter() {
-        return  this.stateSetter;
+        return this.stateSetter;
     }
 
     /**
      * @param message message
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Updates the state of the aircraft using the data passed into the message. Verifies of whoch of the three
      * type, AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage the message is, and then updates
      * the state with the data carried by the message.
@@ -75,7 +75,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param message         message of whom we want to update the position
      * @param previousMessage previous position message of different parity
      * @return True if position can be updated
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Verifies if position can be updated, by looking at the previous message of different parity
      */
     private boolean posMessageCondition(AirbornePositionMessage message, AirbornePositionMessage previousMessage) {
@@ -85,7 +85,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     /**
      * @param x {0,1} variable, representing the parity of the message.
      * @return 0 if x is equal to 1, else returns 1.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Negator applied on {0,1} integer.
      */
     private int oppositeParity(int x) {
@@ -99,7 +99,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param message     currently updated message
      * @param prevMessage most recent message of opposite parity to the current message, stored in the memory buffer.
      * @return an instance of GeoPos.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Evaluates the position of the aircraft based on the most recent pair of messages of opposite parity. Passes data carried
      * by the pair of messages to the static method CprDecoder.decodePosition.
      */
@@ -118,7 +118,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @param message message we want to save
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Adds a message to the memory buffer
      */
 
@@ -129,7 +129,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     /**
      * @param currentMessage Current message being updated
      * @return The most recent message of opposite parity to the current message, stored in the memory buffer.
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      * Returns the most recent message of parity opposite to the parity of the current message. Useful for position calculations.
      */
 
