@@ -10,7 +10,7 @@ public record AircraftRegistration(String string) {
     /**
      * @param string aircraft registration
      * @throws IllegalArgumentException if the given code is either empty or not a number, letter, or .?/_+-
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public AircraftRegistration {
         if (!allowedStrings.matcher(string).matches()) {

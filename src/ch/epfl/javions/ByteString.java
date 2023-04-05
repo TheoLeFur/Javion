@@ -17,7 +17,7 @@ public final class ByteString {
      *
      * @param hexString String to be parsed
      * @return Parsed ByteString
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public static ByteString ofHexadecimalString(String hexString) {
         HexFormat hf = HexFormat.of().withUpperCase();
@@ -28,7 +28,7 @@ public final class ByteString {
      * Size of the String
      *
      * @return SIze of the String
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
 
     public int size() {

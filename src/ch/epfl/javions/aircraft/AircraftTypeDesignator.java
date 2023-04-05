@@ -10,7 +10,7 @@ public record AircraftTypeDesignator(String string) {
      * @param string aircraft's pattern
      * @throws IllegalArgumentException if the given pattern is not a number or a letter and of length 2 to 4 (the
      *                                  empty string is a valid designator)
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public AircraftTypeDesignator {
         if (!allowedStrings.matcher(string).matches() && !string.equals("")) {
