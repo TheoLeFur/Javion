@@ -17,7 +17,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param parity      of the message (0 or 1)
      * @param x           normalized local longitude
      * @param y           normalized local latitude
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
@@ -30,7 +30,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param grayCode int that has been encoded with Gray's algorithm
      * @param nbrBits  number of bits that the encoded message contains
      * @return decoded message
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     private static int grayDecoder(int grayCode, int nbrBits) {
         int decoded = grayCode;
@@ -44,7 +44,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param rawMessage of the aircraft
      * @return the airborne position message corresponding to the raw message given, or null if
      * the altitude is invalid
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
 
