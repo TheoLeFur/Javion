@@ -13,7 +13,7 @@ public final class AdsbDemodulator {
     PowerWindow powerWindow;
     private static final int MESSAGE_LENGTH = 112;
     private final int WINDOW_SIZE = 1200;
-    private static byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
+    private static final byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
 
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
         this.samplesStream = samplesStream;

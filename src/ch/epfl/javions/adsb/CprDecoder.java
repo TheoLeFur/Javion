@@ -5,7 +5,6 @@ import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 
 
-
 public class CprDecoder {
     final static int Zphi0 = 60;
     final static int Zphi1 = 59;
@@ -70,11 +69,10 @@ public class CprDecoder {
         double phi; //same thing
 
         if (Zlambda0 == 1) {
-            if(mostRecent == 1) {
+            if (mostRecent == 1) {
                 lambda = x1;
                 phi = phi1;
-            }
-            else {
+            } else {
                 phi = phi0;
                 lambda = x0;
             }
@@ -84,7 +82,7 @@ public class CprDecoder {
             double zLamdba1;
             int zlamdba = (int) Math.rint(x0 * Zlambda1 - x1 * Zlambda0);
 
-            if(mostRecent == 0) {
+            if (mostRecent == 0) {
                 if (zlamdba < 0) {
                     zLambda0 = zlamdba + Zlambda0;
                 } else {
@@ -94,8 +92,7 @@ public class CprDecoder {
 
                 lambda = deltaLambda0 * (zLambda0 + x0);
                 phi = phi0;
-            }
-            else {
+            } else {
                 if (zlamdba < 0) {
                     zLamdba1 = zlamdba + Zlambda1;
                 } else {
