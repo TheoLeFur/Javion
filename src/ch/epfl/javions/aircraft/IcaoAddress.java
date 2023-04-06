@@ -12,7 +12,7 @@ public record IcaoAddress(String string) {
     /**
      * @param string decimal representation of the ICAO of the plane
      * @throws IllegalArgumentException if the given ICAO is not in hexadecimal representation or of length 6
-     * @author Rudolf Yazbeck
+     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public IcaoAddress {
         if (!allowedStrings.matcher(string).matches()) {

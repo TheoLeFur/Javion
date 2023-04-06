@@ -115,9 +115,8 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
         } else {
             return CprDecoder.decodePosition(message.x(), message.y(), prevMessage.x(), prevMessage.y(), messageParity);
-
         }
-
+        return position;
     }
 
     /**
