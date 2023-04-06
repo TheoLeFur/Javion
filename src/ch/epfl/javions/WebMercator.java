@@ -1,11 +1,15 @@
 package ch.epfl.javions;
 
 public final class WebMercator {
+
+    /**
+     * Private constructor, class cannot be instantiated
+     * * @author Theo Le Fur SCIPER : 363294
+     */
     private WebMercator() {
     }
 
     /**
-     *
      * @param zoomLevel Integer representing the zoom level
      * @param longitude double representing the longitude
      * @return the x coordinate corresponding to the given longitude in radians and zoom level

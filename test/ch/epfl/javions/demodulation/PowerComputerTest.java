@@ -1,5 +1,6 @@
 package ch.epfl.javions.demodulation;
 
+import ch.epfl.javions.demodulation.PowerComputer;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
