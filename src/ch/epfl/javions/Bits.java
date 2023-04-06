@@ -2,6 +2,9 @@ package ch.epfl.javions;
 
 public final class Bits {
 
+    /**
+     * Private constructor, no instantiation possible
+     */
     private Bits() {
     }
 

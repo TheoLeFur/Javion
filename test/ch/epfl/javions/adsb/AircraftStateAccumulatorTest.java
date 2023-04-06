@@ -5,6 +5,7 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -179,6 +180,7 @@ class AircraftStateAccumulatorTest {
             if (Double.isNaN(expectedLatitudeDeg)) {
                 assertNull(stateSetter.position);
             } else {
+                System.out.println(i);
                 assertEquals(expectedLongitudeDeg, Math.toDegrees(stateSetter.position.longitude()), 1e-4);
                 assertEquals(expectedLatitudeDeg, Math.toDegrees(stateSetter.position.latitude()), 1e-4);
             }
@@ -212,6 +214,8 @@ class AircraftStateAccumulatorTest {
 
         @Override
         public void setPosition(GeoPos position) {
+            System.out.println("position is updated");
+            System.out.println(Objects.isNull(position));
             this.position = position;
         }
 

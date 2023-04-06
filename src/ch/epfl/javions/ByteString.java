@@ -8,6 +8,10 @@ public final class ByteString {
 
     private final byte[] bytes;
 
+    /**
+     * Initialises a ByteString object taking a array of bytes as an input
+     * @param bytes array of bytes
+     */
     public ByteString(byte[] bytes) {
         this.bytes = bytes.clone();
     }

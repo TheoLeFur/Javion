@@ -1,6 +1,10 @@
 package ch.epfl.javions;
 
 public final class Preconditions {
+
+    /**
+     * Private constructor, makes the class non instantiatable
+     */
     private Preconditions() {
     }
 

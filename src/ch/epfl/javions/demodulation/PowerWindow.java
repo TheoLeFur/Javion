@@ -11,7 +11,7 @@ public class PowerWindow {
     int windowSize;
     int position = 0;
 
-    //Maximal size of window
+    // Maximal size of window
     final static int staticConstant = 65536;
     int[] tab1 = new int[staticConstant];
     int[] tab2 = new int[staticConstant];
@@ -46,7 +46,7 @@ public class PowerWindow {
     }
 
     /**
-     * Gives position of window.
+     * Gives current position of window.
      *
      * @return position
      * @author Theo Le Fur SCIPER : 363294
@@ -87,7 +87,7 @@ public class PowerWindow {
     }
 
     /**
-     * @throws IOException if error occurs whenever we read the batch
+     * @throws IOException if error occurs while reading the batch
      * @author Theo Le Fur SCIPER : 363294
      * Advances the window by one increment
      */

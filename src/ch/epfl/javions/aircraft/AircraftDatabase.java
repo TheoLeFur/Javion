@@ -11,6 +11,12 @@ public final class AircraftDatabase {
 
     private final String fileName;
 
+    /**
+     * Creates a database from a file name
+     *
+     * @param fileName file name containing the data. If null, a NullPointerException is thrown
+     * @author Theo Le Fur SCIPER : 363294
+     */
     public AircraftDatabase(String fileName) {
         Objects.requireNonNull(fileName);
         this.fileName = fileName;

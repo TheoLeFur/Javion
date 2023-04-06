@@ -15,10 +15,15 @@ public final class SamplesDecoder {
     private final int batchSize;
     private byte[] buffer;
 
-    //constant used for adjusting the values read from the batch
+    // constant used for adjusting the values read from the batch
     private final int THRESHOLD = 2048;
 
-
+    /**
+     * Instantiates a samples decoder object. Builds the buffer where the bits of the signal will be stored.
+     *
+     * @param stream    stream containing signal to decode
+     * @param batchSize size of batch
+     */
     public SamplesDecoder(InputStream stream, int batchSize) {
         Preconditions.checkArgument(batchSize > 0);
         Objects.requireNonNull(stream);
@@ -32,7 +37,7 @@ public final class SamplesDecoder {
      *
      * @param batch batch where values from stream are stored
      * @return Number of elements that have been transformed
-     * @throws IOException
+     * @throws IOException whenever error is raised while reading the stream.
      * @author Theo le Fur SCIPER : 363294
      */
     public int readBatch(short[] batch) throws IOException {

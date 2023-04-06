@@ -49,7 +49,7 @@ public class CprDecoder {
         double B = Math.acos(1 - (1 - Math.cos(2 * Math.PI * deltaPhi0)) / Math.pow(Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
 
         int Zlambda0;
-        int ZlambdaTest; //variable to test wether A and B yield the same Zlambda0
+        int ZlambdaTest; //variable to test whether A and B yield the same Zlambda0
 
         //in case acos is given as argument a value that is not within [-1;1] then by definition Zlambda0 is equal to 1
         if (((Double) A).isNaN()) {

@@ -12,11 +12,13 @@ public final class AdsbDemodulator {
     InputStream samplesStream;
     PowerWindow powerWindow;
 
-    //Number of bits in message
+    // Number of bits in message
     private static final int MESSAGE_LENGTH = 112;
 
-    //Size of power window
+    // Size of power window
     private final int WINDOW_SIZE = 1200;
+
+    // Byte buffer where the demodulated message will be stored.
     private static final byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
 
     /**

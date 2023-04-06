@@ -2,6 +2,9 @@ package ch.epfl.javions;
 
 public class Math2 {
 
+    /**
+     * Private constructor, makes the class non instantiatable
+     */
     private Math2() {
     }
 
