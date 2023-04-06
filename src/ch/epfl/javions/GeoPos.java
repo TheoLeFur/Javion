@@ -4,8 +4,10 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
 
     /**
      * Instantiates a GeoPos object.
+     *
      * @param longitudeT32 longitude in T32
-     * @param latitudeT32 latitude in T32, throws Illegal Argument Exception if invalid
+     * @param latitudeT32  latitude in T32, throws Illegal Argument Exception if invalid
+     * @author Theo Le Fur SCIPER : 363294
      */
     public GeoPos {
         if (!isValidLatitudeT32(latitudeT32)) throw new IllegalArgumentException();

@@ -59,7 +59,9 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
                 try {
                     AirbornePositionMessage prevMessage = this.oppParRecentMessage(aim);
                     if (this.posMessageCondition(aim, prevMessage)) {
-                        this.stateSetter.setPosition(this.getPosition(aim, prevMessage));
+                        if (this.getPosition(aim, prevMessage) != null) {
+                            this.stateSetter.setPosition(this.getPosition(aim, prevMessage));
+                        }
                     }
                 } catch (NullPointerException ignored) {
                 }
@@ -69,7 +71,9 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
                 this.stateSetter.setVelocity(aim.speed());
                 this.stateSetter.setTrackOrHeading(aim.trackOrHeading());
             }
-            case default -> {
+
+            default -> {
+                // pass
             }
         }
     }
@@ -116,7 +120,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
         } else {
             return CprDecoder.decodePosition(message.x(), message.y(), prevMessage.x(), prevMessage.y(), messageParity);
         }
-        return position;
     }
 
     /**
