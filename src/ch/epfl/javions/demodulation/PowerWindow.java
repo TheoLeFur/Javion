@@ -10,13 +10,22 @@ public class PowerWindow {
     InputStream stream;
     int windowSize;
     int position = 0;
+
+    // Maximal size of window
     final static int staticConstant = 65536;
     int[] tab1 = new int[staticConstant];
     int[] tab2 = new int[staticConstant];
     int batchSize;
     PowerComputer calculator;
 
-
+    /**
+     * Instantiates a power window, allowing us to navigate through the outputs of the Power Computer. The window's
+     * maximal size is static constant.
+     *
+     * @param stream     stream containing signal data
+     * @param windowSize size of window we want to instantiate, has to be smaller than staticConstant.
+     * @throws IOException whenever exception thrown while reading the stream.
+     */
     public PowerWindow(InputStream stream, int windowSize) throws IOException {
         Preconditions.checkArgument((windowSize > 0) && (windowSize <= staticConstant));
         this.stream = stream;
@@ -37,7 +46,7 @@ public class PowerWindow {
     }
 
     /**
-     * Gives position of window.
+     * Gives current position of window.
      *
      * @return position
      * @author Theo Le Fur SCIPER : 363294
@@ -78,7 +87,7 @@ public class PowerWindow {
     }
 
     /**
-     * @throws IOException if error occurs whenever we read the batch
+     * @throws IOException if error occurs while reading the batch
      * @author Theo Le Fur SCIPER : 363294
      * Advances the window by one increment
      */

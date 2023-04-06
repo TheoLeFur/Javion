@@ -11,10 +11,22 @@ public final class AdsbDemodulator {
 
     InputStream samplesStream;
     PowerWindow powerWindow;
+
+    // Number of bits in message
     private static final int MESSAGE_LENGTH = 112;
+
+    // Size of power window
     private final int WINDOW_SIZE = 1200;
+
+    // Byte buffer where the demodulated message will be stored.
     private static final byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
 
+    /**
+     * Instantiates a demodulator object.
+     *
+     * @param samplesStream stream of samples passed into the power window, with window size precised by the constant WINDOW_SIZE
+     * @throws IOException when exception is thrown while reading the input stream.
+     */
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
         this.samplesStream = samplesStream;
         this.powerWindow = new PowerWindow(this.samplesStream, WINDOW_SIZE);
@@ -62,7 +74,7 @@ public final class AdsbDemodulator {
      * @param index index of element in the power window
      * @return byte
      * @author Theo Le Fur SCIPER : 363294
-     * Builds bytes from a stream of bits
+     * Builds bytes from a stream of bits.
      */
 
     private byte bytes(int index) {

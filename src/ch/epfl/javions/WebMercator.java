@@ -5,6 +5,7 @@ public final class WebMercator {
     }
 
     /**
+     *
      * @param zoomLevel Integer representing the zoom level
      * @param longitude double representing the longitude
      * @return the x coordinate corresponding to the given longitude in radians and zoom level

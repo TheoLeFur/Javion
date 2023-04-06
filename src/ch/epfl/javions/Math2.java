@@ -2,6 +2,9 @@ package ch.epfl.javions;
 
 public class Math2 {
 
+    /**
+     * Private constructor, makes the class non instantiatable
+     */
     private Math2() {
     }
 
@@ -23,7 +26,7 @@ public class Math2 {
     }
 
     /**
-     * inverse hyperbolic sin.
+     * Inverse hyperbolic sine function
      *
      * @param value argument
      * @return image of value under asinh function

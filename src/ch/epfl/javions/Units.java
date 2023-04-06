@@ -2,6 +2,11 @@ package ch.epfl.javions;
 
 public final class Units {
 
+
+    /**
+     * Private constructor, makes the class non instantiatable
+     * @author Theo Le Fur SCIPER : 363294
+     */
     private Units() {
     }
 
@@ -10,6 +15,11 @@ public final class Units {
 
 
     public static class Angle {
+
+        /**
+         * Private constructor, makes the class non instantiatable
+         * @author Theo Le Fur SCIPER : 363294
+         */
         private Angle() {
         }
 
@@ -20,6 +30,11 @@ public final class Units {
     }
 
     public static class Length {
+
+        /**
+         * Private constructor, makes the class non instantiatable
+         * @author Theo Le Fur SCIPER : 363294
+         */
         private Length() {
         }
 
@@ -33,8 +48,12 @@ public final class Units {
     }
 
     public static class Time {
-        private Time() {
-        }
+
+        /**
+         * Private constructor, makes the class non instantiatable
+         * @author Theo Le Fur SCIPER : 363294
+         */
+        private Time() {}
 
         public static final double SECOND = 1;
         public static final double MINUTE = 60 * SECOND;
@@ -43,6 +62,11 @@ public final class Units {
     }
 
     public static class Speed {
+
+        /**
+         * Private constructor, makes the class non instantiatable
+         * @author Theo Le Fur SCIPER : 363294
+         */
         private Speed() {
         }
 

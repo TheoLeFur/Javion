@@ -8,6 +8,10 @@ public final class ByteString {
 
     private final byte[] bytes;
 
+    /**
+     * Initialises a ByteString object taking a array of bytes as an input
+     * @param bytes array of bytes
+     */
     public ByteString(byte[] bytes) {
         this.bytes = bytes.clone();
     }
@@ -25,9 +29,9 @@ public final class ByteString {
     }
 
     /**
-     * Size of the String
+     * Getter for a size of the Byte String
      *
-     * @return SIze of the String
+     * @return Size of the String
      * @author Theo Le Fur SCIPER : 363294
      */
 
@@ -36,11 +40,11 @@ public final class ByteString {
     }
 
     /**
-     * Returns the byte at a specific index
+     * Accesses the byte at a given index
      *
      * @param index Index from which we want to take the byte
      * @return Byte at index
-     * @author Theo Le Fur
+     * @author Theo Le Fur SCIPER : 363294
      */
     public int byteAt(int index) {
         if (index >= this.bytes.length) {
@@ -49,7 +53,7 @@ public final class ByteString {
     }
 
     /**
-     * Long in a certain range
+     * Extracts long value in a specified range
      *
      * @param fromIndex Starting index
      * @param toIndex   End index

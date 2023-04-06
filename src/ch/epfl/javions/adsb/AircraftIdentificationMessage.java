@@ -70,18 +70,11 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         CallSign callSign = new CallSign(callSignString.toString());
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
     }
-
-    /**
-     * @return the time stamp in nano seconds
-     */
     @Override
     public long timeStampNs() {
         return timeStampNs;
     }
 
-    /**
-     * @return the icao address of the aircraft
-     */
     @Override
     public IcaoAddress icaoAddress() {
         return icaoAddress;
