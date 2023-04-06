@@ -85,10 +85,10 @@ public class CprDecoder {
         phi = mostRecent == 0 ? phi0 : phi1;
 
         if (lambda >= 0.5) {
-            lambda = lambda - 1;
+            lambda -= 1;
         }
         if (phi >= 0.5) {
-            phi = phi - 1;
+            phi -= 1;
         }
 
         try {
