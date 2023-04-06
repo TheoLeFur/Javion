@@ -6,7 +6,8 @@ import ch.epfl.javions.Units;
 
 
 /**
- * @author Rudolf Yazbeck (360700)
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
  */
 public class CprDecoder {
     final static int Zphi0 = 60;
@@ -23,7 +24,6 @@ public class CprDecoder {
      * @param y1         normalized uneven latitude (divided by 2^17) in turn
      * @param mostRecent 0 if the most recent of position of the plane is even, 1 if it is uneven
      * @return corresponding decoded latitude and longitude
-     * @author Rudolf Yazbeck (SCIPER: 360700)
      */
     public static GeoPos decodePosition(double x0, double y0, double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
@@ -100,9 +100,10 @@ public class CprDecoder {
 
     /**
      * method used to calculate the longitude whether it be even or uneven
-     * @param zLambda that is calcualted before
+     *
+     * @param zLambda  that is calcualted before
      * @param ZlambdaI can either be Zlambda0 or Zlambda1
-     * @param xI the normalized longitude, I represents wether it is even (0) or uneven (1)
+     * @param xI       the normalized longitude, I represents wether it is even (0) or uneven (1)
      * @return the final longitude
      */
     private static double longitudeLatitudeSetter(double zLambda, double ZlambdaI, double xI) {

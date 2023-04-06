@@ -9,6 +9,10 @@ import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class PowerComputer {
 
     private final short[] buffer;
@@ -22,7 +26,6 @@ public final class PowerComputer {
      *
      * @param stream    stream we will be processing batch by batch
      * @param batchSize sie of batch
-     * @author Theo Le Fur
      */
     public PowerComputer(InputStream stream, int batchSize) {
         Preconditions.checkArgument(batchSize % 8 == 0 || batchSize <= 0);
@@ -39,7 +42,6 @@ public final class PowerComputer {
      * @param batch batch where we store computed powers
      * @return number of powers thrown in batch
      * @throws IOException if Input/Output Exception occurs.
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public int readBatch(int[] batch) throws IOException {

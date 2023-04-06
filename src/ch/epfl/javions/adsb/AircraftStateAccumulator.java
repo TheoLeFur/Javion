@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * @param <T>
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     private final T stateSetter;
@@ -19,9 +24,8 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @param stateSetter state setter.
-     * @author Theo Le Fur SCIPER : 363294
-     * Returns an AircraftStateAccumulator object. We will be storing the previous messages of different parity in\
-     * an array of size 2. This will be convenient for updates.
+     *                    Returns an AircraftStateAccumulator object. We will be storing the previous messages of different parity in\
+     *                    an array of size 2. This will be convenient for updates.
      */
     public AircraftStateAccumulator(T stateSetter) {
         Objects.requireNonNull(stateSetter);
@@ -31,7 +35,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @return state setter passed in the constructor.
-     * @author Theo Le Fur SCIPER : 363294
      * Access the state setter
      */
     public T stateSetter() {
@@ -40,10 +43,9 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @param message message
-     * @author Theo Le Fur SCIPER : 363294
-     * Updates the state of the aircraft using the data passed into the message. Verifies of which of the three
-     * type, AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage the message is, and then updates
-     * the state with the data carried by the message.
+     *                Updates the state of the aircraft using the data passed into the message. Verifies of which of the three
+     *                type, AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage the message is, and then updates
+     *                the state with the data carried by the message.
      */
     public void update(Message message) {
 
@@ -83,7 +85,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param message         message of whom we want to update the position
      * @param previousMessage previous position message of different parity
      * @return True if position can be updated
-     * @author Theo Le Fur SCIPER : 363294
      * Verifies if position can be updated, by looking at the previous message of different parity
      * and checking whether it is sufficiently recent.
      */
@@ -108,7 +109,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param message     currently updated message
      * @param prevMessage most recent message of opposite parity to the current message, stored in the memory buffer.
      * @return an instance of GeoPos.
-     * @author Theo Le Fur SCIPER : 363294
      * Evaluates the position of the aircraft based on the most recent pair of messages of opposite parity. Passes data carried
      * by the pair of messages to the static method CprDecoder.decodePosition.
      */
@@ -124,9 +124,8 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     /**
      * @param message message we want to save
-     * @author Theo Le Fur SCIPER : 363294
-     * Adds a message to the memory buffer at the index of its parity : if the message is even, it is stored at index 0,
-     * else it is stored at index 1.
+     *                Adds a message to the memory buffer at the index of its parity : if the message is even, it is stored at index 0,
+     *                else it is stored at index 1.
      */
 
     private void addToMemory(AirbornePositionMessage message) {
@@ -137,8 +136,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param currentMessage Current message being updated
      * @return The most recent message of opposite parity to the current message, stored in the memory buffer.
      * @throws NullPointerException if there is no previous message of opposite parity (happens at the beginning of message stream).
-     * @author Theo Le Fur SCIPER : 363294
-     * Returns the most recent message of parity opposite to the parity of the current message. Useful for position calculations.
+     *                              Returns the most recent message of parity opposite to the parity of the current message. Useful for position calculations.
      */
 
     private AirbornePositionMessage oppParRecentMessage(AirbornePositionMessage currentMessage) throws NullPointerException {

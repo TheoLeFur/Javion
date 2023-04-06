@@ -27,6 +27,9 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     }
 
     /**
+     * takes in a raw message and if that message corresponds to an aircraft identification message it will return it in
+     * the corresponding type
+     *
      * @param rawMessage raw message that has been intercepted from the aircraft
      * @return the identification message corresponding to the raw message that has been given, or null if one of the
      * callSign characters if invalid
@@ -50,7 +53,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         for (int i = 0; i < 8; i++) {
             callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
             if (callsignInt >= 1 && callsignInt <= 26) {
-                stringToAdd = valueOf((char)(callsignInt + 64));
+                stringToAdd = valueOf((char) (callsignInt + 64));
             } else if (callsignInt >= 48 && callsignInt <= 57) {
                 stringToAdd = Integer.toString(callsignInt - MEAttributeSize);
             } else if (callsignInt == 32) {
@@ -67,6 +70,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         CallSign callSign = new CallSign(callSignString.toString());
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
     }
+
     @Override
     public long timeStampNs() {
         return timeStampNs;

@@ -2,6 +2,10 @@ package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.aircraft.IcaoAddress;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public interface Message {
 
     /**
