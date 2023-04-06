@@ -11,7 +11,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                                       double y) implements Message {
 
     /**
-     * @param timeStampNs time-stamp in nano seconds
+     * @param timeStampNs time-stamp in nanoseconds
      * @param icaoAddress ICAO address of the message's expediter
      * @param altitude    of the aircraft at the time the message was sent
      * @param parity      of the message (0 or 1)
