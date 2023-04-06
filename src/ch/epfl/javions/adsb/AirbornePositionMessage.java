@@ -7,18 +7,19 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.Objects;
 
+/**
+ * @param timeStampNs time-stamp in nanoseconds
+ * @param icaoAddress ICAO address of the message's expediter
+ * @param altitude    of the aircraft at the time the message was sent
+ * @param parity      of the message (0 or 1)
+ * @param x           normalized local longitude
+ * @param y           normalized local latitude
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
                                       double y) implements Message {
 
-    /**
-     * @param timeStampNs time-stamp in nano seconds
-     * @param icaoAddress ICAO address of the message's expediter
-     * @param altitude    of the aircraft at the time the message was sent
-     * @param parity      of the message (0 or 1)
-     * @param x           normalized local longitude
-     * @param y           normalized local latitude
-     * @author Rudolf Yazbeck (SCIPER 360700)
-     */
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0 &&
@@ -27,10 +28,11 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     }
 
     /**
+     * method that decodes a message that has been encoded with Gray's algorithm
+     *
      * @param grayCode int that has been encoded with Gray's algorithm
      * @param nbrBits  number of bits that the encoded message contains
      * @return decoded message
-     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     private static int grayDecoder(int grayCode, int nbrBits) {
         int decoded = grayCode;
@@ -44,7 +46,6 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param rawMessage of the aircraft
      * @return the airborne position message corresponding to the raw message given, or null if
      * the altitude is invalid
-     * @author Rudolf Yazbeck (SCIPER 360700)
      */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
 
@@ -58,13 +59,25 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
 
             altitude = -1000 + ((byte1 << 4) | byte2) * 25;
         } else {
-            int[] bits = new int[12];
-            for (int j = 0; j < bits.length; j++) {
-                bits[j] = Bits.extractUInt(bitAltitude, bits.length - j - 1, 1);
-            }
+            //number of bits that contain the encoded altitude
+            final int byteSize = 12;
 
-            int demelage = (bits[7] << 11 | bits[9] << 10 | bits[11] << 9 | bits[1] << 8 | bits[3] << 7 | bits[5] << 6 |
-                    bits[6] << 5 | bits[8] << 4 | bits[10] << 3 | bits[0] << 2 | bits[2] << 1 | bits[4]);
+            //extracting the bits individually instead of an array/for loop to save complexity cost
+            int bits0 = Bits.extractUInt(bitAltitude, byteSize - 1, 1);
+            int bits1 = Bits.extractUInt(bitAltitude, byteSize - 2, 1);
+            int bits2 = Bits.extractUInt(bitAltitude, byteSize - 3, 1);
+            int bits3 = Bits.extractUInt(bitAltitude, byteSize - 4, 1);
+            int bits4 = Bits.extractUInt(bitAltitude, byteSize - 5, 1);
+            int bits5 = Bits.extractUInt(bitAltitude, byteSize - 6, 1);
+            int bits6 = Bits.extractUInt(bitAltitude, byteSize - 7, 1);
+            int bits7 = Bits.extractUInt(bitAltitude, byteSize - 8, 1);
+            int bits8 = Bits.extractUInt(bitAltitude, byteSize - 9, 1);
+            int bits9 = Bits.extractUInt(bitAltitude, byteSize - 10, 1);
+            int bits10 = Bits.extractUInt(bitAltitude, byteSize - 11, 1);
+            int bits11 = Bits.extractUInt(bitAltitude, 0, 1);
+
+            int demelage = (bits7 << 11 | bits9 << 10 | bits11 << 9 | bits1 << 8 | bits3 << 7 | bits5 << 6 |
+                    bits6 << 5 | bits8 << 4 | bits10 << 3 | bits0 << 2 | bits2 << 1 | bits4);
 
             //100 feet
             int weakBits = grayDecoder(Bits.extractUInt(demelage, 0, 3), 3);

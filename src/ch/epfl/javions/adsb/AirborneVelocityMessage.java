@@ -24,7 +24,6 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      *
      * @param rawMessage Raw Message.
      * @return instance of Velocity Message.
-     * @author Theo Le Fur SCIPER : 363294
      */
     public static AirborneVelocityMessage of(RawMessage rawMessage) {
 
