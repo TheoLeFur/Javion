@@ -7,6 +7,15 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.Objects;
 
+/**
+ *
+ * @param timeStampNs
+ * @param icaoAddress
+ * @param speed
+ * @param trackOrHeading
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed,
                                       double trackOrHeading) implements Message {
     public AirborneVelocityMessage {
@@ -104,7 +113,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param dns 1 if the aircraft goes from North to South, 0 otherwise
      * @param dew 1 if the aircraft goes from East to West, 0 otherwise.
      * @return array containing the velocity components.
-     * @author Theo Le Fur SCIPER : 363294
+     *
      * Auxiliary method for computing the velocity components, according to the direction of the aircraft.
      */
 

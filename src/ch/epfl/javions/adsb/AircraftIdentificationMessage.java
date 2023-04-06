@@ -6,16 +6,19 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.String.valueOf;
+
+/**
+ * @param timeStampNs timestamp in nano seconds
+ * @param icaoAddress of the aircraft
+ * @param category    category of the aircraft which indicates its type
+ * @param callSign    of the aircraft
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
-    /**
-     * @param timeStampNs timestamp in nano seconds
-     * @param icaoAddress of the aircraft
-     * @param category    category of the aircraft which indicates its type
-     * @param callSign    of the aircraft
-     * @author Rudolf Yazbeck (SCIPER: 360700)
-     */
     public AircraftIdentificationMessage {
         if (icaoAddress == null || callSign == null) {
             throw new NullPointerException();
@@ -27,7 +30,6 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      * @param rawMessage raw message that has been intercepted from the aircraft
      * @return the identification message corresponding to the raw message that has been given, or null if one of the
      * callSign characters if invalid
-     * @author Rudolf Yazbeck (SCIPER: 360700)
      */
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
@@ -41,11 +43,6 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         codeType <<= 4;
         category = ((codeType & 0b11110000) | CA);
 
-        //array that has as its nth indexed element the (n+1)th letter of the alphabet used
-        String[] letters = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I",
-                "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X",
-                "Y", "Z"};
-
         StringBuilder callSignString = new StringBuilder();
         String stringToAdd;
         int callsignInt;
@@ -53,7 +50,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         for (int i = 0; i < 8; i++) {
             callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
             if (callsignInt >= 1 && callsignInt <= 26) {
-                stringToAdd = letters[callsignInt - 1];
+                stringToAdd = valueOf((char)(callsignInt + 64));
             } else if (callsignInt >= 48 && callsignInt <= 57) {
                 stringToAdd = Integer.toString(callsignInt - MEAttributeSize);
             } else if (callsignInt == 32) {
