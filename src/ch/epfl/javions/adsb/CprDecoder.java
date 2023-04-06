@@ -5,6 +5,9 @@ import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 
 
+/**
+ * @author Rudolf Yazbeck (360700)
+ */
 public class CprDecoder {
     final static int Zphi0 = 60;
     final static int Zphi1 = 59;
@@ -12,6 +15,8 @@ public class CprDecoder {
     final static double deltaPhi1 = 1 / (double) Zphi1;
 
     /**
+     * Takes in 2 pairs of longitude and latitude, decodes them, and returns a GeoPos with the decoded positions
+     *
      * @param x0         normalized even longitude (divided by 2^17) in turn
      * @param y0         normalized even latitude (divided by 2^17) in turn
      * @param x1         normalized uneven longitude (divided by 2^17) in turn
@@ -37,10 +42,10 @@ public class CprDecoder {
         double phi0 = deltaPhi0 * (zphi0 + y0);
         double phi1 = deltaPhi1 * (zphi1 + y1);
         if (phi0 >= 0.5) {
-            phi0 = phi0 - 1;
+            phi0 -= 1;
         }
         if (phi1 >= 0.5) {
-            phi1 = phi1 - 1;
+            phi1 -= 1;
         }
 
         //two different constants are calculated here to calculate ZlambdaTest, the usage of which is explained below
@@ -69,42 +74,15 @@ public class CprDecoder {
         double phi; //same thing
 
         if (Zlambda0 == 1) {
-            if (mostRecent == 1) {
-                lambda = x1;
-                phi = phi1;
-            } else {
-                phi = phi0;
-                lambda = x0;
-            }
+            lambda = mostRecent == 1 ? x1 : x0;
 
         } else {
-            double zLambda0;
-            double zLamdba1;
             int zlamdba = (int) Math.rint(x0 * Zlambda1 - x1 * Zlambda0);
 
-            if (mostRecent == 0) {
-                if (zlamdba < 0) {
-                    zLambda0 = zlamdba + Zlambda0;
-                } else {
-                    zLambda0 = zlamdba;
-                }
-                double deltaLambda0 = 1 / (double) Zlambda0;
-
-                lambda = deltaLambda0 * (zLambda0 + x0);
-                phi = phi0;
-            } else {
-                if (zlamdba < 0) {
-                    zLamdba1 = zlamdba + Zlambda1;
-                } else {
-                    zLamdba1 = zlamdba;
-                }
-                double deltaLambda1 = 1 / (double) Zlambda1;
-
-                lambda = deltaLambda1 * (zLamdba1 + x1);
-                phi = phi1;
-            }
+            lambda = mostRecent == 0 ? longitudeLatitudeSetter(zlamdba, Zlambda0, x0) : longitudeLatitudeSetter(zlamdba, Zlambda1, x1);
         }
 
+        phi = mostRecent == 0 ? phi0 : phi1;
 
         if (lambda >= 0.5) {
             lambda = lambda - 1;
@@ -113,14 +91,25 @@ public class CprDecoder {
             phi = phi - 1;
         }
 
-        if (!GeoPos.isValidLatitudeT32((int) Math.rint(Units.convert(lambda, Units.Angle.TURN, Units.Angle.T32)))) {
-            return null;
-        }
-
         try {
             return (new GeoPos((int) Math.rint(Units.convert(lambda, Units.Angle.TURN, Units.Angle.T32)), (int) Math.rint(Units.convert(phi, Units.Angle.TURN, Units.Angle.T32))));
         } catch (IllegalArgumentException i) {
             return null;
         }
+    }
+
+    /**
+     * method used to calculate the longitude whether it be even or uneven
+     * @param zLambda that is calcualted before
+     * @param ZlambdaI can either be Zlambda0 or Zlambda1
+     * @param xI the normalized longitude, I represents wether it is even (0) or uneven (1)
+     * @return the final longitude
+     */
+    private static double longitudeLatitudeSetter(double zLambda, double ZlambdaI, double xI) {
+        double zLamdbaI = zLambda < 0 ? zLambda : zLambda + ZlambdaI;
+
+        double deltaLambdaI = 1 / ZlambdaI;
+
+        return deltaLambdaI * (zLamdbaI + xI);
     }
 }
