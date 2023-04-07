@@ -24,4 +24,24 @@ class IcaoAddressTest {
         //checking wether the empty string works or not
         assertThrows(IllegalArgumentException.class, () -> new IcaoAddress(""));
     }
+    @Test
+    void icaoAddressConstructorThrowsWithInvalidAddress() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new IcaoAddress("00000a");
+        });
+    }
+
+    @Test
+    void icaoAddressConstructorThrowsWithEmptyAddress() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new IcaoAddress("");
+        });
+    }
+
+    @Test
+    void icaoAddressConstructorAcceptsValidAddress() {
+        assertDoesNotThrow(() -> {
+            new IcaoAddress("ABCDEF");
+        });
+    }
 }

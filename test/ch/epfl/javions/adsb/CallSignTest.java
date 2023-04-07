@@ -22,4 +22,24 @@ class CallSignTest {
         //checking if a string with the wrong elements returns an error
         assertThrows(IllegalArgumentException.class, () -> new CallSign("AAAAAAA-"));
     }
+    @Test
+    void callSignConstructorThrowsWithInvalidCallSign() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new CallSign("callsign");
+        });
+    }
+
+    @Test
+    void callSignConstructorAcceptsEmptyCallSign() {
+        assertDoesNotThrow(() -> {
+            new CallSign("");
+        });
+    }
+
+    @Test
+    void callSignConstructorAcceptsValidCallSign() {
+        assertDoesNotThrow(() -> {
+            new CallSign("AFR39BR");
+        });
+    }
 }
