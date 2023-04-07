@@ -60,20 +60,20 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
             altitude = -1000 + ((byte1 << 4) | byte2) * 25;
         } else {
             //number of bits that contain the encoded altitude
-            final int byteSize = 12;
+            final int BYTE_SIZE = 12;
 
             //extracting the bits individually instead of an array/for loop to save complexity cost
-            int bits0 = Bits.extractUInt(bitAltitude, byteSize - 1, 1);
-            int bits1 = Bits.extractUInt(bitAltitude, byteSize - 2, 1);
-            int bits2 = Bits.extractUInt(bitAltitude, byteSize - 3, 1);
-            int bits3 = Bits.extractUInt(bitAltitude, byteSize - 4, 1);
-            int bits4 = Bits.extractUInt(bitAltitude, byteSize - 5, 1);
-            int bits5 = Bits.extractUInt(bitAltitude, byteSize - 6, 1);
-            int bits6 = Bits.extractUInt(bitAltitude, byteSize - 7, 1);
-            int bits7 = Bits.extractUInt(bitAltitude, byteSize - 8, 1);
-            int bits8 = Bits.extractUInt(bitAltitude, byteSize - 9, 1);
-            int bits9 = Bits.extractUInt(bitAltitude, byteSize - 10, 1);
-            int bits10 = Bits.extractUInt(bitAltitude, byteSize - 11, 1);
+            int bits0 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 1, 1);
+            int bits1 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 2, 1);
+            int bits2 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 3, 1);
+            int bits3 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 4, 1);
+            int bits4 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 5, 1);
+            int bits5 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 6, 1);
+            int bits6 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 7, 1);
+            int bits7 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 8, 1);
+            int bits8 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 9, 1);
+            int bits9 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 10, 1);
+            int bits10 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 11, 1);
             int bits11 = Bits.extractUInt(bitAltitude, 0, 1);
 
             int demelage = (bits7 << 11 | bits9 << 10 | bits11 << 9 | bits1 << 8 | bits3 << 7 | bits5 << 6 |
