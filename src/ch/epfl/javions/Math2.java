@@ -20,7 +20,7 @@ public class Math2 {
      * @param maxValue Upper bound
      * @return Clipped Value
      */
-    public static int clamp(int value, int minValue, int maxValue) {
+    public static int clamp(int minValue, int value, int maxValue) {
         if (minValue > maxValue) {
             throw new IllegalArgumentException();
         } else if (value < minValue) {
