@@ -36,9 +36,9 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      */
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
-        final int MEAttributeSize = 48; //constant that is the number of bits that represent the callSign characters and aircraft category
+        final int ME_ATTRIBUTE_SIZE = 48; //constant that is the number of bits that represent the callSign characters and aircraft category
         int codeType = rawMessage.typeCode();
-        int CA = Bits.extractUInt(rawMessage.payload(), MEAttributeSize, 3);
+        int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, 3);
 
         //calculating the category of the aircraft
         codeType = 14 - codeType;
@@ -54,8 +54,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
             if (callsignInt >= 1 && callsignInt <= 26) {
                 stringToAdd = valueOf((char) (callsignInt + 64));
-            } else if (callsignInt >= 48 && callsignInt <= 57) {
-                stringToAdd = Integer.toString(callsignInt - MEAttributeSize);
+            } else if (callsignInt >= ME_ATTRIBUTE_SIZE && callsignInt <= 57) {
+                stringToAdd = Integer.toString(callsignInt - ME_ATTRIBUTE_SIZE);
             } else if (callsignInt == 32) {
                 stringToAdd = " ";
             } else {

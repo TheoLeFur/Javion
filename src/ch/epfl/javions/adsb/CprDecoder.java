@@ -10,10 +10,10 @@ import ch.epfl.javions.Units;
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public class CprDecoder {
-    final static int Zphi0 = 60;
-    final static int Zphi1 = 59;
-    final static double deltaPhi0 = 1 / (double) Zphi0;
-    final static double deltaPhi1 = 1 / (double) Zphi1;
+    final static int Z_PHI_0 = 60;
+    final static int Z_PHI_1 = 59;
+    final static double DELTA_PHI_0 = 1 / (double) Z_PHI_0;
+    final static double DELTA_PHI_1 = 1 / (double) Z_PHI_1;
 
     /**
      * Takes in 2 pairs of longitude and latitude, decodes them, and returns a GeoPos with the decoded positions
@@ -28,19 +28,19 @@ public class CprDecoder {
     public static GeoPos decodePosition(double x0, double y0, double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
 
-        int zphi = (int) Math.rint(y0 * Zphi1 - y1 * Zphi0);
+        int zphi = (int) Math.rint(y0 * Z_PHI_1 - y1 * Z_PHI_0);
         int zphi0, zphi1;
 
         if (zphi < 0) {
-            zphi0 = zphi + Zphi0;
-            zphi1 = zphi + Zphi1;
+            zphi0 = zphi + Z_PHI_0;
+            zphi1 = zphi + Z_PHI_1;
         } else {
             zphi0 = zphi;
             zphi1 = zphi;
         }
         //phi0 -> even latitude, phi1 -> uneven latitude
-        double phi0 = deltaPhi0 * (zphi0 + y0);
-        double phi1 = deltaPhi1 * (zphi1 + y1);
+        double phi0 = DELTA_PHI_0 * (zphi0 + y0);
+        double phi1 = DELTA_PHI_1 * (zphi1 + y1);
         if (phi0 >= 0.5) {
             phi0 -= 1;
         }
@@ -49,8 +49,8 @@ public class CprDecoder {
         }
 
         //two different constants are calculated here to calculate ZlambdaTest, the usage of which is explained below
-        double A = Math.acos(1 - (1 - Math.cos(2 * Math.PI * deltaPhi0)) / Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
-        double B = Math.acos(1 - (1 - Math.cos(2 * Math.PI * deltaPhi0)) / Math.pow(Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        double A = Math.acos(1 - (1 - Math.cos(2 * Math.PI * DELTA_PHI_0)) / Math.pow(Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
+        double B = Math.acos(1 - (1 - Math.cos(2 * Math.PI * DELTA_PHI_0)) / Math.pow(Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN)), 2));
 
         int Zlambda0;
         int ZlambdaTest; //variable to test whether A and B yield the same Zlambda0
