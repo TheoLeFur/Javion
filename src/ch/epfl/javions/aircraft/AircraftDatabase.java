@@ -7,6 +7,10 @@ import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class AircraftDatabase {
 
     private final String fileName;
@@ -15,7 +19,6 @@ public final class AircraftDatabase {
      * Creates a database from a file name
      *
      * @param fileName file name containing the data. If null, a NullPointerException is thrown
-     * @author Theo Le Fur SCIPER : 363294
      */
     public AircraftDatabase(String fileName) {
         Objects.requireNonNull(fileName);
@@ -25,7 +28,6 @@ public final class AircraftDatabase {
     /**
      * @param address Address of the aircraft
      * @return AircraftData object storing the specifications of the Aircraft.
-     * @author Theo Le Fur SCIPER : 363294
      * Searches specification of the aircraft using its id address.
      */
 
@@ -50,7 +52,6 @@ public final class AircraftDatabase {
     /**
      * @param address Address identification of the aircraft
      * @return .csv path according to the last two characters of the address string.
-     * @author Theo Le Fur SCIPER : 363294
      * Gives the .csv path from the IcaoAddress.
      */
     private String getCsvFile(IcaoAddress address) {

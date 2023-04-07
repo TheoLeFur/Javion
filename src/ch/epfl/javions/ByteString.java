@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Objects;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class ByteString {
 
     private final byte[] bytes;
@@ -12,7 +16,6 @@ public final class ByteString {
      * Initialises a ByteString object taking a array of bytes as an input
      *
      * @param bytes array of bytes
-     * @author Theo Le Fur SCIPER : 363294
      */
     public ByteString(byte[] bytes) {
         this.bytes = bytes.clone();
@@ -23,7 +26,6 @@ public final class ByteString {
      *
      * @param hexString String to be parsed
      * @return Parsed ByteString
-     * @author Theo Le Fur SCIPER : 363294
      */
     public static ByteString ofHexadecimalString(String hexString) {
         HexFormat hf = HexFormat.of().withUpperCase();
@@ -34,7 +36,6 @@ public final class ByteString {
      * Getter for a size of the Byte String
      *
      * @return Size of the String
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public int size() {
@@ -46,7 +47,6 @@ public final class ByteString {
      *
      * @param index Index from which we want to take the byte
      * @return Byte at index
-     * @author Theo Le Fur SCIPER : 363294
      */
     public int byteAt(int index) {
         if (index >= this.bytes.length) {
@@ -60,7 +60,6 @@ public final class ByteString {
      * @param fromIndex Starting index
      * @param toIndex   End index
      * @return Long containing the bytes from fromIndex to toIndex.
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public long bytesInRange(int fromIndex, int toIndex) {
@@ -75,7 +74,6 @@ public final class ByteString {
             return value;
         }
     }
-
 
     @Override
     public boolean equals(Object obj) {

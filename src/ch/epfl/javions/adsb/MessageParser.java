@@ -2,12 +2,15 @@ package ch.epfl.javions.adsb;
 
 import java.util.Objects;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class MessageParser {
     /**
      * @param rawMessage Message we are parsing
      * @return an instance of AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage, or null,
      * in the case where the type code is different, or when the static method of returns null itself.
-     * @author Theo Le Fur SCIPER : 363294
      * Parses a raw message into an Identification Message, Position Message or Velocity Message, according to
      * the type code it carries.
      */

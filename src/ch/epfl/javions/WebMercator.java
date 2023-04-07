@@ -1,10 +1,13 @@
 package ch.epfl.javions;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class WebMercator {
 
     /**
      * Private constructor, class cannot be instantiated
-     * * @author Theo Le Fur SCIPER : 363294
      */
     private WebMercator() {
     }
@@ -13,7 +16,6 @@ public final class WebMercator {
      * @param zoomLevel Integer representing the zoom level
      * @param longitude double representing the longitude
      * @return the x coordinate corresponding to the given longitude in radians and zoom level
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public static double x(int zoomLevel, double longitude) {
@@ -25,7 +27,6 @@ public final class WebMercator {
      * @param zoomLevel integer representing the zoom level
      * @param latitude  double representing the latitude
      * @return the y coordinate corresponding to the given latitude in radians and zoom level
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public static double y(int zoomLevel, double latitude) {

@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.IntStream;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public class PowerWindow {
+    // Maximal size of window
+    final static int staticConstant = 65536;
     InputStream stream;
     int windowSize;
     int position = 0;
-
-    // Maximal size of window
-    final static int staticConstant = 65536;
     int[] tab1 = new int[staticConstant];
     int[] tab2 = new int[staticConstant];
     int batchSize;
@@ -39,7 +42,6 @@ public class PowerWindow {
      * Get size of window
      *
      * @return size of window
-     * @author Theo Le Fur SCIPER : 363294
      */
     public int size() {
         return windowSize;
@@ -49,7 +51,6 @@ public class PowerWindow {
      * Gives current position of window.
      *
      * @return position
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public long position() {
@@ -60,7 +61,6 @@ public class PowerWindow {
      * Indicates whether the power window is full or not
      *
      * @return true if the window is full, else false.
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public boolean isFull() {
@@ -71,7 +71,6 @@ public class PowerWindow {
     /**
      * @param i index
      * @return element at index i
-     * @author Theo Le Fur SCIPER : 363294
      * Returns the element at index i in the window
      */
 
@@ -88,8 +87,7 @@ public class PowerWindow {
 
     /**
      * @throws IOException if error occurs while reading the batch
-     * @author Theo Le Fur SCIPER : 363294
-     * Advances the window by one increment
+     *                     Advances the window by one increment
      */
     public void advance() throws IOException {
         position += 1;
@@ -108,8 +106,7 @@ public class PowerWindow {
     /**
      * @param offset offset
      * @throws IOException if error occurs while calling readBatch()
-     * @author Theo Le Fur SCIPER : 363294
-     * Advances the window by an offset
+     *                     Advances the window by an offset
      */
 
     public void advanceBy(int offset) throws IOException {

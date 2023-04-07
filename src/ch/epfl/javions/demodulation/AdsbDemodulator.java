@@ -7,19 +7,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.IntStream;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class AdsbDemodulator {
-
-    InputStream samplesStream;
-    PowerWindow powerWindow;
 
     // Number of bits in message
     private static final int MESSAGE_LENGTH = 112;
-
-    // Size of power window
-    private final int WINDOW_SIZE = 1200;
-
     // Byte buffer where the demodulated message will be stored.
     private static final byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
+    // Size of power window
+    private final int WINDOW_SIZE = 1200;
+    InputStream samplesStream;
+    PowerWindow powerWindow;
 
     /**
      * Instantiates a demodulator object.
@@ -35,8 +36,7 @@ public final class AdsbDemodulator {
     /**
      * @return new message
      * @throws IOException if input/output error is encountered
-     * @author Theo Le Fur SCIPER : 363294
-     * Returns the next message in the stream
+     *                     Returns the next message in the stream
      */
 
     public RawMessage nextMessage() throws IOException {
@@ -73,7 +73,6 @@ public final class AdsbDemodulator {
     /**
      * @param index index of element in the power window
      * @return byte
-     * @author Theo Le Fur SCIPER : 363294
      * Builds bytes from a stream of bits.
      */
 
@@ -88,7 +87,6 @@ public final class AdsbDemodulator {
     /**
      * @param index index of the signal in Power Window we are trying to demodulate
      * @return Demodulated bit signal
-     * @author Theo Le Fur SCIPER : 363294
      * Computes the bits according to the demodulation convention
      */
 
@@ -100,7 +98,6 @@ public final class AdsbDemodulator {
 
     /**
      * @return posterior sum of peeks
-     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of peaks
      */
     private int PosteriorPSum() {
@@ -110,7 +107,6 @@ public final class AdsbDemodulator {
 
     /**
      * @return sum of peeks
-     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of peaks
      */
     private int pSum() {
@@ -119,7 +115,6 @@ public final class AdsbDemodulator {
 
     /**
      * @return sum of valleys signals
-     * @author Theo Le Fur SCIPER : 363294
      * Auxiliary function for determining sums of "valleys"
      */
     private int vSum() {

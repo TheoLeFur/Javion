@@ -8,15 +8,17 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+/**
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public final class SamplesDecoder {
-
 
     private final InputStream stream;
     private final int batchSize;
-    private byte[] buffer;
-
     // constant used for adjusting the values read from the batch
     private final int THRESHOLD = 2048;
+    private byte[] buffer;
 
     /**
      * Instantiates a samples decoder object. Builds the buffer where the bits of the signal will be stored.
@@ -38,7 +40,6 @@ public final class SamplesDecoder {
      * @param batch batch where values from stream are stored
      * @return Number of elements that have been transformed
      * @throws IOException whenever error is raised while reading the stream.
-     * @author Theo le Fur SCIPER : 363294
      */
     public int readBatch(short[] batch) throws IOException {
         int N;

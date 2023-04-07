@@ -1,27 +1,25 @@
 package ch.epfl.javions;
 
+/**
+ * @param longitudeT32 longitude in T32
+ * @param latitudeT32  latitude in T32, throws Illegal Argument Exception if invalid
+ * @author Rudolf Yazbeck (SCIPER: 360700)
+ * @author Theo Le Fur (SCIPER: 363294)
+ */
 public record GeoPos(int longitudeT32, int latitudeT32) {
 
     /**
      * Instantiates a GeoPos object.
-     *
-     * @param longitudeT32 longitude in T32
-     * @param latitudeT32  latitude in T32, throws Illegal Argument Exception if invalid
-     * @author Theo Le Fur SCIPER : 363294
      */
     public GeoPos {
         if (!isValidLatitudeT32(latitudeT32)) throw new IllegalArgumentException();
     }
-    /**
-     * checks whether the latitude is in the correct T32 interval
-     * @param latitudeT32 latitude that will be checked for validity
-     * @author Theo Le Fur SCIPER : 363294
-     * */
 
     /**
+     * checks whether the latitude is in the correct T32 interval
+     *
      * @param latitudeT32 Latitude in unit T32
      * @return True if latituudeT32 is within the bounds
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public static boolean isValidLatitudeT32(int latitudeT32) {
@@ -33,7 +31,6 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * Convert longitude to radians
      *
      * @return longitude converted in radians
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public double longitude() {
@@ -44,7 +41,6 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * Converts latitude to radians
      *
      * @return latitude converted in radians
-     * @author Theo Le Fur SCIPER : 363294
      */
 
     public double latitude() {
