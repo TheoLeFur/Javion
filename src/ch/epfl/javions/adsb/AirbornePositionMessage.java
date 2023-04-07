@@ -20,6 +20,17 @@ import java.util.Objects;
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
                                       double y) implements Message {
 
+
+    /**
+     * @param timeStampNs time-stamp in nanoseconds
+     * @param icaoAddress ICAO address of the message's expediter
+     * @param altitude    of the aircraft at the time the message was sent
+     * @param parity      of the message (0 or 1)
+     * @param x           normalized local longitude
+     * @param y           normalized local latitude
+     * @author Rudolf Yazbeck (SCIPER 360700)
+     */
+
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0 &&

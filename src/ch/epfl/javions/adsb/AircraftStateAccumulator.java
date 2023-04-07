@@ -1,14 +1,10 @@
 package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.Units;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * @param <T>
+ * @param <T> Generic parameter, inherits from AircraftStateSetter.
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
@@ -16,7 +12,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     private final T stateSetter;
 
-    // array of size to which will memorize the two most recent messages of opposite parity at each update
+    // array of size 2 which will memorize the two most recent messages of opposite parity at each update
     private final AirbornePositionMessage[] previousMessageMemory;
 
     // POSITION_THRESHOLD_NS = 10 seconds
@@ -95,8 +91,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     /**
      * @param x {0,1} variable, representing the parity of the message.
      * @return 0 if x is equal to 1, else returns 1.
-     * @author Theo Le Fur SCIPER : 363294
-     * Negator applied on {0,1} integer.
+g     * Negator applied on {0,1} integer.
      */
     private int oppositeParity(int x) {
         if (x == 1) {
