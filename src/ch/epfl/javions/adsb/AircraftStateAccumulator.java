@@ -91,8 +91,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     /**
      * @param x {0,1} variable, representing the parity of the message.
      * @return 0 if x is equal to 1, else returns 1.
-     * @author Theo Le Fur SCIPER : 363294
-     * Negator applied on {0,1} integer.
+g     * Negator applied on {0,1} integer.
      */
     private int oppositeParity(int x) {
         if (x == 1) {
