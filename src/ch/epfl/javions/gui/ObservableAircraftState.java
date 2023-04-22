@@ -1,22 +1,24 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.adsb.AirbornePositionMessage;
-import ch.epfl.javions.adsb.AirborneVelocityMessage;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.AircraftData;
 import ch.epfl.javions.aircraft.IcaoAddress;
-import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
-
-import java.util.List;
 
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
-//obersvable au sens de observer
+
+/**
+ * Represents the state of an aircraft, this state is characterised by the fact
+ * it's observable in the sence of the Observer design pattern
+ *
+ * @author Rudolf Yazbeck (SCIPER : 360700)
+ * @author Theo Le Fur (SCIPER : 363294)
+ */
 public final class ObservableAircraftState implements AircraftStateSetter {
     private LongProperty lastMessageTimeStampNs;
     private IntegerProperty category; //readOnlyIntegerProperty
@@ -30,6 +32,13 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final AircraftData aircraftData;
     private ObservableList<AirbornePos> unmodifiableTrajectory; //observable and non modifiable used for getters
 
+    /**
+     * Creates an instance of the state of the aircraft with states that can only be modified through setters (except the
+     * trajectory that is calculated automatically)
+     *
+     * @param icaoAddress of the aircraft
+     * @param aircraftData of the aircraft
+     */
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
         this.icaoAddress = icaoAddress;
         this.aircraftData = aircraftData;
@@ -143,6 +152,12 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.callSign.set(callSign);
     }
 
+    /**
+     * Changes the current position (latitude and longitude) that is registered in the state to the one given as a
+     * parameter, if said position differs from the last element of trajectory (or if trajectory is null), a new element
+     * is added to that list containing this position and the current altitude.
+     * @param position new position
+     */
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
