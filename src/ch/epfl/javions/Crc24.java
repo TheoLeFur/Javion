@@ -8,7 +8,6 @@ import java.math.BigInteger;
  */
 public final class Crc24 {
 
-
     //constant that represents the 24 weak bits of the generator used to calculate the crc24 of the ADSB messages
     public final static int GENERATOR = 0xFFF409;
     static int[] builtTable;
