@@ -3,8 +3,7 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.CallSign;
-import ch.epfl.javions.aircraft.AircraftData;
-import ch.epfl.javions.aircraft.IcaoAddress;
+import ch.epfl.javions.aircraft.*;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
@@ -62,6 +61,21 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     public AircraftData getAircraftData() {
         return aircraftData;
     }
+    public AircraftRegistration getRegistration() {
+        return aircraftData.registration();
+    }
+    public AircraftTypeDesignator getTypeDesignator() {
+        return aircraftData.typeDesignator();
+    }
+    public String getModel() {
+        return aircraftData.model();
+    }
+    public AircraftDescription getDescription(){
+        return aircraftData.description();
+    }
+    public WakeTurbulenceCategory getWakeTurbulenceCategory() {
+        return aircraftData.wakeTurbulenceCategory();
+    }
 
     public ReadOnlyIntegerProperty categoryProperty() {
         return category;
@@ -71,7 +85,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return category.get();
     }
 
-    public CallSign getCallsign() {
+    public CallSign getCallSign() {
         return callSign.get();
     }
 

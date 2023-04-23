@@ -34,6 +34,7 @@ public final class AircraftDatabase {
     public AircraftData get(IcaoAddress address) throws IOException {
 
         String l;
+        //String d = Objects.requireNonNull(getClass().getResource(this.fileName)).getFile();
         String d = Objects.requireNonNull(getClass().getResource(this.fileName)).getFile();
         d = URLDecoder.decode(d, UTF_8);
         try (ZipFile z = new ZipFile(d); InputStream s = z.getInputStream(z.getEntry(getCsvFile(address))); Reader r = new InputStreamReader(s, UTF_8); BufferedReader b = new BufferedReader(r)) {

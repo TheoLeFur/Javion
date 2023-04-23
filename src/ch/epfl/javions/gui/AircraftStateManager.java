@@ -1,12 +1,15 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Units;
+import ch.epfl.javions.adsb.AirbornePositionMessage;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.aircraft.AircraftData;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,21 +24,21 @@ import java.util.*;
 public final class AircraftStateManager {
     private Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
     //Observable set of aircraft states whose position is known
-    private Set<ObservableAircraftState> aircraftSet;
+    private ObservableSet<AircraftStateAccumulator<ObservableAircraftState>> aircraftSet;
     private final AircraftDatabase aircraftDatabase;
     private Message lastMessage;
 
     public AircraftStateManager(AircraftDatabase aircraftDataBase) {
         this.aircraftDatabase = aircraftDataBase;
         this.accumulatorIcaoAddressMap = new HashMap<>();
-        this.aircraftSet = new HashSet<>();
+        this.aircraftSet = FXCollections.observableSet();
     }
 
     /**
      * @return the observable but non modifiable set of observable aircraft states whose position is known
      */
-    public Set<ObservableAircraftState> states() {
-        return Collections.unmodifiableSet(aircraftSet);
+    public ObservableSet<AircraftStateAccumulator<ObservableAircraftState>> states() {
+        return FXCollections.unmodifiableObservableSet(aircraftSet);
     }
 
     /**
@@ -51,9 +54,9 @@ public final class AircraftStateManager {
             accumulatorIcaoAddressMap.put(aircraftIcao,
                     new AircraftStateAccumulator<>(unregisteredState));
 
-            //if the position isn't null, then we can put the observable state in the set aforementioned
-            if(unregisteredState.getPosition() != null) {
-                aircraftSet.add(unregisteredState);
+            //if the position isn't null, then we can put the observable state in the aforementioned set
+            if(unregisteredState.getPosition() != null && message instanceof AirbornePositionMessage) {
+                aircraftSet.add(new AircraftStateAccumulator<>(unregisteredState));
             }
         } else {
             accumulatorIcaoAddressMap.get(aircraftIcao).update(message);
@@ -71,7 +74,7 @@ public final class AircraftStateManager {
         long lastUpdateTime = lastMessage.timeStampNs();
         for(AircraftStateAccumulator<ObservableAircraftState> accumulator : accumulatorIcaoAddressMap.values()) {
             if(accumulator.stateSetter().getLastMessageTimeStampNs() <= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO)) {
-                aircraftSet.remove(accumulator.stateSetter());
+                aircraftSet.remove(accumulator);
             }
         }
     }
