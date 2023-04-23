@@ -35,7 +35,7 @@ public final class AircraftStateManager {
     }
 
     /**
-     * @return the observable but non modifiable set of observable aircraft states whose position is known
+     * @return the observable but unmodifiable set of observable aircraft states whose position is known
      */
     public ObservableSet<AircraftStateAccumulator<ObservableAircraftState>> states() {
         return FXCollections.unmodifiableObservableSet(aircraftSet);
@@ -49,17 +49,17 @@ public final class AircraftStateManager {
     public void updateWithMessage(Message message) throws IOException {
         IcaoAddress aircraftIcao = message.icaoAddress();
 
+        ObservableAircraftState unregisteredState = new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao));
         if(!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
-            ObservableAircraftState unregisteredState = new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao));
             accumulatorIcaoAddressMap.put(aircraftIcao,
                     new AircraftStateAccumulator<>(unregisteredState));
+        }
 
-            //if the position isn't null, then we can put the observable state in the aforementioned set
-            if(unregisteredState.getPosition() != null && message instanceof AirbornePositionMessage) {
-                aircraftSet.add(new AircraftStateAccumulator<>(unregisteredState));
-            }
-        } else {
-            accumulatorIcaoAddressMap.get(aircraftIcao).update(message);
+        accumulatorIcaoAddressMap.get(aircraftIcao).update(message);
+
+        //if the position isn't null, then we can put the observable state in the aforementioned set
+        if(accumulatorIcaoAddressMap.get(aircraftIcao).stateSetter().getPosition() != null && message instanceof AirbornePositionMessage) {
+            aircraftSet.add(new AircraftStateAccumulator<>(accumulatorIcaoAddressMap.get(aircraftIcao).stateSetter()));
         }
 
         lastMessage =  message;
