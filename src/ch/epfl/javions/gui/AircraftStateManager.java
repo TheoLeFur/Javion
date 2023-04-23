@@ -9,9 +9,7 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Keeps the states of a set of aircrafts up to date by using
@@ -29,6 +27,8 @@ public final class AircraftStateManager {
 
     public AircraftStateManager(AircraftDatabase aircraftDataBase) {
         this.aircraftDatabase = aircraftDataBase;
+        this.accumulatorIcaoAddressMap = new HashMap<>();
+        this.aircraftSet = new HashSet<>();
     }
 
     /**
@@ -47,7 +47,14 @@ public final class AircraftStateManager {
         IcaoAddress aircraftIcao = message.icaoAddress();
 
         if(!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
-            accumulatorIcaoAddressMap.put(aircraftIcao, new AircraftStateAccumulator<>(new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
+            ObservableAircraftState unregisteredState = new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao));
+            accumulatorIcaoAddressMap.put(aircraftIcao,
+                    new AircraftStateAccumulator<>(unregisteredState));
+
+            //if the position isn't null, then we can put the observable state in the set aforementioned
+            if(unregisteredState.getPosition() != null) {
+                aircraftSet.add(unregisteredState);
+            }
         } else {
             accumulatorIcaoAddressMap.get(aircraftIcao).update(message);
         }
@@ -63,7 +70,7 @@ public final class AircraftStateManager {
     public void purge(){
         long lastUpdateTime = lastMessage.timeStampNs();
         for(AircraftStateAccumulator<ObservableAircraftState> accumulator : accumulatorIcaoAddressMap.values()) {
-            if(accumulator.stateSetter().getLastMessageTimeStampNs() <= lastUpdateTime * Units.convert(1, Units.Time.NANO, Units.Time.MINUTE)) {
+            if(accumulator.stateSetter().getLastMessageTimeStampNs() <= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO)) {
                 aircraftSet.remove(accumulator.stateSetter());
             }
         }
