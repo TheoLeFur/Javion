@@ -49,17 +49,20 @@ public final class AircraftStateManager {
     public void updateWithMessage(Message message) throws IOException {
         IcaoAddress aircraftIcao = message.icaoAddress();
 
-        ObservableAircraftState unregisteredState = new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao));
         if(!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
             accumulatorIcaoAddressMap.put(aircraftIcao,
-                    new AircraftStateAccumulator<>(unregisteredState));
+                    new AircraftStateAccumulator<>(
+                            new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
         }
+        AircraftStateAccumulator<ObservableAircraftState> messageSenderState = accumulatorIcaoAddressMap.get(aircraftIcao);
 
-        accumulatorIcaoAddressMap.get(aircraftIcao).update(message);
+        messageSenderState.update(message);
 
         //if the position isn't null, then we can put the observable state in the aforementioned set
-        if(accumulatorIcaoAddressMap.get(aircraftIcao).stateSetter().getPosition() != null && message instanceof AirbornePositionMessage) {
-            aircraftSet.add(new AircraftStateAccumulator<>(accumulatorIcaoAddressMap.get(aircraftIcao).stateSetter()));
+        if(messageSenderState
+                .stateSetter()
+                .getPosition() != null) { // I'm not sure if the following is necessary: && message instanceof AirbornePositionMessage
+            aircraftSet.add(new AircraftStateAccumulator<>(messageSenderState.stateSetter()));
         }
 
         lastMessage =  message;
@@ -73,7 +76,9 @@ public final class AircraftStateManager {
     public void purge(){
         long lastUpdateTime = lastMessage.timeStampNs();
         for(AircraftStateAccumulator<ObservableAircraftState> accumulator : accumulatorIcaoAddressMap.values()) {
-            if(accumulator.stateSetter().getLastMessageTimeStampNs() <= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO)) {
+            if(accumulator
+                    .stateSetter()
+                    .getLastMessageTimeStampNs() <= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO)) {
                 aircraftSet.remove(accumulator);
             }
         }
