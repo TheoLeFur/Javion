@@ -80,7 +80,9 @@ public final class Units {
         public static final double SECOND = 1;
         public static final double MINUTE = 60 * SECOND;
         public static final double HOUR = 3600 * SECOND;
-        public static final double NANO = 1e-9 * SECOND;
+
+        //added nanosecond unit of time measurement for AircraftStateManager
+        public static final double NANO_SECOND = 1e-9 * SECOND;
 
         /**
          * Private constructor, makes the class non instantiatable

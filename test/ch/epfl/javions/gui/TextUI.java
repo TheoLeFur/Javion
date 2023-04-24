@@ -25,7 +25,7 @@ public class TextUI {
             AircraftStateManager asm = new AircraftStateManager(test);
             long time = 0;
             int i = 0;
-            while (true) {
+            for(int j = 0; j < 1000; ++j){
                 long timeStampNs = s.readLong();
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
@@ -67,6 +67,7 @@ public class TextUI {
                         order.addAll(asm.states());
                         AddressComparator comp = new AddressComparator();
                         order.sort(comp);
+                        System.out.println(order.size());
                         for(ObservableAircraftState o : order){
                             String icao = o.getIcaoAddress().string();
                             String callSign = (o.getCallSign() != null) ? o.getCallSign().string() : "";

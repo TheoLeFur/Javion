@@ -19,6 +19,8 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
  * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class ObservableAircraftState implements AircraftStateSetter {
+    private final IcaoAddress icaoAddress;
+    private final AircraftData aircraftData;
     private LongProperty lastMessageTimeStampNs;
     private IntegerProperty category; //readOnlyIntegerProperty
     private ObjectProperty<CallSign> callSign;
@@ -27,8 +29,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private DoubleProperty altitude;       //in meters
     private DoubleProperty velocity;       //in m/s
     private DoubleProperty trackOrHeading; //cap of the aircraft in radians
-    private final IcaoAddress icaoAddress;
-    private final AircraftData aircraftData;
     private ObservableList<AirbornePos> unmodifiableTrajectory; //observable and non modifiable used for getters
     private long lastTimeStampAddedToTrajectory;
 
@@ -36,7 +36,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
      * Creates an instance of the state of the aircraft with states that can only be modified through setters (except the
      * trajectory that is calculated automatically)
      *
-     * @param icaoAddress of the aircraft
+     * @param icaoAddress  of the aircraft
      * @param aircraftData of the aircraft
      */
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
@@ -53,8 +53,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         trackOrHeading = new SimpleDoubleProperty();
     }
 
-    public record AirbornePos(GeoPos position, double altitude) {}
-
     public IcaoAddress getIcaoAddress() {
         return icaoAddress;
     }
@@ -62,18 +60,23 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     public AircraftData getAircraftData() {
         return aircraftData;
     }
+
     public AircraftRegistration getRegistration() {
         return aircraftData.registration();
     }
+
     public AircraftTypeDesignator getTypeDesignator() {
         return aircraftData.typeDesignator();
     }
+
     public String getModel() {
         return aircraftData.model();
     }
-    public AircraftDescription getDescription(){
+
+    public AircraftDescription getDescription() {
         return aircraftData.description();
     }
+
     public WakeTurbulenceCategory getWakeTurbulenceCategory() {
         return aircraftData.wakeTurbulenceCategory();
     }
@@ -86,12 +89,27 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return category.get();
     }
 
+    @Override
+    public void setCategory(int category) {
+        this.category.set(category);
+    }
+
     public CallSign getCallSign() {
         return callSign.get();
     }
 
+    @Override
+    public void setCallSign(CallSign callSign) {
+        this.callSign.set(callSign);
+    }
+
     public long getLastMessageTimeStampNs() {
         return lastMessageTimeStampNs.get();
+    }
+
+    @Override
+    public void setLastMessageTimeStampNs(long timeStampNs) {
+        this.lastMessageTimeStampNs.set(timeStampNs);
     }
 
     public ReadOnlyLongProperty lastMessageTimeStampNsProperty() {
@@ -104,6 +122,19 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     public GeoPos getPosition() {
         return position.get();
+    }
+
+    /**
+     * Changes the current position (latitude and longitude) that is registered in the state to the one given as a
+     * parameter, if said position differs from the last element of trajectory (or if trajectory is null), a new element
+     * is added to that list containing this position and the current altitude.
+     *
+     * @param position new position
+     */
+    @Override
+    public void setPosition(GeoPos position) {
+        this.position.set(position);
+        updateTrajectory();
     }
 
     public ReadOnlyProperty<GeoPos> positionProperty() {
@@ -122,12 +153,23 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return altitude.get();
     }
 
+    @Override
+    public void setAltitude(double altitude) {
+        this.altitude.set(altitude);
+        updateTrajectory();
+    }
+
     public ReadOnlyDoubleProperty altitudeProperty() {
         return altitude;
     }
 
     public double getVelocity() {
         return velocity.get();
+    }
+
+    @Override
+    public void setVelocity(double velocity) {
+        this.velocity.set(velocity);
     }
 
     public ReadOnlyDoubleProperty velocityProperty() {
@@ -138,53 +180,26 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return trackOrHeading.get();
     }
 
+    @Override
+    public void setTrackOrHeading(double trackOrHeading) {
+        this.trackOrHeading.set(trackOrHeading);
+    }
+
     public ReadOnlyDoubleProperty trackOrHeadingProperty() {
         return trackOrHeading;
     }
 
-    @Override
-    public void setLastMessageTimeStampNs(long timeStampNs) {
-        this.lastMessageTimeStampNs.set(timeStampNs);
-    }
-
-    @Override
-    public void setCategory(int category) {
-        this.category.set(category);
-    }
-
-    @Override
-    public void setCallSign(CallSign callSign) {
-        this.callSign.set(callSign);
-    }
-
-    /**
-     * Changes the current position (latitude and longitude) that is registered in the state to the one given as a
-     * parameter, if said position differs from the last element of trajectory (or if trajectory is null), a new element
-     * is added to that list containing this position and the current altitude.
-     * @param position new position
-     */
-    @Override
-    public void setPosition(GeoPos position) {
-        this.position.set(position);
-        updateTrajectory();
-    }
-
-    @Override
-    public void setAltitude(double altitude) {
-        this.altitude.set(altitude);
-        updateTrajectory();
-    }
-
     private void updateTrajectory() {
-        if(getPosition() != null) {
+        if (getPosition() != null) {
 
             AirbornePos currPosition = new AirbornePos(getPosition(), getAltitude());
-            if(trajectory.isEmpty() || !getPosition().equals(trajectory.get(trajectory.size() - 1).position)) {
+            if (trajectory.isEmpty() || !getPosition().equals(trajectory.get(trajectory.size() - 1).position)) {
                 lastTimeStampAddedToTrajectory = getLastMessageTimeStampNs();
                 trajectory.add(currPosition);
             }
-            if(lastTimeStampAddedToTrajectory == getLastMessageTimeStampNs()) {
-                if(trajectory.isEmpty()) {
+
+            if (lastTimeStampAddedToTrajectory == getLastMessageTimeStampNs()) {
+                if (trajectory.isEmpty()) {
                     trajectory.add(currPosition);
                 } else {
                     trajectory.set(trajectory.size() - 1, currPosition);
@@ -194,13 +209,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         }
     }
 
-    @Override
-    public void setVelocity(double velocity) {
-        this.velocity.set(velocity);
-    }
-
-    @Override
-    public void setTrackOrHeading(double trackOrHeading) {
-        this.trackOrHeading.set(trackOrHeading);
+    public record AirbornePos(GeoPos position, double altitude) {
     }
 }
