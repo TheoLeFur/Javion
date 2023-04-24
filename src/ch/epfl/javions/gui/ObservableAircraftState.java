@@ -30,6 +30,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
     private ObservableList<AirbornePos> unmodifiableTrajectory; //observable and non modifiable used for getters
+    private long lastTimeStampAddedToTrajectory;
 
     /**
      * Creates an instance of the state of the aircraft with states that can only be modified through setters (except the
@@ -46,7 +47,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         callSign = new SimpleObjectProperty<>();
         position = new SimpleObjectProperty<>();
         trajectory = observableArrayList();
-        unmodifiableTrajectory = unmodifiableObservableList(observableArrayList());
+        unmodifiableTrajectory = unmodifiableObservableList(trajectory);
         altitude = new SimpleDoubleProperty();
         velocity = new SimpleDoubleProperty();
         trackOrHeading = new SimpleDoubleProperty();
@@ -143,16 +144,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     @Override
     public void setLastMessageTimeStampNs(long timeStampNs) {
-        if(timeStampNs == getLastMessageTimeStampNs()) {
-            AirbornePos currPosition = new AirbornePos(getPosition(), getAltitude());
-
-            if(trajectory.isEmpty()) {
-                trajectory.add(currPosition);
-            } else {
-                trajectory.set(trajectory.size() - 1, currPosition);
-            }
-        }
-
         this.lastMessageTimeStampNs.set(timeStampNs);
     }
 
@@ -175,16 +166,32 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-
-        //not sure if the get(trajectory.size() - 1) gives an error if the trajectory is empty since we check for that
-        if(trajectory.isEmpty() || !position.equals(trajectory.get(trajectory.size() - 1))) {
-            trajectory.add(new AirbornePos(position, getAltitude()));
-        }
+        updateTrajectory();
     }
 
     @Override
     public void setAltitude(double altitude) {
         this.altitude.set(altitude);
+        updateTrajectory();
+    }
+
+    private void updateTrajectory() {
+        if(getPosition() != null) {
+
+            AirbornePos currPosition = new AirbornePos(getPosition(), getAltitude());
+            if(trajectory.isEmpty() || !getPosition().equals(trajectory.get(trajectory.size() - 1).position)) {
+                lastTimeStampAddedToTrajectory = getLastMessageTimeStampNs();
+                trajectory.add(currPosition);
+            }
+            if(lastTimeStampAddedToTrajectory == getLastMessageTimeStampNs()) {
+                if(trajectory.isEmpty()) {
+                    trajectory.add(currPosition);
+                } else {
+                    trajectory.set(trajectory.size() - 1, currPosition);
+                }
+            }
+
+        }
     }
 
     @Override

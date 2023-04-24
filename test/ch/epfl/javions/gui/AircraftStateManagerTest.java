@@ -49,13 +49,15 @@ class AircraftStateManagerTest {
                 stateManager.updateWithMessage(m);
                 //System.out.println(2);
                 //System.out.println(m);
-                for(AircraftStateAccumulator<ObservableAircraftState> o: stateManager.states()) {
+                for(ObservableAircraftState o: stateManager.states()) {
                     //System.out.println(3);
-                    System.out.println(o.stateSetter().getIcaoAddress().toString() +
-                            o.stateSetter().getCallSign() + o.stateSetter().getRegistration() +
-                            o.stateSetter().getModel() +
-                            o.stateSetter().getPosition().longitude() +
-                            o.stateSetter().getPosition().latitude() + o.stateSetter().getAltitude() + o.stateSetter().getVelocity());
+                    if(o.getAircraftData() != null) {
+                        System.out.println(o.getIcaoAddress().toString() +
+                                o.getCallSign() + o.getRegistration() +
+                                o.getModel() + "   position: " +
+                                o.getPosition().longitude() +
+                                o.getPosition().latitude() + o.getAltitude() + o.getVelocity());
+                    }
                 }
             }
         } catch (IOException e) {

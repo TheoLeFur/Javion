@@ -24,7 +24,7 @@ import java.util.*;
 public final class AircraftStateManager {
     private Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
     //Observable set of aircraft states whose position is known
-    private ObservableSet<AircraftStateAccumulator<ObservableAircraftState>> aircraftSet;
+    private ObservableSet<ObservableAircraftState> aircraftSet;
     private final AircraftDatabase aircraftDatabase;
     private Message lastMessage;
 
@@ -37,7 +37,7 @@ public final class AircraftStateManager {
     /**
      * @return the observable but unmodifiable set of observable aircraft states whose position is known
      */
-    public ObservableSet<AircraftStateAccumulator<ObservableAircraftState>> states() {
+    public ObservableSet<ObservableAircraftState> states() {
         return FXCollections.unmodifiableObservableSet(aircraftSet);
     }
 
@@ -62,7 +62,7 @@ public final class AircraftStateManager {
         if(messageSenderState
                 .stateSetter()
                 .getPosition() != null) { // I'm not sure if the following is necessary: && message instanceof AirbornePositionMessage
-            aircraftSet.add(new AircraftStateAccumulator<>(messageSenderState.stateSetter()));
+            aircraftSet.add(messageSenderState.stateSetter());
         }
 
         lastMessage =  message;
