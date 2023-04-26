@@ -50,7 +50,7 @@ public class TextUI {
                             String callSign = (o.getCallSign() != null) ? o.getCallSign().string() : "";
                             String regis = (o.getRegistration() != null) ? o.getRegistration().string() : "";
                             String model = (o.getModel().length() <= 19) ? o.getModel() : o.getModel().substring(0,16)+"...";
-                            double velocity0 = Units.convert(o.getVelocity(),Units.Speed.METER_SECOND,Units.Speed.KILOMETER_PER_HOUR);
+                            double velocity0 = Units.convert(o.getVelocity(),Units.Speed.METER_PER_SECOND,Units.Speed.KILOMETER_PER_HOUR);
                             System.out.printf("%-6s %-8s %-6s %-20s %-10f %-10f %-7d %-7d",icao,callSign,regis,model,Units.convert(o.getPosition().longitude(),Units.Angle.RADIAN,Units.Angle.DEGREE),Units.convert(o.getPosition().latitude(),Units.Angle.RADIAN,Units.Angle.DEGREE),(int)Math.rint(o.getAltitude()), (int)Math.rint(velocity0));
                             System.out.println();
                         }
@@ -73,7 +73,7 @@ public class TextUI {
                             String callSign = (o.getCallSign() != null) ? o.getCallSign().string() : "";
                             String regis = (o.getRegistration() != null) ? o.getRegistration().string() : "";
                             String model = (o.getModel().length() <= 19) ? o.getModel() : o.getModel().substring(0,16)+"...";
-                            double velocity0 = Units.convert(o.getVelocity(),Units.Speed.METER_SECOND, Units.Speed.KILOMETER_PER_HOUR);
+                            double velocity0 = Units.convert(o.getVelocity(),Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR);
                             //System.out.println("haii");
                             if(o.getTrajectory().size() > 0) {
                                 //System.out.println("haii2");
