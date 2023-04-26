@@ -27,5 +27,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="junit.jupiter" level="project" />
+    <orderEntry type="library" name="OPEN_JFX_20" level="application" />
   </component>
 </module>

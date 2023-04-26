@@ -15,10 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class AircraftStateManagerTest {
     //git@github.com:TheoLeFur/Javion.git
 
+    public static final String message_dir = "/Users/theolefur/Downloads/Javions/resources/messages_20230318_0915.bin";
+
     public static void main(String[] args) {
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
-                        new FileInputStream("/home/rudolf/IdeaProjects/eqihiohqoifqe/Javion/test/ch/epfl/test/messages_20230318_0915.bin")))){
+                        new FileInputStream(message_dir)))){
             byte[] bytes = new byte[RawMessage.LENGTH];
             while (true) {
                 long timeStampNs = s.readLong();
@@ -36,7 +38,7 @@ class AircraftStateManagerTest {
         AircraftStateManager stateManager=new AircraftStateManager(new AircraftDatabase("/aircraft.zip"));
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
-                        new FileInputStream("/home/rudolf/IdeaProjects/eqihiohqoifqe/Javion/test/ch/epfl/test/messages_20230318_0915.bin")))){
+                        new FileInputStream(message_dir)))){
             byte[] bytes = new byte[RawMessage.LENGTH];
             while (true) {
                 long timeStampNs = s.readLong();
