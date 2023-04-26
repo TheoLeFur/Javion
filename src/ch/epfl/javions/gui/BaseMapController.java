@@ -1,11 +1,7 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
-import com.sun.webkit.graphics.WCGraphicsContext;
-import javafx.beans.property.DoubleProperty;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.canvas.*;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
@@ -14,6 +10,9 @@ import java.io.IOException;
 
 /**
  * Manages the display of the map background and the interactions with it.
+ *
+ * @author Rudolf Yazbeck (SCIPER : 360700)
+ * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class BaseMapController {
     TileManager tileManager;

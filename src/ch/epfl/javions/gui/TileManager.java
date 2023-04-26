@@ -1,14 +1,8 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.GeoPos;
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.image.Image;
-import javafx.stage.Stage;
 
-import java.awt.font.ImageGraphicAttribute;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -16,6 +10,11 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ *
+ * @author Rudolf Yazbeck (SCIPER : 360700)
+ * @author Theo Le Fur (SCIPER : 363294)
+ */
 public final class TileManager {
 
     public record TileId(int zoomLevel, int X, int Y) {
@@ -56,48 +55,35 @@ public final class TileManager {
         if (this.memoryCache.get(tileId) != null) {
             image = this.memoryCache.get(tileId);
         } else {
-
-            Path imgPath = Path.of(this.buildImageDir(this.cacheDiskPath.toString(), tileId));
+            String path = "/" + tileId.zoomLevel() + "/" + tileId.X() + "/" + tileId.Y() + ".png";
+            Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
             if (Files.exists(imgPath)) {
-                image = new Image(imgPath.toString());
+                image = new Image(new FileInputStream(imgPath.toFile()));
 
             } else {
-                String serverPath = "https://" +  this.buildImageDir(this.tileServerName, tileId);
-                URL requestUrl = new URL(serverPath);
-                URLConnection c = requestUrl.openConnection();
-                System.out.println("1");
+                URL u = new URL(
+                        "https://tile.openstreetmap.org" + path);
+                URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "Javions");
+
                 try (InputStream i = c.getInputStream()) {
-                    System.out.println("2");
                     byteBuffer = i.readAllBytes();
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteBuffer);
                     image = new Image(byteArrayInputStream);
                 }
-                System.out.println("3");
-                Files.createDirectories(imgPath);
+
+                Files.createDirectories(Path.of(this.cacheDiskPath.toString() + "/" +
+                        tileId.zoomLevel() + "/" + tileId.X()));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(byteBuffer);
                 }
             }
+
             // If maximal capacity is exceeded, the image accessed the furthest
             // amount of time from now will be replaced
             this.memoryCache.put(tileId, image);
         }
         return image;
-    }
-
-    /**
-     * Build a directory for storing he images following the logic : src/zoomLevel/X/Y.png
-     *
-     * @param src source folder
-     * @param id  id of image
-     * @return directory for image.
-     */
-    private String buildImageDir(String src, TileId id) {
-        return src + "/" +
-                id.zoomLevel() + "/" +
-                id.X() + "/" +
-                id.Y() + ".png";
     }
 }
