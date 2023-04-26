@@ -52,7 +52,9 @@ public final class AircraftStateManager {
         IcaoAddress aircraftIcao = message.icaoAddress();
 
         if (!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
-            accumulatorIcaoAddressMap.put(aircraftIcao, new AircraftStateAccumulator<>(new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
+            accumulatorIcaoAddressMap.put(aircraftIcao,
+                    new AircraftStateAccumulator<>(
+                            new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
         }
 
         AircraftStateAccumulator<ObservableAircraftState> messageSenderState = accumulatorIcaoAddressMap.get(aircraftIcao);

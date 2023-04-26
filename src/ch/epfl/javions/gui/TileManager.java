@@ -35,7 +35,6 @@ public final class TileManager {
 
 
     public TileManager(Path cacheDiskPath, String tileServerName) {
-
         this.cacheDiskPath = cacheDiskPath;
         this.tileServerName = tileServerName;
     }
@@ -63,15 +62,18 @@ public final class TileManager {
                 image = new Image(imgPath.toString());
 
             } else {
-                String serverPath = this.buildImageDir(this.tileServerName, tileId);
+                String serverPath = "https://" +  this.buildImageDir(this.tileServerName, tileId);
                 URL requestUrl = new URL(serverPath);
                 URLConnection c = requestUrl.openConnection();
-
+                System.out.println("1");
+                c.setRequestProperty("User-Agent", "Javions");
                 try (InputStream i = c.getInputStream()) {
+                    System.out.println("2");
                     byteBuffer = i.readAllBytes();
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteBuffer);
                     image = new Image(byteArrayInputStream);
                 }
+                System.out.println("3");
                 Files.createDirectories(imgPath);
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
@@ -97,19 +99,5 @@ public final class TileManager {
                 id.zoomLevel() + "/" +
                 id.X() + "/" +
                 id.Y() + ".png";
-    }
-}
-
-final class TestTileManager extends Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        new TileManager(Path.of("tile-cache"),
-                "tile.openstreetmap.org")
-                .imageForTileAt(new TileManager.TileId(17, 67927, 46357));
-        Platform.exit();
     }
 }
