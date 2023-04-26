@@ -16,6 +16,7 @@ import static java.lang.Thread.sleep;
 //java --enable-preview --source 17 -cp out/production/Javions/ --module-path C:\Users\User\Desktop\openjfx-20_windows-x64_bin-sdk\javafx-sdk-20\lib --add-modules javafx.controls Javions/src/ch/epfl/javions/gui/TextUI.java
 public class TextUI {
     public static void main(String[] args) throws IOException, InterruptedException {
+
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
                         new FileInputStream("/home/rudolf/IdeaProjects/eqihiohqoifqe/Javion/test/ch/epfl/test/messages_20230318_0915.bin")))){
