@@ -94,7 +94,7 @@ public final class Units {
 
     public static class Speed {
 
-        public static final double METER_SECOND = Length.METER / Time.SECOND;
+        public static final double METER_PER_SECOND = Length.METER / Time.SECOND;
         public static final double KILOMETER_PER_HOUR = Length.KILOMETER / Time.HOUR;
         public static final double KNOT = Length.NAUTICAL_MILE / Time.HOUR;
 
