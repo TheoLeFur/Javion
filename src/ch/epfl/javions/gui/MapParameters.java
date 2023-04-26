@@ -10,6 +10,14 @@ public final class MapParameters {
     private DoubleProperty minX;
     private DoubleProperty minY;
 
+    /**
+     * Module which will serve to track the main map params : zoom level, and origin given y (minX, minY)
+     *
+     * @param zoom zoom level
+     * @param minX x coordinate of origin
+     * @param minY y coordinate of origin
+     */
+
     public MapParameters(
             int zoom,
             double minX,
