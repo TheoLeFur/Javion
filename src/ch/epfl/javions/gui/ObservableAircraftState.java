@@ -21,15 +21,15 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 public final class ObservableAircraftState implements AircraftStateSetter {
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
-    private LongProperty lastMessageTimeStampNs;
-    private IntegerProperty category; //readOnlyIntegerProperty
-    private ObjectProperty<CallSign> callSign;
-    private ObjectProperty<GeoPos> position;
-    private ObservableList<AirbornePos> trajectory; //observable and modifiable
-    private DoubleProperty altitude;       //in meters
-    private DoubleProperty velocity;       //in m/s
-    private DoubleProperty trackOrHeading; //cap of the aircraft in radians
-    private ObservableList<AirbornePos> unmodifiableTrajectory; //observable and non modifiable used for getters
+    private final LongProperty lastMessageTimeStampNs;
+    private final IntegerProperty category; //readOnlyIntegerProperty
+    private final ObjectProperty<CallSign> callSign;
+    private final ObjectProperty<GeoPos> position;
+    private final ObservableList<AirbornePos> trajectory; //observable and modifiable
+    private final DoubleProperty altitude;       //in meters
+    private final DoubleProperty velocity;       //in m/s
+    private final DoubleProperty trackOrHeading; //cap of the aircraft in radians
+    private final ObservableList<AirbornePos> unmodifiableTrajectory; //observable and non modifiable used for getters
     private long lastTimeStampAddedToTrajectory;
 
     /**
@@ -197,7 +197,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
                 lastTimeStampAddedToTrajectory = getLastMessageTimeStampNs();
                 trajectory.add(currPosition);
             } else if (lastTimeStampAddedToTrajectory == getLastMessageTimeStampNs()) {
-                    trajectory.set(trajectory.size() - 1, currPosition);
+                trajectory.set(trajectory.size() - 1, currPosition);
             }
         }
     }

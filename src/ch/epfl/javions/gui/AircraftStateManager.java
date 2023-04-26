@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Keeps the states of a set of aircrafts up to date by using
- * the messages received from said aircrafts.
- * One of its instance will be used to manage all of the aircrafts visible on the map.
+ * Keeps the states of a set of aircraft up to date by using
+ * the messages received from said aircraft.
+ * One of its instance will be used to manage all of the aircraft visible on the map.
  *
  * @author Rudolf Yazbeck (SCIPER : 360700)
  * @author Theo Le Fur (SCIPER : 363294)
@@ -27,7 +27,7 @@ public final class AircraftStateManager {
     private Message lastMessage;
 
     /**
-     * @param aircraftDataBase that is read for info on the aircrafts
+     * @param aircraftDataBase that is read for info on the aircraft
      */
     public AircraftStateManager(AircraftDatabase aircraftDataBase) {
         this.aircraftDatabase = aircraftDataBase;
@@ -52,18 +52,14 @@ public final class AircraftStateManager {
         IcaoAddress aircraftIcao = message.icaoAddress();
 
         if (!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
-            accumulatorIcaoAddressMap.put(aircraftIcao,
-                    new AircraftStateAccumulator<>(
-                            new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
+            accumulatorIcaoAddressMap.put(aircraftIcao, new AircraftStateAccumulator<>(new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
         }
 
         AircraftStateAccumulator<ObservableAircraftState> messageSenderState = accumulatorIcaoAddressMap.get(aircraftIcao);
         messageSenderState.update(message);
 
         //if the position isn't null, then we can put the observable state in the aforementioned set
-        if (messageSenderState
-                .stateSetter()
-                .getPosition() != null) { // I'm not sure if the following is necessary: && message instanceof AirbornePositionMessage
+        if (messageSenderState.stateSetter().getPosition() != null) { // I'm not sure if the following is necessary: && message instanceof AirbornePositionMessage
             aircraftSet.add(messageSenderState.stateSetter());
         }
 
@@ -79,9 +75,7 @@ public final class AircraftStateManager {
         long lastUpdateTime = lastMessage.timeStampNs();
 
         for (AircraftStateAccumulator<ObservableAircraftState> accumulator : accumulatorIcaoAddressMap.values()) {
-            if (accumulator
-                    .stateSetter()
-                    .getLastMessageTimeStampNs() >= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND)) {
+            if (accumulator.stateSetter().getLastMessageTimeStampNs() >= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND)) {
                 aircraftSet.remove(accumulator.stateSetter());
             }
         }
