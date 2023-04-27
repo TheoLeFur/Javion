@@ -4,6 +4,11 @@ import ch.epfl.javions.Math2;
 import ch.epfl.javions.Preconditions;
 import javafx.beans.property.*;
 
+/**
+ *
+ * @author Rudolf Yazbeck (SCIPER : 360700)
+ * @author Theo Le Fur (SCIPER : 363294)
+ */
 public final class MapParameters {
 
     private IntegerProperty zoom;
