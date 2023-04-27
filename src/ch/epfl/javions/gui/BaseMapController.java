@@ -8,9 +8,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
 import javax.management.ImmutableDescriptor;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.beans.EventHandler;
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Manages the display of the map background and the interactions with it.
@@ -21,12 +26,13 @@ import java.io.IOException;
 public final class BaseMapController {
     TileManager tileManager;
     MapParameters mapParameters;
-    boolean redrawNeeded;
+    private boolean redrawNeeded;
     Canvas canvas;
     Pane mainPane;
     GraphicsContext contextOfMap;
 
     int pixelsInATile = 1 << 8;
+
 
     /**
      * @param tileManager Used to obtain the tiles of the map
@@ -42,11 +48,22 @@ public final class BaseMapController {
         canvas.widthProperty().bind(mainPane.widthProperty());
         canvas.heightProperty().bind(mainPane.heightProperty());
         contextOfMap = canvas.getGraphicsContext2D();
+        //draw for the first time
         redrawNeeded = true;
 
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+
+        canvas.heightProperty().addListener((p, oldVal, newVal) -> {
+            if(!oldVal.equals(newVal))
+                redrawOnNextPulse();
+        });
+
+        canvas.widthProperty().addListener((p, oldVal, newVal) -> {
+            if(!oldVal.equals(newVal))
+                redrawOnNextPulse();
         });
     }
 
@@ -68,15 +85,15 @@ public final class BaseMapController {
         int zoom = mapParameters.getZoomValue();
         double mapX = mapParameters.getMinXValue();
         double mapY = mapParameters.getMinYValue();
-        //int numberOfTilesToDraw = (int) Math.ceil(mainPane.getHeight() * mainPane.getWidth() / pixelsInATile);
-        System.out.println(canvas.getWidth());
-        for(int i = 0; i < Math.ceil(canvas.getWidth() / pixelsInATile); ++i) {
-            for (int j = 0; j < Math.ceil(canvas.getHeight() / pixelsInATile); j++) {
+
+        for(int i = 0; i <= Math.ceil(canvas.getWidth() / pixelsInATile); ++i) {
+            for (int j = 0; j <= Math.ceil(canvas.getHeight() / pixelsInATile); j++) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
                         mapToTile(mapX) + i,
                         mapToTile(mapY) + j);
+
                 try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), tileToDraw.X() - mapX, tileToDraw.Y() - mapY);
+                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.X() * pixelsInATile) - mapX, (tileToDraw.Y() * pixelsInATile) - mapY);
                 } catch (IOException ignored) {
                 }
             }
