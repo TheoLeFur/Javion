@@ -20,7 +20,12 @@ public final class TileManager {
     public record TileId(int zoomLevel, int X, int Y) {
 
         public static boolean isValid(int zoom, int X, int Y) {
-            return (0 <= zoom && zoom <= 19);
+
+            int maxNumberOfTiles = 2 << (zoom + 1);
+            return 0 <= zoom && zoom <= 19
+            && X >= 0 && X <= maxNumberOfTiles
+            && Y >= 0 && Y <= maxNumberOfTiles;
+
         }
     }
 
@@ -28,7 +33,7 @@ public final class TileManager {
     private final String tileServerName;
     private final int maxMemoryCacheCapacity = 100;
 
-    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, true);
+    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, false);
 
 
     public TileManager(Path cacheDiskPath, String tileServerName) {
@@ -59,8 +64,7 @@ public final class TileManager {
                 image = new Image(new FileInputStream(imgPath.toFile()));
 
             } else {
-                URL u = new URL(
-                        "https://tile.openstreetmap.org" + path);
+                URL u = new URL("https://" + tileServerName + path);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "Javions");
 
@@ -70,7 +74,7 @@ public final class TileManager {
                     image = new Image(byteArrayInputStream);
                 }
 
-                Files.createDirectories(Path.of(this.cacheDiskPath.toString() + "/" +
+                Files.createDirectories(Path.of(this.cacheDiskPath + "/" +
                         tileId.zoomLevel() + "/" + tileId.X()));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
@@ -79,6 +83,7 @@ public final class TileManager {
             }
             // If maximal capacity is exceeded, the image accessed the furthest
             // amount of time from now will be replaced
+
             this.memoryCache.put(tileId, image);
         }
         return image;
