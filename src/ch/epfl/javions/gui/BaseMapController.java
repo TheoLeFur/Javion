@@ -8,7 +8,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
-import java.awt.event.MouseEvent;
 import java.beans.EventHandler;
 import java.io.IOException;
 
@@ -25,8 +24,7 @@ public final class BaseMapController {
     Canvas canvas;
     Pane mainPane;
     GraphicsContext contextOfMap;
-    EventHandler mouseDrag;
-    EventHandler scroll;
+
     int pixelsInATile = 1 << 8;
 
 
@@ -47,6 +45,7 @@ public final class BaseMapController {
         //draw for the first time
         redrawNeeded = true;
 
+        //zoom in/out with scroll wheel
         LongProperty minScrollTime = new SimpleLongProperty();
         mainPane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
@@ -56,25 +55,28 @@ public final class BaseMapController {
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 200);
 
+            mapParameters.scroll(e.getX(), e.getY());
             mapParameters.changeZoomLevel(zoomDelta);
+            mapParameters.scroll(- e.getX(),- e.getY());
+
             redrawOnNextPulse();
         });
 
+        //making it so every pulse, the image is redrawn
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
 
+        //setting the listeners to check for when the window is modified
         canvas.heightProperty().addListener((p, oldVal, newVal) -> {
             if(!oldVal.equals(newVal))
                 redrawOnNextPulse();
         });
-
         canvas.widthProperty().addListener((p, oldVal, newVal) -> {
             if(!oldVal.equals(newVal))
                 redrawOnNextPulse();
         });
-
     }
 
     private void redrawOnNextPulse() {

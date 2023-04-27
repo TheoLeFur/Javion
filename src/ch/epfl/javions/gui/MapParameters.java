@@ -46,8 +46,8 @@ public final class MapParameters {
      * @param tY y coordinate of the vector
      */
     public void scroll(double tX, double tY) {
-        minX.add(tX);
-        minY.add(tY);
+        minX.set(getMinXValue() + tX);
+        minY.set(getMinYValue() + tY);
     }
 
     /**
@@ -60,10 +60,8 @@ public final class MapParameters {
         int newZoomValue = zoomIncrement + getZoomValue();
         if (newZoomValue <= 19 && newZoomValue >= 6) {
             zoom.set(newZoomValue);
-            System.out.println(getMinXValue() + " " + getMinYValue() + " added: " + zoomIncrement);
             minX.set(getMinXValue() * Math.pow(2, zoomIncrement));
             minY.set(getMinYValue() * Math.pow(2, zoomIncrement));
-            System.out.println(getMinXValue() + " " + getMinYValue());
         }
     }
 

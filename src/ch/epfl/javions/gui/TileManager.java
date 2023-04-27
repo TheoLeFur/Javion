@@ -32,7 +32,8 @@ public final class TileManager {
     private final String tileServerName;
     private final int maxMemoryCacheCapacity = 100;
 
-    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, false);
+    //private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, false);
+    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
 
     public TileManager(Path cacheDiskPath, String tileServerName) {
@@ -80,10 +81,12 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-            // If maximal capacity is exceeded, the image accessed the furthest
-            // amount of time from now will be replaced
 
+            if(memoryCache.size() == 100) {
+                memoryCache.remove(memoryCache.keySet().iterator().next());
+            }
             memoryCache.put(tileId, image);
+            System.out.println(memoryCache.size());
         }
         return image;
     }
