@@ -54,7 +54,7 @@ public final class BaseMapController {
      * @return the visible portion of the map such that it is centered on that point
      */
     public MapParameters centerOn(GeoPos position) {
-        int zoomValue = this.mapParameters.getZoomValue()
+        int zoomValue = this.mapParameters.getZoomValue();
         double x = WebMercator.x(zoomValue, position.longitude());
         double y = WebMercator.y(zoomValue, position.latitude());
         // so that (x, y) are in the center of the screen
