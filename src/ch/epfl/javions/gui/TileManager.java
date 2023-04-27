@@ -20,8 +20,6 @@ public final class TileManager {
     public record TileId(int zoomLevel, int X, int Y) {
 
         public static boolean isValid(int zoom, int X, int Y) {
-            int x = X * 256 + 1;
-            int y = Y * 256 + 1;
             return (0 <= zoom && zoom <= 19);
         }
     }
@@ -79,7 +77,6 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-
             // If maximal capacity is exceeded, the image accessed the furthest
             // amount of time from now will be replaced
             this.memoryCache.put(tileId, image);
