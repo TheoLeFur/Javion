@@ -45,25 +45,28 @@ public final class BaseMapController {
                 mapParameters.getZoomValue(),
                 mapToTile(mapParameters.getMinXValue()),
                 mapToTile(mapParameters.getMinYValue()));
-        //contextOfMap.drawImage(tileManager.imageForTileAt(tileId), );
-        return null;
+
+        contextOfMap.drawImage(
+                tileManager.imageForTileAt(tileId),
+                this.mapParameters.getMinXValue(),
+                this.mapParameters.getMinYValue());
+
+        return mainPane;
+
     }
 
     /**
      * @param position point on the earth's surface
-     * @return the visible portion of the map such that it is centered on that point
+     * @return Parameters of a Map making (x, y) the central map of the map constructed therefrom.
      */
     public MapParameters centerOn(GeoPos position) {
         int zoomValue = this.mapParameters.getZoomValue();
         double x = WebMercator.x(zoomValue, position.longitude());
         double y = WebMercator.y(zoomValue, position.latitude());
         // so that (x, y) are in the center of the screen
-        return new MapParameters(zoomValue, x -128, y - 128);
-
-        return null;
+        return new MapParameters(zoomValue, x - 128, y - 128);
     }
 
-    private record CoordinatePair(int x, int y){}
 
     private int mapToTile(double mapCoord) {
         return (int) Math.floor(mapCoord / (2 << mapParameters.getZoomValue() + 1));
