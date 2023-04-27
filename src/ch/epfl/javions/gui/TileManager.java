@@ -11,20 +11,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
  * @author Rudolf Yazbeck (SCIPER : 360700)
  * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class TileManager {
 
-    public record TileId(int zoomLevel, int X, int Y) {
+    public record TileId(int zoomLevel, int x, int y) {
 
-        public static boolean isValid(int zoom, int X, int Y) {
+        public static boolean isValid(int zoom, int x, int y) {
 
             int maxNumberOfTiles = 2 << (zoom + 1);
             return 0 <= zoom && zoom <= 19
-            && X >= 0 && X <= maxNumberOfTiles
-            && Y >= 0 && Y <= maxNumberOfTiles;
+                    && x >= 0 && x <= maxNumberOfTiles
+                    && y >= 0 && y <= maxNumberOfTiles;
 
         }
     }
@@ -58,7 +57,7 @@ public final class TileManager {
         if (this.memoryCache.get(tileId) != null) {
             image = this.memoryCache.get(tileId);
         } else {
-            String path = "/" + tileId.zoomLevel() + "/" + tileId.X() + "/" + tileId.Y() + ".png";
+            String path = "/" + tileId.zoomLevel() + "/" + tileId.x() + "/" + tileId.y() + ".png";
             Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
             if (Files.exists(imgPath)) {
                 image = new Image(new FileInputStream(imgPath.toFile()));
@@ -75,7 +74,7 @@ public final class TileManager {
                 }
 
                 Files.createDirectories(Path.of(this.cacheDiskPath + "/" +
-                        tileId.zoomLevel() + "/" + tileId.X()));
+                        tileId.zoomLevel() + "/" + tileId.x()));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(byteBuffer);

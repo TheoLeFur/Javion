@@ -1,6 +1,7 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
+import ch.epfl.javions.WebMercator;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
@@ -19,16 +20,15 @@ public final class BaseMapController {
     MapParameters mapParameters;
 
     /**
-     * @param tileManager Used to obtain the tiles of the map
+     * @param tileManager   Used to obtain the tiles of the map
      * @param mapParameters Portion of the map that is visible
      */
-    public BaseMapController(TileManager tileManager, MapParameters mapParameters){
+    public BaseMapController(TileManager tileManager, MapParameters mapParameters) {
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
     }
 
     /**
-     *
      * @return the JavaFX pane that displays the map background
      */
     public Pane pane() throws IOException {
@@ -41,21 +41,31 @@ public final class BaseMapController {
         GraphicsContext contextOfMap = canvas.getGraphicsContext2D();
 
 
-        TileManager.TileId tileId = new TileManager.TileId(mapParameters.getZoomValue(), mapToTile(mapParameters.getMinXValue()),  mapToTile(mapParameters.getMinYValue()));
+        TileManager.TileId tileId = new TileManager.TileId(
+                mapParameters.getZoomValue(),
+                mapToTile(mapParameters.getMinXValue()),
+                mapToTile(mapParameters.getMinYValue()));
         //contextOfMap.drawImage(tileManager.imageForTileAt(tileId), );
         return null;
     }
 
     /**
-     *
      * @param position point on the earth's surface
      * @return the visible portion of the map such that it is centered on that point
      */
     public MapParameters centerOn(GeoPos position) {
+        int zoomValue = this.mapParameters.getZoomValue()
+        double x = WebMercator.x(zoomValue, position.longitude());
+        double y = WebMercator.y(zoomValue, position.latitude());
+        // so that (x, y) are in the center of the screen
+        return new MapParameters(zoomValue, x -128, y - 128);
+
         return null;
     }
 
+    private record CoordinatePair(int x, int y){}
+
     private int mapToTile(double mapCoord) {
-        return (int)Math.floor(mapCoord / (2 << mapParameters.getZoomValue() + 1));
+        return (int) Math.floor(mapCoord / (2 << mapParameters.getZoomValue() + 1));
     }
 }
