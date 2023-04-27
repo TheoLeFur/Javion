@@ -1,11 +1,15 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
+import javax.management.ImmutableDescriptor;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
@@ -17,6 +21,12 @@ import java.io.IOException;
 public final class BaseMapController {
     TileManager tileManager;
     MapParameters mapParameters;
+    boolean redrawNeeded;
+    Canvas canvas;
+    Pane mainPane;
+    GraphicsContext contextOfMap;
+
+    int pixelsInATile = 1 << 8;
 
     /**
      * @param tileManager Used to obtain the tiles of the map
@@ -25,25 +35,60 @@ public final class BaseMapController {
     public BaseMapController(TileManager tileManager, MapParameters mapParameters){
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
+        //canvas on which the map will be drawn
+        canvas = new Canvas();
+        mainPane = new Pane();
+        mainPane.getChildren().add(canvas);
+        canvas.widthProperty().bind(mainPane.widthProperty());
+        canvas.heightProperty().bind(mainPane.heightProperty());
+        contextOfMap = canvas.getGraphicsContext2D();
+        redrawNeeded = true;
+
+        canvas.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+    }
+
+    private void redrawOnNextPulse() {
+        redrawNeeded = true;
+        Platform.requestNextPulse();
+    }
+
+    private void redrawIfNeeded() {
+        if(!redrawNeeded)
+            return;
+
+        drawImages();
+        redrawOnNextPulse();
+        redrawNeeded = false;
+    }
+
+    private void drawImages() {
+        int zoom = mapParameters.getZoomValue();
+        double mapX = mapParameters.getMinXValue();
+        double mapY = mapParameters.getMinYValue();
+        //int numberOfTilesToDraw = (int) Math.ceil(mainPane.getHeight() * mainPane.getWidth() / pixelsInATile);
+        System.out.println(canvas.getWidth());
+        for(int i = 0; i < Math.ceil(canvas.getWidth() / pixelsInATile); ++i) {
+            for (int j = 0; j < Math.ceil(canvas.getHeight() / pixelsInATile); j++) {
+                TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
+                        mapToTile(mapX) + i,
+                        mapToTile(mapY) + j);
+                try {
+                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), tileToDraw.X() - mapX, tileToDraw.Y() - mapY);
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     /**
      *
      * @return the JavaFX pane that displays the map background
      */
-    public Pane pane() throws IOException {
-        //canvas on which the map will be drawn
-        Canvas canvas = new Canvas(5, 5);
-        Pane mainPane = new Pane();
-        mainPane.getChildren().add(canvas);
-        canvas.widthProperty().bind(mainPane.widthProperty());
-        canvas.heightProperty().bind(mainPane.heightProperty());
-        GraphicsContext contextOfMap = canvas.getGraphicsContext2D();
-
-
-        TileManager.TileId tileId = new TileManager.TileId(mapParameters.getZoomValue(), mapToTile(mapParameters.getMinXValue()),  mapToTile(mapParameters.getMinYValue()));
-        //contextOfMap.drawImage(tileManager.imageForTileAt(tileId), );
-        return null;
+    public Pane pane(){
+        return mainPane;
     }
 
     /**
@@ -55,7 +100,12 @@ public final class BaseMapController {
         return null;
     }
 
+    /**
+     *
+     * @param mapCoord x or y coordinate of the point on the map
+     * @return corresponding tile coordinate
+     */
     private int mapToTile(double mapCoord) {
-        return (int)Math.floor(mapCoord / (2 << mapParameters.getZoomValue() + 1));
+        return (int)Math.floor(mapCoord / pixelsInATile);
     }
 }
