@@ -67,7 +67,6 @@ public final class BaseMapController {
         return new MapParameters(zoomValue, x - 128, y - 128);
     }
 
-
     private int mapToTile(double mapCoord) {
         return (int) Math.floor(mapCoord / (2 << mapParameters.getZoomValue() + 1));
     }
