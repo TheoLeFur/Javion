@@ -1,9 +1,12 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
+import ch.epfl.javions.Units;
+import ch.epfl.javions.WebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
@@ -24,6 +27,7 @@ public final class BaseMapController {
     Canvas canvas;
     Pane mainPane;
     GraphicsContext contextOfMap;
+    Point2D cursorPosition;
 
     int pixelsInATile = 1 << 8;
 
@@ -45,6 +49,7 @@ public final class BaseMapController {
         //draw for the first time
         redrawNeeded = true;
 
+
         //zoom in/out with scroll wheel
         LongProperty minScrollTime = new SimpleLongProperty();
         mainPane.setOnScroll(e -> {
@@ -60,6 +65,17 @@ public final class BaseMapController {
             mapParameters.scroll(- e.getX(),- e.getY());
 
             redrawOnNextPulse();
+        });
+
+        //dragging lambdas
+        mainPane.setOnMousePressed(e -> {
+             cursorPosition = new Point2D(e.getX(), e.getY());
+        });
+        mainPane.setOnMouseDragged(e -> {
+            mapParameters.scroll(cursorPosition.getX() - e.getX()
+                    , cursorPosition.getY() - e.getY());
+            redrawOnNextPulse();
+            cursorPosition = new Point2D(e.getX(), e.getY());
         });
 
         //making it so every pulse, the image is redrawn
@@ -121,12 +137,15 @@ public final class BaseMapController {
     }
 
     /**
-     *
      * @param position point on the earth's surface
-     * @return the visible portion of the map such that it is centered on that point
      */
-    public MapParameters centerOn(GeoPos position) {
-        return null;
+    public void centerOn(GeoPos position) {
+        int zoomValue = mapParameters.getZoomValue();
+        int x = (int) WebMercator.x(zoomValue, position.longitude());
+        int y = (int) WebMercator.y(zoomValue, position.latitude());
+        mapParameters = new MapParameters(zoomValue, x + canvas.getWidth()/2, y + canvas.getHeight()/2);
+
+        redrawOnNextPulse();
     }
 
     /**

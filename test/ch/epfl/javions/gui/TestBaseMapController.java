@@ -1,5 +1,7 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.GeoPos;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.gui.BaseMapController;
 import ch.epfl.javions.gui.MapParameters;
 import ch.epfl.javions.gui.TileManager;
@@ -21,6 +23,9 @@ public final class TestBaseMapController extends Application {
         MapParameters mp =
                 new MapParameters(17, 17_389_327, 11_867_430);
         BaseMapController bmc = new BaseMapController(tm, mp);
+        bmc.centerOn(new GeoPos((int)Units.convert(0.114620, Units.Angle.RADIAN,
+                Units.Angle.T32), (int)Units.convert(0.811908, Units.Angle.RADIAN,
+                Units.Angle.T32)));
         BorderPane root = new BorderPane(bmc.pane());
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

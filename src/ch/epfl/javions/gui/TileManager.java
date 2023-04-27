@@ -86,7 +86,6 @@ public final class TileManager {
                 memoryCache.remove(memoryCache.keySet().iterator().next());
             }
             memoryCache.put(tileId, image);
-            System.out.println(memoryCache.size());
         }
         return image;
     }
