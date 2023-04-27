@@ -2,20 +2,15 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
 import javafx.application.Platform;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
-import javax.management.ImmutableDescriptor;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
+import java.awt.event.MouseEvent;
 import java.beans.EventHandler;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Properties;
 
 /**
  * Manages the display of the map background and the interactions with it.
@@ -30,7 +25,8 @@ public final class BaseMapController {
     Canvas canvas;
     Pane mainPane;
     GraphicsContext contextOfMap;
-
+    EventHandler mouseDrag;
+    EventHandler scroll;
     int pixelsInATile = 1 << 8;
 
 
@@ -51,6 +47,19 @@ public final class BaseMapController {
         //draw for the first time
         redrawNeeded = true;
 
+        LongProperty minScrollTime = new SimpleLongProperty();
+        mainPane.setOnScroll(e -> {
+            int zoomDelta = (int) Math.signum(e.getDeltaY());
+            if (zoomDelta == 0) return;
+
+            long currentTime = System.currentTimeMillis();
+            if (currentTime < minScrollTime.get()) return;
+            minScrollTime.set(currentTime + 200);
+
+            mapParameters.changeZoomLevel(zoomDelta);
+            redrawOnNextPulse();
+        });
+
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
@@ -65,6 +74,7 @@ public final class BaseMapController {
             if(!oldVal.equals(newVal))
                 redrawOnNextPulse();
         });
+
     }
 
     private void redrawOnNextPulse() {
@@ -93,7 +103,7 @@ public final class BaseMapController {
                         mapToTile(mapY) + j);
 
                 try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.X() * pixelsInATile) - mapX, (tileToDraw.Y() * pixelsInATile) - mapY);
+                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * pixelsInATile) - mapX, (tileToDraw.y() * pixelsInATile) - mapY);
                 } catch (IOException ignored) {
                 }
             }

@@ -46,8 +46,8 @@ public final class MapParameters {
      * @param tY y coordinate of the vector
      */
     public void scroll(double tX, double tY) {
-        this.minX = new SimpleDoubleProperty(this.minX.doubleValue() + tX);
-        this.minY = new SimpleDoubleProperty(this.minY.doubleValue() + tY);
+        minX.add(tX);
+        minY.add(tY);
     }
 
     /**
@@ -56,36 +56,39 @@ public final class MapParameters {
      * @param zoomIncrement positive or negative, depending on whether we want to zoom in or zoom out.
      */
     public void changeZoomLevel(int zoomIncrement) {
-        int clippedZoomIncrement = Math2.clamp(6 - this.zoom.getValue(), zoomIncrement, 19 - this.zoom.getValue());
-        this.zoom = new SimpleIntegerProperty(
-                this.zoom.getValue() + clippedZoomIncrement
-        );
-        this.minX = new SimpleDoubleProperty((this.minX.getValue() * Math.pow(2, clippedZoomIncrement)));
-        this.minY = new SimpleDoubleProperty((this.minY.getValue() * Math.pow(2, clippedZoomIncrement)));
+
+        int newZoomValue = zoomIncrement + getZoomValue();
+        if (newZoomValue <= 19 && newZoomValue >= 6) {
+            zoom.set(newZoomValue);
+            System.out.println(getMinXValue() + " " + getMinYValue() + " added: " + zoomIncrement);
+            minX.set(getMinXValue() * Math.pow(2, zoomIncrement));
+            minY.set(getMinYValue() * Math.pow(2, zoomIncrement));
+            System.out.println(getMinXValue() + " " + getMinYValue());
+        }
     }
 
     public int getZoomValue() {
-        return this.zoom.getValue();
+        return zoom.getValue();
     }
 
     public double getMinXValue() {
-        return this.minX.getValue();
+        return minX.getValue();
     }
 
     public double getMinYValue() {
-        return this.minY.getValue();
+        return minY.getValue();
     }
 
     public IntegerProperty getZoom() {
-        return this.zoom;
+        return zoom;
     }
 
     public DoubleProperty getMinX() {
-        return this.minX;
+        return minX;
     }
 
     public DoubleProperty getMinY() {
-        return this.minY;
+        return minY;
     }
 
 

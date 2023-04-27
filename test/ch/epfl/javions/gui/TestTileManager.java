@@ -15,7 +15,7 @@ public final class TestTileManager extends Application {
                 "tile.openstreetmap.org")
                 .imageForTileAt(new TileManager.TileId(17, 67822, 46357));
 
-        for(int i = 0; i < 5; ++i) {
+        for(int i = 0; i < 100; ++i) {
             new TileManager(Path.of("tile-cache"),
                     "tile.openstreetmap.org")
                     .imageForTileAt(new TileManager.TileId(17, 67822, i));
