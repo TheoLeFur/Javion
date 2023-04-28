@@ -31,8 +31,7 @@ public final class TileManager {
     private final Path cacheDiskPath;
     private final String tileServerName;
     private final int maxMemoryCacheCapacity = 100;
-
-    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, true);
+    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
 
     public TileManager(Path cacheDiskPath, String tileServerName) {
@@ -80,8 +79,9 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-            this.memoryCache.put(tileId, image);
+            
             this.cropMemCache();
+            this.memoryCache.put(tileId, image);
         }
         return image;
     }
@@ -91,7 +91,7 @@ public final class TileManager {
      * element.
      */
     private void cropMemCache(){
-        if (this.memoryCache.size() > 100){
+        if (this.memoryCache.size() == 100){
             TileId firstId = this.memoryCache.keySet().iterator().next();
             this.memoryCache.remove(firstId);
 

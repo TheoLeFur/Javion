@@ -11,16 +11,16 @@ import javafx.beans.property.*;
  */
 public final class MapParameters {
 
-    private IntegerProperty zoom;
-    private DoubleProperty minX;
-    private DoubleProperty minY;
+    private final IntegerProperty zoom;
+    private final DoubleProperty minX;
+    private final DoubleProperty minY;
 
     /**
      * Module which will serve to track the main map params : zoom level, and origin given y (minX, minY)
      *
      * @param zoom zoom level
-     * @param minX x coordinate of origin
-     * @param minY y coordinate of origin
+     * @param minX x coordinate of upper left corner of the map
+     * @param minY y coordinate of upper left corner of the map
      */
 
     public MapParameters(
@@ -46,8 +46,8 @@ public final class MapParameters {
      * @param tY y coordinate of the vector
      */
     public void scroll(double tX, double tY) {
-        this.minX = new SimpleDoubleProperty(this.minX.doubleValue() + tX);
-        this.minY = new SimpleDoubleProperty(this.minY.doubleValue() + tY);
+        minX.set(getMinXValue() + tX);
+        minY.set(getMinYValue() + tY);
     }
 
     /**
@@ -56,37 +56,48 @@ public final class MapParameters {
      * @param zoomIncrement positive or negative, depending on whether we want to zoom in or zoom out.
      */
     public void changeZoomLevel(int zoomIncrement) {
-        int clippedZoomIncrement = Math2.clamp(6 - this.zoom.getValue(), zoomIncrement, 19 - this.zoom.getValue());
-        this.zoom = new SimpleIntegerProperty(
-                this.zoom.getValue() + clippedZoomIncrement
-        );
-        this.minX = new SimpleDoubleProperty((this.minX.getValue() * Math.pow(2, clippedZoomIncrement)));
-        this.minY = new SimpleDoubleProperty((this.minY.getValue() * Math.pow(2, clippedZoomIncrement)));
+
+        int newZoomValue = zoomIncrement + getZoomValue();
+        if (newZoomValue <= 19 && newZoomValue >= 6) {
+            zoom.set(newZoomValue);
+            minX.set(getMinXValue() * Math.pow(2, zoomIncrement));
+            minY.set(getMinYValue() * Math.pow(2, zoomIncrement));
+        }
     }
 
     public int getZoomValue() {
-        return this.zoom.getValue();
+        return zoom.getValue();
     }
 
     public double getMinXValue() {
-        return this.minX.getValue();
+        return minX.getValue();
     }
 
     public double getMinYValue() {
-        return this.minY.getValue();
+        return minY.getValue();
     }
 
     public IntegerProperty getZoom() {
-        return this.zoom;
+        return zoom;
     }
 
     public DoubleProperty getMinX() {
-        return this.minX;
+        return minX;
     }
 
     public DoubleProperty getMinY() {
-        return this.minY;
+        return minY;
     }
 
+    public void setZoom(int zoom) {
+        this.zoom.set(zoom);
+    }
 
+    public void setMinY(double minY) {
+        this.minY.set(minY);
+    }
+
+    public void setMinX(double minX) {
+        this.minX.set(minX);
+    }
 }
