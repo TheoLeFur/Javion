@@ -17,7 +17,7 @@ public final class SamplesDecoder {
 
     private final InputStream stream;
     private final int batchSize;
-    private byte[] buffer;
+    private final byte[] buffer;
 
     /**
      * Instantiates a samples decoder object. Builds the buffer where the bits of the signal will be stored.
@@ -48,10 +48,9 @@ public final class SamplesDecoder {
             byte strongByte = this.buffer[bufferIndex];
             byte weakByte = this.buffer[bufferIndex + 1];
             short concat = (short) (strongByte << Byte.SIZE | weakByte);
-            // constant used for adjusting the values read from the batch
             int THRESHOLD = 2048;
             batch[i] = (short) (Short.reverseBytes(concat) - THRESHOLD);
-            // TODO : find some way to not use the reverseByte method.
+            // TODO : find some way to not use the reverseByte method (no real reason why, it is very efficient).
 
         }
         return N/2;

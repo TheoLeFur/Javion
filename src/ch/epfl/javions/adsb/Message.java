@@ -13,12 +13,12 @@ public interface Message {
      *
      * @return time stamp (in ns)
      */
-    public abstract long timeStampNs();
+    long timeStampNs();
 
     /**
      * Extract the address from a message
      *
      * @return instance of IcaoAddress
      */
-    public abstract IcaoAddress icaoAddress();
+    IcaoAddress icaoAddress();
 }

@@ -21,13 +21,13 @@ import java.io.IOException;
  * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class BaseMapController {
-    TileManager tileManager;
-    MapParameters mapParameters;
+    private final TileManager tileManager;
+    private final MapParameters mapParameters;
     private boolean redrawNeeded;
-    Canvas canvas;
-    Pane mainPane;
-    GraphicsContext contextOfMap;
-    Point2D cursorPosition;
+    private final Canvas canvas;
+    private final Pane mainPane;
+    private final GraphicsContext contextOfMap;
+    private Point2D cursorPosition;
 
     int pixelsInATile = 1 << 8;
 
@@ -68,9 +68,7 @@ public final class BaseMapController {
         });
 
         //dragging lambdas
-        mainPane.setOnMousePressed(e -> {
-             cursorPosition = new Point2D(e.getX(), e.getY());
-        });
+        mainPane.setOnMousePressed(e -> cursorPosition = new Point2D(e.getX(), e.getY()));
         mainPane.setOnMouseDragged(e -> {
             mapParameters.scroll(cursorPosition.getX() - e.getX()
                     , cursorPosition.getY() - e.getY());

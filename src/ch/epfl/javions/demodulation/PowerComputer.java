@@ -45,15 +45,13 @@ public final class PowerComputer {
      */
 
     public int readBatch(int[] batch) throws IOException {
-
-
         Preconditions.checkArgument(batch.length == this.buffer.length / 2);
         int count = this.decoder.readBatch(this.buffer);
         for (int i = 0; i < batchSize; i++) {
             for (int k = 0; k < this.powerMemory.length - 2; k++) {
                 powerMemory[k] = powerMemory[k + 2];
             }
-            // TODO : find a more efficient way to realise this permutation
+            // TODO : find a more efficient way to realise the above permutation
             powerMemory[7] = this.buffer[2 * i + 1];
             powerMemory[6] = this.buffer[2 * i];
 
