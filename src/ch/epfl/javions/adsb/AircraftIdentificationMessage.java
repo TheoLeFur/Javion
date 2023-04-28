@@ -4,7 +4,7 @@ import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static java.lang.String.valueOf;
 
@@ -19,10 +19,11 @@ import static java.lang.String.valueOf;
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
+    //constant that is the number of bits that represent the callSign characters and aircraft category
+    static final int ME_ATTRIBUTE_SIZE = 48;
     public AircraftIdentificationMessage {
-        if (icaoAddress == null || callSign == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(icaoAddress);
+        Objects.requireNonNull(callSign);
         Preconditions.checkArgument(timeStampNs >= 0);
     }
 
@@ -36,7 +37,6 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      */
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
-        final int ME_ATTRIBUTE_SIZE = 48; //constant that is the number of bits that represent the callSign characters and aircraft category
         int codeType = rawMessage.typeCode();
         int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, 3);
 
@@ -65,19 +65,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             callSignString.append(stringToAdd);
         }
 
-        callSignString = new StringBuilder(callSignString.toString().trim());
-
-        CallSign callSign = new CallSign(callSignString.toString());
+        CallSign callSign = new CallSign(callSignString.toString().stripTrailing());
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
-    }
-
-    @Override
-    public long timeStampNs() {
-        return timeStampNs;
-    }
-
-    @Override
-    public IcaoAddress icaoAddress() {
-        return icaoAddress;
     }
 }

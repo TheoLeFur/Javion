@@ -6,8 +6,6 @@ import ch.epfl.javions.Crc24;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-import java.util.HexFormat;
-
 /**
  * @param timeStampNs time stamp of the message in nanoseconds
  * @param bytes       14 bytes that make up an ADS-B  message
@@ -18,18 +16,20 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
 
     //Length in bytes of ADSB messages
     public static final int LENGTH = 14;
-    private static Crc24 CRC_24 = new Crc24(Crc24.GENERATOR);
-    private final static int MESSAGE_FORMAT_START = 0;
-    private final static int MESSAGE_FORMAT_SIZE = 1;
-    private final static int ICAO_ADDRESS_START = 1;
-    private final static int ICAO_ADDRESS_SIZE = 3;
+    private static final Crc24 CRC_24 = new Crc24(Crc24.GENERATOR);
+    private final static int DF_MESSAGE_LENGTH = 17;
+    private final static int DF_START = 3;
+    private final static int DF_SIZE = 5;
+    private final static int TYPECODE_START = 51;
+    private final static int TYPECOPE_LENGTH = 5;
     private final static int ME_ATTRIBUTE_START = 4;
     private final static int ME_ATTRIBUTE_SIZE = 7;
-    private final static int CRC_START = 11;
-    private final static int CRC_SIZE = 4;
+    private final static int MESSAGE_FORMAT_START = 0;
+    private final static int MESSAGE_FORMAT_SIZE = 1;
 
     public RawMessage {
-        Preconditions.checkArgument(timeStampNs >= 0 && bytes.size() == LENGTH);
+        Preconditions.checkArgument(timeStampNs >= 0);
+        Preconditions.checkArgument(bytes.size() == LENGTH);
     }
 
     /**
@@ -39,11 +39,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * if the bytes have a CRC24 of 0
      */
     public static RawMessage of(long timeStampsNs, byte[] bytes) {
-        if (CRC_24.crc(bytes) != 0) {
-            return null;
-        } else {
-            return new RawMessage(timeStampsNs, new ByteString(bytes));
-        }
+        return CRC_24.crc(bytes) != 0 ? null : new RawMessage(timeStampsNs, new ByteString(bytes));
     }
 
     /**
@@ -53,13 +49,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return length of a message if it is of a known type, and 0 if that's not the case
      */
     public static int size(byte byte0) {
-        if (Bits.extractUInt(byte0, 3, 5) == (byte) 17) {
-            //extracting the DF part from byte0
-            return LENGTH;
-        } else {
-            //returning 0 if the message is not known
-            return 0;
-        }
+        return Bits.extractUInt(byte0, DF_START, DF_SIZE) == (byte) DF_MESSAGE_LENGTH ? LENGTH : 0;
     }
 
     /**
@@ -67,7 +57,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the ME attribute of the long
      */
     public static int typeCode(long payload) {
-        payload = Bits.extractUInt(payload, 51, 5);
+        payload = Bits.extractUInt(payload, TYPECODE_START, TYPECOPE_LENGTH);
         return (int) payload;
     }
 
@@ -75,24 +65,21 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return format of the message, which is the DF attribute stored in its first byte
      */
     public int downLinkFormat() {
-        return Bits.extractUInt(bytes.bytesInRange(0, 1), 3, 5);
+        return Bits.extractUInt(bytes.bytesInRange(MESSAGE_FORMAT_START, MESSAGE_FORMAT_SIZE), DF_START, DF_SIZE);
     }
 
     /**
      * @return ICAO address of the expediter of the message
      */
     public IcaoAddress icaoAddress() {
-        String icaoHexString = HexFormat.of()
-                .toHexDigits(bytes.bytesInRange(1, 4))
-                .toUpperCase();
-        return new IcaoAddress(icaoHexString.substring(icaoHexString.length() - ICAO_ADDRESS_SIZE));
+        return new IcaoAddress(bytes.toString().substring(Short.BYTES, Short.BYTES + IcaoAddress.ICAO_ADDRESS_SIZE));
     }
 
     /**
      * @return returns the ME attribute of the message
      */
     public long payload() {
-        return bytes.bytesInRange(4, 11);
+        return bytes.bytesInRange(ME_ATTRIBUTE_START, ME_ATTRIBUTE_SIZE + ME_ATTRIBUTE_START);
     }
 
     /**

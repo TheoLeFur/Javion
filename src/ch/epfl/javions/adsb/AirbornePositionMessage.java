@@ -33,9 +33,10 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
 
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
-        Preconditions.checkArgument(timeStampNs >= 0 &&
-                (parity == 0 || parity == 1) && (0 <= x && x < 1) &&
-                (0 <= y && y < 1));
+        Preconditions.checkArgument(timeStampNs >= 0);
+        Preconditions.checkArgument(parity == 0 || parity == 1);
+        Preconditions.checkArgument(0 <= x && x < 1);
+        Preconditions.checkArgument(0 <= y && y < 1);
     }
 
     /**
@@ -64,31 +65,21 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         int Q = Bits.extractUInt(bitAltitude, 4, 1);
         double altitude;
 
+        //number of bits that contain the encoded altitude
+        final int BYTE_SIZE = 12;
+
         if (Q == 1) {
             int byte1 = Bits.extractUInt(bitAltitude, 5, 7);
             int byte2 = Bits.extractUInt(bitAltitude, 0, 4);
 
             altitude = -1000 + ((byte1 << 4) | byte2) * 25;
         } else {
-            //number of bits that contain the encoded altitude
-            final int BYTE_SIZE = 12;
+            int demelage = 0;
 
-            //extracting the bits individually instead of an array/for loop to save complexity cost
-            int bits0 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 1, 1);
-            int bits1 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 2, 1);
-            int bits2 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 3, 1);
-            int bits3 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 4, 1);
-            int bits4 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 5, 1);
-            int bits5 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 6, 1);
-            int bits6 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 7, 1);
-            int bits7 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 8, 1);
-            int bits8 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 9, 1);
-            int bits9 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 10, 1);
-            int bits10 = Bits.extractUInt(bitAltitude, BYTE_SIZE - 11, 1);
-            int bits11 = Bits.extractUInt(bitAltitude, 0, 1);
-
-            int demelage = (bits7 << 11 | bits9 << 10 | bits11 << 9 | bits1 << 8 | bits3 << 7 | bits5 << 6 |
-                    bits6 << 5 | bits8 << 4 | bits10 << 3 | bits0 << 2 | bits2 << 1 | bits4);
+            for (int i = 1; i <= 12; ++i) {
+                int index = i <= 6 ? (8 + 2 * (i - 1)) % BYTE_SIZE : (7 + 2 * (i - 1)) % BYTE_SIZE;
+                demelage |= Bits.extractUInt(bitAltitude, BYTE_SIZE - index, 1) << (BYTE_SIZE - i);
+            }
 
             //100 feet
             int weakBits = grayDecoder(Bits.extractUInt(demelage, 0, 3), 3);
