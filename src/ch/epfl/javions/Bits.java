@@ -1,5 +1,7 @@
 package ch.epfl.javions;
 
+import java.util.Objects;
+
 /**
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
@@ -25,8 +27,8 @@ public final class Bits {
 
     public static int extractUInt(long value, int start, int size) {
 
-        if (size <= 0 || size >= Integer.SIZE) throw new IllegalArgumentException();
-        else if (start + size > Long.SIZE || start < 0) throw new IndexOutOfBoundsException();
+        Preconditions.checkArgument(size >= 0 && size < Integer.SIZE);
+        if (start + size > Long.SIZE || start < 0) throw new IndexOutOfBoundsException();
         else {
             long shiftedValue = value >>> start;
             long mask = (1 << size) - 1;
@@ -41,10 +43,9 @@ public final class Bits {
      * @throws IndexOutOfBoundsException if the described interval is not between 0 included and 64 excluded
      */
     public static boolean testBit(long value, int index) {
-        if (index < 0 || index >= 64) throw new IndexOutOfBoundsException();
-        else {
-            long mask = 1L << index;
-            return ((mask & value) == value);
-        }
+        Objects.checkIndex(index, Long.SIZE);
+        long mask = 1L << index;
+        return ((mask & value) == value);
+
     }
 }
