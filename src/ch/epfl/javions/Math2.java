@@ -21,9 +21,8 @@ public class Math2 {
      * @return Clipped Value
      */
     public static int clamp(int minValue, int value, int maxValue) {
-        if (minValue > maxValue) {
-            throw new IllegalArgumentException();
-        } else if (value < minValue) {
+        Preconditions.checkArgument(minValue <= maxValue);
+        if (value < minValue) {
             return minValue;
         } else return Math.min(value, maxValue);
     }
