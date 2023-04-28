@@ -1,7 +1,6 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
@@ -11,7 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 
-import java.beans.EventHandler;
+
 import java.io.IOException;
 
 /**
@@ -121,7 +120,8 @@ public final class BaseMapController {
                         mapToTile(mapY) + j);
 
                 try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * pixelsInATile) - mapX, (tileToDraw.y() * pixelsInATile) - mapY);
+                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * pixelsInATile)
+                            - mapX, (tileToDraw.y() * pixelsInATile) - mapY);
                 } catch (IOException ignored) {
                 }
             }
@@ -143,8 +143,9 @@ public final class BaseMapController {
         int zoomValue = mapParameters.getZoomValue();
         int x = (int) WebMercator.x(zoomValue, position.longitude());
         int y = (int) WebMercator.y(zoomValue, position.latitude());
-        mapParameters = new MapParameters(zoomValue, x + canvas.getWidth()/2, y + canvas.getHeight()/2);
-
+        mapParameters.getZoom().set(zoomValue);
+        mapParameters.setMinX(x + canvas.getWidth()/2);
+        mapParameters.setMinY(y + canvas.getHeight()/2);
         redrawOnNextPulse();
     }
 

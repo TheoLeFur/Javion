@@ -11,9 +11,9 @@ import javafx.beans.property.*;
  */
 public final class MapParameters {
 
-    private IntegerProperty zoom;
-    private DoubleProperty minX;
-    private DoubleProperty minY;
+    private final IntegerProperty zoom;
+    private final DoubleProperty minX;
+    private final DoubleProperty minY;
 
     /**
      * Module which will serve to track the main map params : zoom level, and origin given y (minX, minY)
@@ -89,5 +89,15 @@ public final class MapParameters {
         return minY;
     }
 
+    public void setZoom(int zoom) {
+        this.zoom.set(zoom);
+    }
 
+    public void setMinY(double minY) {
+        this.minY.set(minY);
+    }
+
+    public void setMinX(double minX) {
+        this.minX.set(minX);
+    }
 }
