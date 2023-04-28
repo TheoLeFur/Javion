@@ -21,9 +21,9 @@ import java.util.*;
  */
 public final class AircraftStateManager {
     private final AircraftDatabase aircraftDatabase;
-    private Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
+    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
     //Observable set of aircraft states whose position is known
-    private ObservableSet<ObservableAircraftState> aircraftSet;
+    private final ObservableSet<ObservableAircraftState> aircraftSet;
     private Message lastMessage;
 
     /**
