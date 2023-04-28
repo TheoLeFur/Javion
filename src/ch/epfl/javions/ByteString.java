@@ -76,7 +76,7 @@ public final class ByteString {
         if (obj instanceof ByteString that) {
             if (this.size() != that.size()) {
                 return false;
-            } else return Arrays.equals(this.bytes, that.bytes;
+            } else return Arrays.equals(this.bytes, that.bytes);
         }
         return false;
     }
