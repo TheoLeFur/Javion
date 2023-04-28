@@ -20,15 +20,15 @@ import java.io.IOException;
  * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class BaseMapController {
-    TileManager tileManager;
-    MapParameters mapParameters;
+    private final TileManager tileManager;
+    private final MapParameters mapParameters;
     private boolean redrawNeeded;
-    Canvas canvas;
-    Pane mainPane;
-    GraphicsContext contextOfMap;
-    Point2D cursorPosition;
+    private final Canvas canvas;
+    private final Pane mainPane;
+    private final GraphicsContext contextOfMap;
+    private Point2D cursorPosition;
 
-    int pixelsInATile = 1 << 8;
+    final static int PIXELS_IN_TILE = 1 << 8;
 
 
     /**
@@ -38,7 +38,7 @@ public final class BaseMapController {
     public BaseMapController(TileManager tileManager, MapParameters mapParameters){
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
-        //canvas on which the map will be drawn
+
         canvas = new Canvas();
         mainPane = new Pane();
         mainPane.getChildren().add(canvas);
@@ -63,6 +63,17 @@ public final class BaseMapController {
             mapParameters.changeZoomLevel(zoomDelta);
             mapParameters.scroll(- e.getX(),- e.getY());
 
+        });
+
+        mapParameters.getMinX().addListener((p, oldVal, newVal) -> {
+            redrawOnNextPulse();
+        });
+
+        mapParameters.getMinY().addListener((p, oldVal, newVal) -> {
+            redrawOnNextPulse();
+        });
+
+        mapParameters.getZoom().addListener((p, oldVal, newVal) -> {
             redrawOnNextPulse();
         });
 
@@ -71,10 +82,13 @@ public final class BaseMapController {
              cursorPosition = new Point2D(e.getX(), e.getY());
         });
         mainPane.setOnMouseDragged(e -> {
-            mapParameters.scroll(cursorPosition.getX() - e.getX()
-                    , cursorPosition.getY() - e.getY());
+            Point2D midWayPoint = cursorPosition.subtract(new Point2D(e.getX(), e.getY()));
+            mapParameters.scroll(midWayPoint.getX(), midWayPoint.getY());
             redrawOnNextPulse();
             cursorPosition = new Point2D(e.getX(), e.getY());
+        });
+        mainPane.setOnMouseReleased(e -> {
+            cursorPosition = null;
         });
 
         //making it so every pulse, the image is redrawn
@@ -85,12 +99,10 @@ public final class BaseMapController {
 
         //setting the listeners to check for when the window is modified
         canvas.heightProperty().addListener((p, oldVal, newVal) -> {
-            if(!oldVal.equals(newVal))
-                redrawOnNextPulse();
+            redrawOnNextPulse();
         });
         canvas.widthProperty().addListener((p, oldVal, newVal) -> {
-            if(!oldVal.equals(newVal))
-                redrawOnNextPulse();
+            redrawOnNextPulse();
         });
     }
 
@@ -113,15 +125,16 @@ public final class BaseMapController {
         double mapX = mapParameters.getMinXValue();
         double mapY = mapParameters.getMinYValue();
 
-        for(int i = 0; i <= Math.ceil(canvas.getWidth() / pixelsInATile); ++i) {
-            for (int j = 0; j <= Math.ceil(canvas.getHeight() / pixelsInATile); j++) {
+        System.out.println(canvas.getWidth() / PIXELS_IN_TILE);
+        for(int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
+            for (int j = 0; j <= Math.ceil(canvas.getHeight() / PIXELS_IN_TILE); j++) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
                         mapToTile(mapX) + i,
                         mapToTile(mapY) + j);
 
                 try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * pixelsInATile)
-                            - mapX, (tileToDraw.y() * pixelsInATile) - mapY);
+                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * PIXELS_IN_TILE)
+                            - mapX, (tileToDraw.y() * PIXELS_IN_TILE) - mapY);
                 } catch (IOException ignored) {
                 }
             }
@@ -146,7 +159,6 @@ public final class BaseMapController {
         mapParameters.getZoom().set(zoomValue);
         mapParameters.setMinX(x + canvas.getWidth()/2);
         mapParameters.setMinY(y + canvas.getHeight()/2);
-        redrawOnNextPulse();
     }
 
     /**
@@ -155,6 +167,6 @@ public final class BaseMapController {
      * @return corresponding tile coordinate
      */
     private int mapToTile(double mapCoord) {
-        return (int)Math.floor(mapCoord / pixelsInATile);
+        return (int)Math.floor(mapCoord / PIXELS_IN_TILE);
     }
 }

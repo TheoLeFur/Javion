@@ -1,5 +1,7 @@
 package ch.epfl.javions.aircraft;
 
+import ch.epfl.javions.Preconditions;
+
 import java.util.regex.Pattern;
 
 /**
@@ -7,7 +9,7 @@ import java.util.regex.Pattern;
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record AircraftDescription(String string) {
-    static Pattern allowedStrings = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");
+    private final static Pattern allowedStrings = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");
 
     /**
      * @param string aircraft description
@@ -15,8 +17,6 @@ public record AircraftDescription(String string) {
      *                                  element 0,1,2,3,4,6,8 and the third element E,J,P,T,- (the empty string is a valid description)
      */
     public AircraftDescription {
-        if (!allowedStrings.matcher(string).matches() && !string.equals("")) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(allowedStrings.matcher(string).matches() || string.isEmpty());
     }
 }

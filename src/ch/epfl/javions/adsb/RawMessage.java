@@ -6,6 +6,8 @@ import ch.epfl.javions.Crc24;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
+import java.util.HexFormat;
+
 /**
  * @param timeStampNs time stamp of the message in nanoseconds
  * @param bytes       14 bytes that make up an ADS-B  message
@@ -16,6 +18,15 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
 
     //Length in bytes of ADSB messages
     public static final int LENGTH = 14;
+    private static Crc24 CRC_24 = new Crc24(Crc24.GENERATOR);
+    private final static int MESSAGE_FORMAT_START = 0;
+    private final static int MESSAGE_FORMAT_SIZE = 1;
+    private final static int ICAO_ADDRESS_START = 1;
+    private final static int ICAO_ADDRESS_SIZE = 3;
+    private final static int ME_ATTRIBUTE_START = 4;
+    private final static int ME_ATTRIBUTE_SIZE = 7;
+    private final static int CRC_START = 11;
+    private final static int CRC_SIZE = 4;
 
     public RawMessage {
         Preconditions.checkArgument(timeStampNs >= 0 && bytes.size() == LENGTH);
@@ -28,9 +39,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * if the bytes have a CRC24 of 0
      */
     public static RawMessage of(long timeStampsNs, byte[] bytes) {
-        Crc24 crc24 = new Crc24(Crc24.GENERATOR);
-
-        if (crc24.crc(bytes) != 0) {
+        if (CRC_24.crc(bytes) != 0) {
             return null;
         } else {
             return new RawMessage(timeStampsNs, new ByteString(bytes));
@@ -73,15 +82,10 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return ICAO address of the expediter of the message
      */
     public IcaoAddress icaoAddress() {
-        StringBuilder icaoStr = new StringBuilder(Long.toHexString(bytes.bytesInRange(1, 4)));
-
-        //when turning a long to a string the zeros at the beginning
-        // are not accounted for so they have to be added back manually
-        while (icaoStr.length() < 6) {
-            icaoStr.insert(0, "0");
-        }
-        icaoStr = new StringBuilder(icaoStr.toString().toUpperCase());
-        return new IcaoAddress(icaoStr.toString());
+        String icaoHexString = HexFormat.of()
+                .toHexDigits(bytes.bytesInRange(1, 4))
+                .toUpperCase();
+        return new IcaoAddress(icaoHexString.substring(icaoHexString.length() - ICAO_ADDRESS_SIZE));
     }
 
     /**
