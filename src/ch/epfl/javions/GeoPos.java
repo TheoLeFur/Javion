@@ -8,11 +8,13 @@ package ch.epfl.javions;
  */
 public record GeoPos(int longitudeT32, int latitudeT32) {
 
+    private static final float MAX_ABSOLUTE_LATITUDE_T32 = Math.scalb(1, 30);
+
     /**
      * Instantiates a GeoPos object.
      */
     public GeoPos {
-        if (!isValidLatitudeT32(latitudeT32)) throw new IllegalArgumentException();
+        Preconditions.checkArgument(isValidLatitudeT32(latitudeT32));
     }
 
     /**
@@ -23,8 +25,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      */
 
     public static boolean isValidLatitudeT32(int latitudeT32) {
-        double limit = Math.pow(2, 30);
-        return latitudeT32 >= -limit && latitudeT32 <= limit;
+        return latitudeT32 >= -MAX_ABSOLUTE_LATITUDE_T32 && latitudeT32 <= MAX_ABSOLUTE_LATITUDE_T32;
     }
 
     /**
@@ -34,7 +35,8 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      */
 
     public double longitude() {
-        return Units.convert(longitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+
+        return Units.convertFrom(longitudeT32, Units.Angle.T32);
     }
 
     /**
@@ -44,11 +46,17 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      */
 
     public double latitude() {
-        return Units.convert(latitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+        return Units.convertFrom(latitudeT32, Units.Angle.T32);
     }
 
     @Override
     public String toString() {
-        return ("(" + Units.convert(longitudeT32, Units.Angle.T32, Units.Angle.DEGREE) + "°" + ", " + Units.convert(latitudeT32, Units.Angle.T32, Units.Angle.DEGREE) + "°" + ")");
+        return ("(" +
+                Units.convert(longitudeT32, Units.Angle.T32, Units.Angle.DEGREE) +
+                "°" +
+                ", " +
+                Units.convert(latitudeT32, Units.Angle.T32, Units.Angle.DEGREE) +
+                "°" +
+                ")");
     }
 }
