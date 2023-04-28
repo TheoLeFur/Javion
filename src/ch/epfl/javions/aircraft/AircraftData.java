@@ -17,8 +17,11 @@ public record AircraftData(AircraftRegistration registration, AircraftTypeDesign
                            AircraftDescription description, WakeTurbulenceCategory wakeTurbulenceCategory) {
 
     /**
-     * Record storing all the relevant data of an aircraft. Whenever one of the parameters is null
-     * a NullPointerException is thrown
+     * @param registration           registration id of aircraft
+     * @param typeDesignator         type of aircraft
+     * @param model                  model of aircraft
+     * @param description            additional description of aircraft
+     * @param wakeTurbulenceCategory category
      */
     public AircraftData {
 
