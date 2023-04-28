@@ -1,7 +1,6 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Math2;
-import ch.epfl.javions.Preconditions;
 import javafx.scene.paint.Color;
 
 import java.util.Collections;
@@ -14,6 +13,7 @@ import java.util.List;
 public final class ColorRamp {
 
     private final List<Color> colorList;
+
     // PLASMA ColorRamp we will use for the rest of the project.
     public static final ColorRamp PLASMA = new ColorRamp(List.of(
             Color.valueOf("0x0d0887ff"), Color.valueOf("0x220690ff"),
