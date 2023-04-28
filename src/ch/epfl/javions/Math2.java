@@ -27,22 +27,6 @@ public final class Math2 {
         } else return Math.min(value, maxValue);
     }
 
-    /**
-     * Clips the value of a double to minValue and maxValue
-     *
-     * @param value    Double to be clipped
-     * @param minValue Lower bound
-     * @param maxValue Upper bound
-     * @return Clipped Value
-     */
-    public static double clamp(double minValue, double value, double maxValue) {
-        Preconditions.checkArgument(minValue <= maxValue);
-        if (value < minValue) {
-            return minValue;
-        } else return Math.min(value, maxValue);
-    }
-
-
 
     /**
      * Inverse hyperbolic sine function

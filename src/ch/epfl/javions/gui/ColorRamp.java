@@ -13,7 +13,6 @@ import java.util.List;
 public final class ColorRamp {
 
     private final List<Color> colorList;
-
     // PLASMA ColorRamp we will use for the rest of the project.
     public static final ColorRamp PLASMA = new ColorRamp(List.of(
             Color.valueOf("0x0d0887ff"), Color.valueOf("0x220690ff"),
@@ -37,6 +36,7 @@ public final class ColorRamp {
 
     /**
      * Create a lattice of colors, specified by the colorList
+     *
      * @param colorList list of colors we want to use as the base of our spectrum
      */
     public ColorRamp(List<Color> colorList) {
@@ -53,14 +53,20 @@ public final class ColorRamp {
      * @return a color resulting from the interpolation of the lattice of colors given in the constructor.
      */
     public Color at(double index) {
-        index = Math2.clamp(0, index, 1);
-        double colorIndex = index * (this.colorList.size() - 1);
-        int c0Index = (int) Math.floor(colorIndex);
-        int c1Index = (int) Math.ceil(colorIndex);
-        Color c0 = this.colorList.get(c0Index);
-        Color c1 = this.colorList.get(c1Index);
-        double c1Prop = c1Index - colorIndex;
-        return c0.interpolate(c1, c1Prop);
+        int N = this.colorList.size();
+        if (index < 0) {
+            return this.colorList.get(0);
+        } else if (index > 1) {
+            return this.colorList.get(N - 1);
+        } else {
+            double colorIndex = index * (N - 1);
+            int c0Index = (int) Math.floor(colorIndex);
+            int c1Index = (int) Math.ceil(colorIndex);
+            Color c0 = this.colorList.get(c0Index);
+            Color c1 = this.colorList.get(c1Index);
+            double c1Prop = c1Index - colorIndex;
+            return c0.interpolate(c1, c1Prop);
+        }
     }
-
 }
+
