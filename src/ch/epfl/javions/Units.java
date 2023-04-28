@@ -6,8 +6,10 @@ package ch.epfl.javions;
  */
 public final class Units {
 
-
+    // Centi prefix
     public static final double CENTI = 1e-2;
+
+    // Kilo prefix
     public static final double KILO = 1e3;
 
     /**
@@ -44,11 +46,18 @@ public final class Units {
         return value / toUnit;
     }
 
-    public static class Angle {
+    public final static class Angle {
 
+
+        // Fundamental angle unit ; radian
         public static final double RADIAN = 1;
+
+        // Corresponds to one whole turn through a circle
         public static final double TURN = 2 * Math.PI * RADIAN;
+
+        // Degrees, from 0 to 360
         public static final double DEGREE = TURN / 360;
+        // Useful unit for working on Open Street Map, where we have varying zoom levels.
         public static final double T32 = TURN / Math.pow(2, 32);
 
         /**
@@ -58,13 +67,19 @@ public final class Units {
         }
     }
 
-    public static class Length {
+    public final static class Length {
 
+        // 1 meter
         public static final double METER = 1;
+        // 1 centimeter
         public static final double CENTIMETER = CENTI * METER;
+        // 1 inch
         public static final double INCH = 2.54 * CENTIMETER;
+        // 1 foot
         public static final double FOOT = 12 * INCH;
+        // 1 kilometer
         public static final double KILOMETER = KILO * METER;
+        // 1 nautical mile
         public static final double NAUTICAL_MILE = 1852 * METER;
 
         /**
@@ -75,10 +90,12 @@ public final class Units {
 
     }
 
-    public static class Time {
-
+    public final static class Time {
+        //1 second
         public static final double SECOND = 1;
+        // 1 minute
         public static final double MINUTE = 60 * SECOND;
+        // 1 hour
         public static final double HOUR = 3600 * SECOND;
 
         //added nanosecond unit of time measurement for AircraftStateManager
@@ -92,10 +109,13 @@ public final class Units {
 
     }
 
-    public static class Speed {
+    public final static class Speed {
 
+        // 1 m/s
         public static final double METER_PER_SECOND = Length.METER / Time.SECOND;
+        // 1 km/h
         public static final double KILOMETER_PER_HOUR = Length.KILOMETER / Time.HOUR;
+        // 1 nm/h
         public static final double KNOT = Length.NAUTICAL_MILE / Time.HOUR;
 
         /**

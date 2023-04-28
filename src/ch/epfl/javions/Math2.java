@@ -4,7 +4,7 @@ package ch.epfl.javions;
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
-public class Math2 {
+public final class Math2 {
 
     /**
      * Private constructor, makes the class non instantiatable
