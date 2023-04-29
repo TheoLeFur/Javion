@@ -2,6 +2,7 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.WebMercator;
+
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -32,10 +33,10 @@ public final class BaseMapController {
 
 
     /**
-     * @param tileManager Used to obtain the tiles of the map
+     * @param tileManager   Used to obtain the tiles of the map
      * @param mapParameters Portion of the map that is visible
      */
-    public BaseMapController(TileManager tileManager, MapParameters mapParameters){
+    public BaseMapController(TileManager tileManager, MapParameters mapParameters) {
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
 
@@ -78,9 +79,7 @@ public final class BaseMapController {
         });
 
         //dragging lambdas
-        mainPane.setOnMousePressed(e -> {
-             cursorPosition = new Point2D(e.getX(), e.getY());
-        });
+        mainPane.setOnMousePressed(e -> cursorPosition = new Point2D(e.getX(), e.getY()));
         mainPane.setOnMouseDragged(e -> {
             Point2D midWayPoint = cursorPosition.subtract(new Point2D(e.getX(), e.getY()));
             mapParameters.scroll(midWayPoint.getX(), midWayPoint.getY());
@@ -141,7 +140,6 @@ public final class BaseMapController {
     }
 
     /**
-     *
      * @return the JavaFX pane that displays the map background
      */
     public Pane pane(){

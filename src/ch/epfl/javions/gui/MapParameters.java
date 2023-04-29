@@ -1,11 +1,12 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Math2;
 import ch.epfl.javions.Preconditions;
-import javafx.beans.property.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
- *
  * @author Rudolf Yazbeck (SCIPER : 360700)
  * @author Theo Le Fur (SCIPER : 363294)
  */
@@ -65,37 +66,89 @@ public final class MapParameters {
         }
     }
 
+
+    /**
+     * Getter for zoom value
+     *
+     * @return zoom factor
+     */
     public int getZoomValue() {
         return zoom.getValue();
     }
 
+    /**
+     * Getter for x coordinate of the left right corner of the tile displayed
+     *
+     * @return value of minX
+     */
     public double getMinXValue() {
         return minX.getValue();
     }
 
+    /**
+     * Getter for y coordinate of the left right corner of the tile displayed
+     *
+     * @return value of minY
+     */
     public double getMinYValue() {
         return minY.getValue();
     }
+
+    /**
+     * Getter for the zoom prperty
+     *
+     * @return zoom javafx property
+     */
 
     public IntegerProperty getZoom() {
         return zoom;
     }
 
+    /**
+     * Getter for the property holding the x value of the left right corner of the tile displayed
+     *
+     * @return minX javafx property
+     */
+
     public DoubleProperty getMinX() {
         return minX;
     }
+
+    /**
+     * Getter for the property holding the y value of the left right corner of the tile displayed
+     *
+     * @return minY javafx property
+     */
 
     public DoubleProperty getMinY() {
         return minY;
     }
 
+    /**
+     * Set the value of the zoom property
+     *
+     * @param zoom new zoom value
+     */
+
     public void setZoom(int zoom) {
         this.zoom.set(zoom);
     }
 
+    /**
+     * Set the value of the minY property
+     *
+     * @param minY new zoom value
+     */
+
     public void setMinY(double minY) {
         this.minY.set(minY);
     }
+
+    /**
+     * Set the value of the minX property
+     *
+     * @param minX new zoom value
+     */
 
     public void setMinX(double minX) {
         this.minX.set(minX);

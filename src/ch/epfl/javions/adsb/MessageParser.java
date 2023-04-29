@@ -1,12 +1,16 @@
 package ch.epfl.javions.adsb;
 
-import java.util.Objects;
-
 /**
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public final class MessageParser {
+    /**
+     * Private constructor, thereby class is not instantiatable
+     */
+    private MessageParser() {
+    }
+
     /**
      * @param rawMessage Message we are parsing
      * @return an instance of AircraftIdentificationMessage, AirbornePositionMessage or AirborneVelocityMessage, or null,

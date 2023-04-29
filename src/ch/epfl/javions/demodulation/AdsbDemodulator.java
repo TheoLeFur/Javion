@@ -2,10 +2,8 @@ package ch.epfl.javions.demodulation;
 
 import ch.epfl.javions.adsb.RawMessage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.stream.IntStream;
 
 /**
  * @author Rudolf Yazbeck (SCIPER: 360700)
@@ -15,12 +13,13 @@ public final class AdsbDemodulator {
 
     // Number of bits in message
     private static final int MESSAGE_LENGTH = 112;
+    private static final int RAW_MESSAGE_LENGTH = MESSAGE_LENGTH / 8;
+    private static final int TIME_STAMP_FACTOR = 100;
     // Byte buffer where the demodulated message will be stored.
-    private static final byte[] demodulatedMessage = new byte[MESSAGE_LENGTH / 8];
+    private static final byte[] demodulatedMessage = new byte[RAW_MESSAGE_LENGTH];
     // Size of power window
     private final int WINDOW_SIZE = 1200;
-    InputStream samplesStream;
-    PowerWindow powerWindow;
+    private final PowerWindow powerWindow;
 
     /**
      * Instantiates a demodulator object.
@@ -29,8 +28,7 @@ public final class AdsbDemodulator {
      * @throws IOException when exception is thrown while reading the input stream.
      */
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
-        this.samplesStream = samplesStream;
-        this.powerWindow = new PowerWindow(this.samplesStream, WINDOW_SIZE);
+        this.powerWindow = new PowerWindow(samplesStream, WINDOW_SIZE);
     }
 
     /**
@@ -41,8 +39,8 @@ public final class AdsbDemodulator {
 
     public RawMessage nextMessage() throws IOException {
 
-        int pSum = 0;
-        int vSum = 0;
+        int pSum;
+        int vSum;
         int pSumPrevious = 0;
         int pSumPosterior = this.PosteriorPSum();
 
@@ -52,10 +50,10 @@ public final class AdsbDemodulator {
             pSumPosterior = this.PosteriorPSum();
             if (pSumPrevious < pSum && pSumPosterior < pSum && pSum >= 2 * vSum) {
                 for (int i = 0; i < demodulatedMessage.length; i++) {
-                    demodulatedMessage[i] = this.bytes(8 * i);
+                    demodulatedMessage[i] = this.bytes(Byte.SIZE * i);
                 }
-                long timeStampsNs = 100 * this.powerWindow.position();
-                if (RawMessage.size(demodulatedMessage[0]) == 14) {
+                long timeStampsNs = TIME_STAMP_FACTOR * this.powerWindow.position();
+                if (RawMessage.size(demodulatedMessage[0]) == RAW_MESSAGE_LENGTH) {
                     RawMessage message = RawMessage.of(timeStampsNs, demodulatedMessage);
                     if (message != null) {
                         this.powerWindow.advanceBy(WINDOW_SIZE);
@@ -79,7 +77,7 @@ public final class AdsbDemodulator {
     private byte bytes(int index) {
         int b = 0;
         for (int i = 0; i < Byte.SIZE; i++) {
-            b = (byte) (b | b(index + i) << (7 - i));
+            b = (byte) (b | b(index + i) << (Byte.SIZE - 1 - i));
         }
         return (byte) b;
     }
@@ -104,14 +102,6 @@ public final class AdsbDemodulator {
         return this.powerWindow.get(1) + this.powerWindow.get(11) + this.powerWindow.get(36) + this.powerWindow.get(46);
     }
 
-
-    /**
-     * @return sum of peeks
-     * Auxiliary function for determining sums of peaks
-     */
-    private int pSum() {
-        return this.powerWindow.get(0) + this.powerWindow.get(10) + this.powerWindow.get(35) + this.powerWindow.get(45);
-    }
 
     /**
      * @return sum of valleys signals

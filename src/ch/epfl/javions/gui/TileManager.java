@@ -24,15 +24,13 @@ public final class TileManager {
             return 0 <= zoom && zoom <= 19
                     && x >= 0 && x <= maxNumberOfTiles
                     && y >= 0 && y <= maxNumberOfTiles;
-
         }
+
     }
 
     private final Path cacheDiskPath;
     private final String tileServerName;
     private final int maxMemoryCacheCapacity = 100;
-
-    //private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 1, false);
     private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
 
@@ -81,12 +79,30 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-
-            if(memoryCache.size() == 100) {
-                memoryCache.remove(memoryCache.keySet().iterator().next());
-            }
-            memoryCache.put(tileId, image);
+            
+            this.cropMemCache();
+            this.memoryCache.put(tileId, image);
         }
         return image;
+    }
+
+    /**
+     * Whenever the memory cache map has more than 100 elements, we remove the least recently accessed
+     * element.
+     */
+    private void cropMemCache(){
+        if (this.memoryCache.size() == 100){
+            TileId firstId = this.memoryCache.keySet().iterator().next();
+            this.memoryCache.remove(firstId);
+
+        }
+    }
+
+    /**
+     * Getter for memoryCache, used in testing
+     * @return Memory Cache containing the 100 most recently accessed images by the program.
+     */
+    public Map<TileId, Image> getMemoryCache(){
+        return this.memoryCache;
     }
 }

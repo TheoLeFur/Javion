@@ -1,6 +1,7 @@
 package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.GeoPos;
+
 import java.util.Objects;
 
 /**
@@ -24,8 +25,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      *                    an array of size 2. This will be convenient for updates.
      */
     public AircraftStateAccumulator(T stateSetter) {
-        Objects.requireNonNull(stateSetter);
-        this.stateSetter = stateSetter;
+        this.stateSetter = Objects.requireNonNull(stateSetter);
         this.previousMessageMemory = new AirbornePositionMessage[2];
     }
 
@@ -54,15 +54,16 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
             }
             case AirbornePositionMessage aim -> {
                 this.stateSetter.setAltitude(aim.altitude());
-                try {
-                    AirbornePositionMessage prevMessage = this.oppParRecentMessage(aim);
+
+                AirbornePositionMessage prevMessage = this.oppParRecentMessage(aim);
+                if (!Objects.isNull(prevMessage)) {
                     if (this.posMessageCondition(aim, prevMessage)) {
                         if (this.getPosition(aim, prevMessage) != null) {
                             this.stateSetter.setPosition(this.getPosition(aim, prevMessage));
                         }
                     }
-                } catch (NullPointerException ignored) {
                 }
+
                 this.addToMemory(aim);
             }
             case AirborneVelocityMessage aim -> {
@@ -91,7 +92,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     /**
      * @param x {0,1} variable, representing the parity of the message.
      * @return 0 if x is equal to 1, else returns 1.
-g     * Negator applied on {0,1} integer.
+     * g     * Negator applied on {0,1} integer.
      */
     private int oppositeParity(int x) {
         if (x == 1) {
@@ -138,7 +139,7 @@ g     * Negator applied on {0,1} integer.
         int oppPar = this.oppositeParity(currentMessage.parity());
         AirbornePositionMessage prevMessage = this.previousMessageMemory[oppPar];
         if (Objects.isNull(prevMessage)) {
-            throw new NullPointerException();
+            return null;
         }
         return prevMessage;
     }

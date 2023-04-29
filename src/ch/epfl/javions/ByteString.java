@@ -11,6 +11,7 @@ import java.util.Objects;
 public final class ByteString {
 
     private final byte[] bytes;
+    private static final HexFormat hf = HexFormat.of().withUpperCase();
 
     /**
      * Initialises a ByteString object taking a array of bytes as an input
@@ -28,7 +29,6 @@ public final class ByteString {
      * @return Parsed ByteString
      */
     public static ByteString ofHexadecimalString(String hexString) {
-        HexFormat hf = HexFormat.of().withUpperCase();
         return new ByteString(hf.parseHex(hexString));
     }
 
@@ -49,9 +49,7 @@ public final class ByteString {
      * @return Byte at index
      */
     public int byteAt(int index) {
-        if (index >= this.bytes.length) {
-            throw new IndexOutOfBoundsException();
-        } else return this.bytes[index] & 0xff;
+        return Byte.toUnsignedInt(this.bytes[index]);
     }
 
     /**
@@ -64,15 +62,13 @@ public final class ByteString {
 
     public long bytesInRange(int fromIndex, int toIndex) {
         Objects.checkFromToIndex(fromIndex, toIndex, bytes.length);
-        if (toIndex - fromIndex > bytes.length) {
-            throw new IllegalArgumentException();
-        } else {
-            long value = 0;
-            for (int i = fromIndex; i < toIndex; i++) {
-                value = (value << 8) + (this.bytes[i] & 255);
-            }
-            return value;
+        Preconditions.checkArgument(toIndex - fromIndex <= bytes.length);
+        long value = 0;
+        for (int i = fromIndex; i < toIndex; i++) {
+            value = (value << Byte.SIZE) + this.byteAt(i);
         }
+        return value;
+
     }
 
     @Override
@@ -80,15 +76,9 @@ public final class ByteString {
         if (obj instanceof ByteString that) {
             if (this.size() != that.size()) {
                 return false;
-            } else {
-                for (int i = 0; i < this.size(); i++) {
-                    if (this.byteAt(i) != that.byteAt(i)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        } else return false;
+            } else return Arrays.equals(this.bytes, that.bytes);
+        }
+        return false;
     }
 
 
@@ -99,7 +89,6 @@ public final class ByteString {
 
     @Override
     public String toString() {
-        HexFormat hf = HexFormat.of().withUpperCase();
         return hf.formatHex(this.bytes);
     }
 

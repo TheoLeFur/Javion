@@ -4,7 +4,7 @@ package ch.epfl.javions;
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
-public class Math2 {
+public final class Math2 {
 
     /**
      * Private constructor, makes the class non instantiatable
@@ -21,12 +21,12 @@ public class Math2 {
      * @return Clipped Value
      */
     public static int clamp(int minValue, int value, int maxValue) {
-        if (minValue > maxValue) {
-            throw new IllegalArgumentException();
-        } else if (value < minValue) {
+        Preconditions.checkArgument(minValue <= maxValue);
+        if (value < minValue) {
             return minValue;
         } else return Math.min(value, maxValue);
     }
+
 
     /**
      * Inverse hyperbolic sine function

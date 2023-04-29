@@ -4,22 +4,24 @@ import ch.epfl.javions.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.stream.IntStream;
+import java.util.Objects;
 
 /**
+ * Class for navigating through the outputs of the power computer using a constant size window.
+ * Defines some utility methods useful for accessing the relevant values.
  * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
-public class PowerWindow {
+public final class PowerWindow {
     // Maximal size of window
-    final static int staticConstant = 65536;
-    InputStream stream;
-    int windowSize;
-    int position = 0;
-    int[] tab1 = new int[staticConstant];
-    int[] tab2 = new int[staticConstant];
-    int batchSize;
-    PowerComputer calculator;
+    private final static int staticConstant = 65536;
+    private final int windowSize;
+    private long position = 0;
+    private int[] tab1 = new int[staticConstant];
+    private int[] tab2 = new int[staticConstant];
+    private int batchSize;
+    private final PowerComputer calculator;
+
 
     /**
      * Instantiates a power window, allowing us to navigate through the outputs of the Power Computer. The window's
@@ -31,7 +33,6 @@ public class PowerWindow {
      */
     public PowerWindow(InputStream stream, int windowSize) throws IOException {
         Preconditions.checkArgument((windowSize > 0) && (windowSize <= staticConstant));
-        this.stream = stream;
         this.windowSize = windowSize;
         this.calculator = new PowerComputer(stream, staticConstant);
         this.batchSize = this.calculator.readBatch(tab1);
@@ -75,13 +76,11 @@ public class PowerWindow {
      */
 
     public int get(int i) {
-        if (!((i >= 0) && (windowSize > i))) {
-            throw new IndexOutOfBoundsException();
-        }
+        Objects.checkIndex(i, this.windowSize);
         if (i + position % staticConstant < staticConstant) {
-            return tab1[i + position % staticConstant];
+            return tab1[ (i + (int)position % staticConstant)];
         } else {
-            return tab2[(i - (staticConstant - position % staticConstant))];
+            return tab2[ (i - (staticConstant - (int) position % staticConstant))];
         }
     }
 
@@ -91,11 +90,10 @@ public class PowerWindow {
      */
     public void advance() throws IOException {
         position += 1;
-        int[] tempTable;
         if (position % staticConstant == 0) {
-            tempTable = tab1.clone();
-            tab1 = tab2.clone();
-            tab2 = tempTable.clone();
+            int[] tempTable = tab1;
+            tab1 = tab2;
+            tab2 = tempTable;
         }
         if ((position + windowSize - 1) % staticConstant == 0) {
             this.batchSize = calculator.readBatch(tab2);
