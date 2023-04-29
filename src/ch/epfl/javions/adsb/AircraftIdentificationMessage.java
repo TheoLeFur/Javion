@@ -4,7 +4,7 @@ import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static java.lang.String.valueOf;
 
@@ -19,10 +19,15 @@ import static java.lang.String.valueOf;
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
+    //constant that is the number of bits that represent the callSign characters and aircraft category
+    static final int ME_ATTRIBUTE_SIZE = 48;
+    static final int CA_START = 48;
+    static final int CA_SIZE = 3;
+    static final int C1_START = 42;
+    static final int CALLSIGN_CHARACTER_SIZE = 6;
     public AircraftIdentificationMessage {
-        if (icaoAddress == null || callSign == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(icaoAddress);
+        Objects.requireNonNull(callSign);
         Preconditions.checkArgument(timeStampNs >= 0);
     }
 
@@ -36,9 +41,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      */
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
-        final int ME_ATTRIBUTE_SIZE = 48; //constant that is the number of bits that represent the callSign characters and aircraft category
         int codeType = rawMessage.typeCode();
-        int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, 3);
+        int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, CA_SIZE);
 
         //calculating the category of the aircraft
         codeType = 14 - codeType;
@@ -50,10 +54,10 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         String stringToAdd;
         int callsignInt;
 
-        for (int i = 0; i < 8; i++) {
-            callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
+        for (int i = 0; i < CallSign.CALLSIGN_MAX_LENGTH; i++) {
+            callsignInt = Bits.extractUInt(rawMessage.payload(), C1_START - CALLSIGN_CHARACTER_SIZE * i, CALLSIGN_CHARACTER_SIZE);
             if (callsignInt >= 1 && callsignInt <= 26) {
-                stringToAdd = valueOf((char) (callsignInt + 64));
+                stringToAdd = valueOf((char) (callsignInt + 'A' - 1));
             } else if (callsignInt >= ME_ATTRIBUTE_SIZE && callsignInt <= 57) {
                 stringToAdd = Integer.toString(callsignInt - ME_ATTRIBUTE_SIZE);
             } else if (callsignInt == 32) {
@@ -65,19 +69,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             callSignString.append(stringToAdd);
         }
 
-        callSignString = new StringBuilder(callSignString.toString().trim());
-
-        CallSign callSign = new CallSign(callSignString.toString());
+        CallSign callSign = new CallSign(callSignString.toString().stripTrailing());
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, callSign);
-    }
-
-    @Override
-    public long timeStampNs() {
-        return timeStampNs;
-    }
-
-    @Override
-    public IcaoAddress icaoAddress() {
-        return icaoAddress;
     }
 }

@@ -13,9 +13,8 @@ import java.util.regex.Matcher;
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record IcaoAddress(String string) {
-
-
-    private static final Pattern allowedStrings = Pattern.compile("[0-9A-F]{6}");
+    public final static int ICAO_ADDRESS_SIZE = 6;
+    private final static Pattern allowedStrings = Pattern.compile("[0-9A-F]{6}");
 
     /**
      * @param string Name of the address stored in a string
