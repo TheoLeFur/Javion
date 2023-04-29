@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Math2;
 import javafx.scene.paint.Color;
 
 import java.util.Collections;
@@ -8,7 +7,7 @@ import java.util.List;
 
 
 /**
- * Class for representing a continuous spectrum of colors we will use in our graphic interface
+ * Class for representing a continuous spectrum of colors we will use in our graphic interface.
  */
 public final class ColorRamp {
 
@@ -35,7 +34,8 @@ public final class ColorRamp {
 
 
     /**
-     * Create a lattice of colors, specified by the colorList
+     * Create a lattice of colors, specified by the colorList. One can then interpolate between the lattices
+     * to obtain a continuous spectrum of colors, using the method Color at(double idx)
      *
      * @param colorList list of colors we want to use as the base of our spectrum
      */
