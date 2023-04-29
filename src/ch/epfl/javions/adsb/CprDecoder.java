@@ -90,11 +90,13 @@ public class CprDecoder {
         if (phi >= 0.5) {
             phi -= 1;
         }
-
-        try {
-            return (new GeoPos((int) Math.rint(Units.convert(lambda, Units.Angle.TURN, Units.Angle.T32)), (int) Math.rint(Units.convert(phi, Units.Angle.TURN, Units.Angle.T32))));
-        } catch (IllegalArgumentException i) {
+        int GeoPosX = (int) Math.rint(Units.convert(lambda, Units.Angle.TURN, Units.Angle.T32));
+        int GeoPosY = (int) Math.rint(Units.convert(phi, Units.Angle.TURN, Units.Angle.T32));
+        if (!GeoPos.isValidLatitudeT32(GeoPosY)) {
             return null;
+        }
+        else {
+            return new GeoPos(GeoPosX, GeoPosY);
         }
     }
 

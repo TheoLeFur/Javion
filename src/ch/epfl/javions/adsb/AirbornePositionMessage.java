@@ -20,16 +20,21 @@ import java.util.Objects;
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
                                       double y) implements Message {
 
+    //number of bits that contain the encoded altitude
+    static final int BYTE_SIZE = 12;
+    static final int WEAK_BITS_SIZE = 3;
+    static final int STRONG_BITS_START = 3;
+    static final int STRONG_BITS_SIZE = 9;
+    static final int BIT_D1_POSITION = 8;
+    static final int BIT_B1_POSITION = 7;
+    static final int NORMALIZING_CONSTANT = 17;
+    static final int LAT_CPR_START = 17;
+    static final int LAT_CPR_SIZE = 17;
+    static final int LON_CPR_START = 0;
+    static final int LON_CPR_SIZE = 17;
+    static final int FORMAT_START = 34;
+    static final int FORMAT_SIZE = 1;
 
-    /**
-     * @param timeStampNs time-stamp in nanoseconds
-     * @param icaoAddress ICAO address of the message's expediter
-     * @param altitude    of the aircraft at the time the message was sent
-     * @param parity      of the message (0 or 1)
-     * @param x           normalized local longitude
-     * @param y           normalized local latitude
-     * @author Rudolf Yazbeck (SCIPER 360700)
-     */
 
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
@@ -65,9 +70,6 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         int Q = Bits.extractUInt(bitAltitude, 4, 1);
         double altitude;
 
-        //number of bits that contain the encoded altitude
-        final int BYTE_SIZE = 12;
-
         if (Q == 1) {
             int byte1 = Bits.extractUInt(bitAltitude, 5, 7);
             int byte2 = Bits.extractUInt(bitAltitude, 0, 4);
@@ -76,15 +78,17 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         } else {
             int demelage = 0;
 
-            for (int i = 1; i <= 12; ++i) {
-                int index = i <= 6 ? (8 + 2 * (i - 1)) % BYTE_SIZE : (7 + 2 * (i - 1)) % BYTE_SIZE;
+            for (int i = 1; i <= STRONG_BITS_SIZE + WEAK_BITS_SIZE; ++i) {
+                int index = i <= (STRONG_BITS_SIZE + WEAK_BITS_SIZE)/2
+                        ? (BIT_D1_POSITION + 2 * (i - 1)) % BYTE_SIZE : (BIT_B1_POSITION + 2 * (i - 1)) % BYTE_SIZE;
                 demelage |= Bits.extractUInt(bitAltitude, BYTE_SIZE - index, 1) << (BYTE_SIZE - i);
             }
 
             //100 feet
-            int weakBits = grayDecoder(Bits.extractUInt(demelage, 0, 3), 3);
+            int weakBits = grayDecoder(Bits.extractUInt(demelage, 0, WEAK_BITS_SIZE), WEAK_BITS_SIZE);
             //500 feet
-            int strongBits = grayDecoder(Bits.extractUInt(demelage, 3, 9), 9);
+            int strongBits = grayDecoder(Bits.extractUInt(demelage, STRONG_BITS_START, STRONG_BITS_SIZE)
+                    , STRONG_BITS_SIZE);
 
             if (weakBits == 0 || weakBits == 5 || weakBits == 6) {
                 return null;
@@ -103,8 +107,11 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
             return null;
         }
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), altitude,
-                Bits.extractUInt(rawMessage.payload(), 34, 1), Bits.extractUInt(rawMessage.payload(), 0, 17) / Math.pow(2, 17),
-                Bits.extractUInt(rawMessage.payload(), 17, 17) / Math.pow(2, 17));
+                Bits.extractUInt(rawMessage.payload(), FORMAT_START, FORMAT_SIZE),
+                Bits.extractUInt(rawMessage.payload(), LON_CPR_START, LON_CPR_SIZE)
+                        / (double)(1 << NORMALIZING_CONSTANT),
+                Bits.extractUInt(rawMessage.payload(), LAT_CPR_START, LAT_CPR_SIZE)
+                        / (double)(1 << NORMALIZING_CONSTANT));
     }
 }
 

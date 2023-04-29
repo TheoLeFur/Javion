@@ -125,7 +125,6 @@ public final class BaseMapController {
         double mapX = mapParameters.getMinXValue();
         double mapY = mapParameters.getMinYValue();
 
-        System.out.println(canvas.getWidth() / PIXELS_IN_TILE);
         for(int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
             for (int j = 0; j <= Math.ceil(canvas.getHeight() / PIXELS_IN_TILE); j++) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,

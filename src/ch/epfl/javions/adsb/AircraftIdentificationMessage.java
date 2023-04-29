@@ -21,6 +21,10 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     //constant that is the number of bits that represent the callSign characters and aircraft category
     static final int ME_ATTRIBUTE_SIZE = 48;
+    static final int CA_START = 48;
+    static final int CA_SIZE = 3;
+    static final int C1_START = 42;
+    static final int CALLSIGN_CHARACTER_SIZE = 6;
     public AircraftIdentificationMessage {
         Objects.requireNonNull(icaoAddress);
         Objects.requireNonNull(callSign);
@@ -38,7 +42,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         int codeType = rawMessage.typeCode();
-        int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, 3);
+        int CA = Bits.extractUInt(rawMessage.payload(), ME_ATTRIBUTE_SIZE, CA_SIZE);
 
         //calculating the category of the aircraft
         codeType = 14 - codeType;
@@ -50,10 +54,10 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         String stringToAdd;
         int callsignInt;
 
-        for (int i = 0; i < 8; i++) {
-            callsignInt = Bits.extractUInt(rawMessage.payload(), 42 - 6 * i, 6);
+        for (int i = 0; i < CallSign.CALLSIGN_MAX_LENGTH; i++) {
+            callsignInt = Bits.extractUInt(rawMessage.payload(), C1_START - CALLSIGN_CHARACTER_SIZE * i, CALLSIGN_CHARACTER_SIZE);
             if (callsignInt >= 1 && callsignInt <= 26) {
-                stringToAdd = valueOf((char) (callsignInt + 64));
+                stringToAdd = valueOf((char) (callsignInt + 'A' - 1));
             } else if (callsignInt >= ME_ATTRIBUTE_SIZE && callsignInt <= 57) {
                 stringToAdd = Integer.toString(callsignInt - ME_ATTRIBUTE_SIZE);
             } else if (callsignInt == 32) {

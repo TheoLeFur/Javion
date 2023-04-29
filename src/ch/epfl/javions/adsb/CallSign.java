@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record CallSign(String string) {
+    public final static int CALLSIGN_MAX_LENGTH = 8;
     static Pattern allowedStrings = Pattern.compile("[A-Z0-9 ]{0,8}");
 
     /**

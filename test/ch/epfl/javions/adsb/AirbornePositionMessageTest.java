@@ -4,6 +4,7 @@ import ch.epfl.javions.Crc24;
 import ch.epfl.javions.aircraft.IcaoAddress;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
