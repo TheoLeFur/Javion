@@ -1,90 +1,86 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.Message;
+import ch.epfl.javions.adsb.MessageParser;
+import ch.epfl.javions.adsb.RawMessage;
+import ch.epfl.javions.aircraft.AircraftData;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.*;
 
-/**
- * Keeps the states of a set of aircraft up to date by using
- * the messages received from said aircraft.
- * One of its instance will be used to manage all of the aircraft visible on the map.
- *
- * @author Rudolf Yazbeck (SCIPER : 360700)
- * @author Theo Le Fur (SCIPER : 363294)
- */
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public final class AircraftStateManager {
-    private final AircraftDatabase aircraftDatabase;
-    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
-    //Observable set of aircraft states whose position is known
-    private final ObservableSet<ObservableAircraftState> aircraftSet;
-    private Message lastMessage;
+    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> recentAircraftMessage;
+    private final Set<ObservableAircraftState> knownAircraft;
+    private final AircraftDatabase database;
+    private long currentTimeStampNs;
 
-    /**
-     * @param aircraftDataBase that is read for info on the aircraft
-     */
-    public AircraftStateManager(AircraftDatabase aircraftDataBase) {
-        this.aircraftDatabase = aircraftDataBase;
-        this.accumulatorIcaoAddressMap = new HashMap<>();
-        this.aircraftSet = FXCollections.observableSet();
+
+    public AircraftStateManager(AircraftDatabase database){
+        this.database = database;
+        recentAircraftMessage = new HashMap<>();
+        knownAircraft = new HashSet<>();
+        currentTimeStampNs = 0;
     }
 
-    /**
-     * @return the observable but unmodifiable set of observable aircraft states whose position is known
-     */
-    public ObservableSet<ObservableAircraftState> states() {
-        return FXCollections.unmodifiableObservableSet(aircraftSet);
+    public Set<ObservableAircraftState> states(){
+        return Set.copyOf(knownAircraft);
     }
 
-    /**
-     * Uses the message argument given to update the state of the aircraft that sent it,
-     * creating that state when said message is the first sent by the aircraft.
-     *
-     * @param message sent by an aircraft
-     */
-    public void updateWithMessage(Message message) throws IOException {
-        IcaoAddress aircraftIcao = message.icaoAddress();
+    public void updateWithMessage(RawMessage message){
+        Objects.requireNonNull(message);
+        Message decodedMessage = MessageParser.parse(message);
 
-        if (!accumulatorIcaoAddressMap.containsKey(aircraftIcao)) {
-            accumulatorIcaoAddressMap.put(aircraftIcao,
-                    new AircraftStateAccumulator<>(
-                            new ObservableAircraftState(aircraftIcao, aircraftDatabase.get(aircraftIcao))));
+        try {
+
+            if (Objects.isNull(decodedMessage)) {
+                throw new NullPointerException("Message not valid.");
+            }
+            currentTimeStampNs = decodedMessage.timeStampNs();
+
+            if(!recentAircraftMessage.containsKey(decodedMessage.icaoAddress())) {
+                AircraftData data = database.get(decodedMessage.icaoAddress());
+
+                if (Objects.isNull(data)) {
+                    throw new NullPointerException("ICAO adress not found in the file.");
+                }
+                recentAircraftMessage.put(decodedMessage.icaoAddress(), new AircraftStateAccumulator<>(new ObservableAircraftState(decodedMessage.icaoAddress(), data)));
+            }
+
+            recentAircraftMessage.get(decodedMessage.icaoAddress()).update(decodedMessage);
+
+            if(!Objects.isNull(recentAircraftMessage.get(decodedMessage.icaoAddress()).stateSetter().getPosition())){
+                knownAircraft.add(recentAircraftMessage.get(decodedMessage.icaoAddress()).stateSetter());
+            }
+
+        }catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Stream error");
         }
-
-        AircraftStateAccumulator<ObservableAircraftState> messageSenderState = accumulatorIcaoAddressMap.get(aircraftIcao);
-        messageSenderState.update(message);
-
-        //if the position isn't null, then we can put the observable state in the aforementioned set
-        if (messageSenderState
-                .stateSetter()
-                .getPosition() != null) { // I'm not sure if the following is necessary: && message instanceof AirbornePositionMessage
-            aircraftSet.add(messageSenderState.stateSetter());
-        }
-
-        lastMessage = message;
     }
 
-    /**
-     * Deletes from the set of observable states all those that correspond to aircraft from which
-     * no message has been received during the minute preceding the reception
-     * of the last message passed to updateWithMessage
-     */
-    public void purge() {
-        long lastUpdateTime = lastMessage.timeStampNs();
+    public void purge(){
+        ObservableAircraftState observableAircraftState;
+        HashSet<ObservableAircraftState> toDelete = new HashSet<>();
 
-        for (AircraftStateAccumulator<ObservableAircraftState> accumulator : accumulatorIcaoAddressMap.values()) {
-            if (accumulator
-                    .stateSetter()
-                    .getLastMessageTimeStampNs() >= lastUpdateTime + Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND)) {
-                aircraftSet.remove(accumulator.stateSetter());
+        for(Map.Entry<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> mapEntries : recentAircraftMessage.entrySet()){
+            observableAircraftState = mapEntries.getValue().stateSetter();
+            if (currentTimeStampNs - observableAircraftState.getLastMessageTimeStampNs() >= 60000000000L){      // Finds all the aircrafts to remove from the list
+                toDelete.add(observableAircraftState);
             }
         }
-    }
 
+        knownAircraft.removeAll(toDelete);
+
+        for(ObservableAircraftState obs : toDelete){
+            recentAircraftMessage.remove(obs.getIcaoAddress());
+
+        }
+    }
 }

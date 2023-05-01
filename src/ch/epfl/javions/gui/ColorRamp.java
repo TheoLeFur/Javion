@@ -1,3 +1,4 @@
+
 package ch.epfl.javions.gui;
 
 import javafx.scene.paint.Color;
@@ -69,4 +70,3 @@ public final class ColorRamp {
         }
     }
 }
-

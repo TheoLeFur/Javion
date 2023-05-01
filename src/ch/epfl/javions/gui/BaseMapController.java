@@ -1,58 +1,72 @@
 package ch.epfl.javions.gui;
+/*
+ */
 
 import ch.epfl.javions.GeoPos;
+import ch.epfl.javions.Preconditions;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
-
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
-import javafx.geometry.Point2D;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 
-
+import javax.swing.event.HyperlinkEvent;
+import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.Objects;
+
 
 /**
- * Manages the display of the map background and the interactions with it.
+ * Defines the pane that will display the map as well as methods for
+ * the user to interact with it.
  *
- * @author Rudolf Yazbeck (SCIPER : 360700)
- * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class BaseMapController {
+
     private final TileManager tileManager;
     private final MapParameters mapParameters;
-    private boolean redrawNeeded;
+    private final Point2D point;
+    private final Pane pane;
     private final Canvas canvas;
-    private final Pane mainPane;
-    private final GraphicsContext contextOfMap;
-    private Point2D cursorPosition;
-
-    final static int PIXELS_IN_TILE = 1 << 8;
-
+    private final GraphicsContext graphicContext;
+    private boolean redrawNeeded;
 
     /**
-     * @param tileManager   Used to obtain the tiles of the map
-     * @param mapParameters Portion of the map that is visible
+     * Public Constructor.
+     *
+     * @param tileManager   The TileManager instance that will be used to recover the tiles.
+     * @param mapParameters The MapParameters instance that will be used to handle the position
+     *                      of the screen on the map.
      */
     public BaseMapController(TileManager tileManager, MapParameters mapParameters) {
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
-
         canvas = new Canvas();
-        mainPane = new Pane();
-        mainPane.getChildren().add(canvas);
-        canvas.widthProperty().bind(mainPane.widthProperty());
-        canvas.heightProperty().bind(mainPane.heightProperty());
-        contextOfMap = canvas.getGraphicsContext2D();
-        //draw for the first time
-        redrawNeeded = true;
+        pane = new Pane(canvas);
+        canvas.widthProperty().bind(pane.widthProperty());
+        canvas.heightProperty().bind(pane.heightProperty());
+        point = new Point2D.Double();
+        graphicContext = canvas.getGraphicsContext2D();
 
 
-        //zoom in/out with scroll wheel
+        canvas.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+
+        canvas.widthProperty().addListener(v -> redrawOnNextPulse());
+        canvas.heightProperty().addListener(v -> redrawOnNextPulse());
+
+
         LongProperty minScrollTime = new SimpleLongProperty();
-        mainPane.setOnScroll(e -> {
+        pane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
             if (zoomDelta == 0) return;
 
@@ -60,49 +74,90 @@ public final class BaseMapController {
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 200);
 
-            mapParameters.scroll(e.getX(), e.getY());
+            if (!(6 <= mapParameters.getZoomValue() + zoomDelta && mapParameters.getZoomValue() + zoomDelta <= 19)) return;
+
+            double [] absolutePosOfCursor = new double[]{e.getX() + mapParameters.getMinXValue(),        // Mouse position.
+                    e.getY() + mapParameters.getMinYValue()};
+
+            double[] newCoordinates = new double[]{absolutePosOfCursor[0] * Math.pow(2, zoomDelta),  // Where the screen should be positioned regarding
+                    absolutePosOfCursor[1] * Math.pow(2, zoomDelta)};                                // the new zoom level and the position of the mouse.
+
             mapParameters.changeZoomLevel(zoomDelta);
-            mapParameters.scroll(- e.getX(),- e.getY());
 
-        });
+            double[] newWrongCoordinates = new double[]{e.getX() + mapParameters.getMinXValue(),          // The coordinates of the screen after the zoom update (they need to be changed).
+                    e.getY() + mapParameters.getMinYValue()};
 
-        mapParameters.getMinX().addListener((p, oldVal, newVal) -> {
+            // Rectification of the position of the screen.
+            mapParameters.scroll(newCoordinates[0] - newWrongCoordinates[0], newCoordinates[1] - newWrongCoordinates[1]);
+
             redrawOnNextPulse();
         });
 
-        mapParameters.getMinY().addListener((p, oldVal, newVal) -> {
+
+        pane.setOnMousePressed(e -> {
+            point.setLocation(e.getX(), e.getY());  // Used for the MouseDrag event to work.
             redrawOnNextPulse();
         });
 
-        mapParameters.getZoom().addListener((p, oldVal, newVal) -> {
+
+        pane.setOnMouseDragged(e -> {
+
+            mapParameters.scroll(point.getX() - e.getX(), point.getY() - e.getY());
+            point.setLocation(e.getX(), e.getY());
+
             redrawOnNextPulse();
         });
 
-        //dragging lambdas
-        mainPane.setOnMousePressed(e -> cursorPosition = new Point2D(e.getX(), e.getY()));
-        mainPane.setOnMouseDragged(e -> {
-            Point2D midWayPoint = cursorPosition.subtract(new Point2D(e.getX(), e.getY()));
-            mapParameters.scroll(midWayPoint.getX(), midWayPoint.getY());
-            redrawOnNextPulse();
-            cursorPosition = new Point2D(e.getX(), e.getY());
-        });
-        mainPane.setOnMouseReleased(e -> {
-            cursorPosition = null;
-        });
+    }
 
-        //making it so every pulse, the image is redrawn
-        canvas.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        });
 
-        //setting the listeners to check for when the window is modified
-        canvas.heightProperty().addListener((p, oldVal, newVal) -> {
-            redrawOnNextPulse();
-        });
-        canvas.widthProperty().addListener((p, oldVal, newVal) -> {
-            redrawOnNextPulse();
-        });
+    /**
+     * Pane getter.
+     *
+     * @return The pane where the map is displayed.
+     */
+    public Pane pane() {
+        return pane;
+    }
+
+    private void redrawIfNeeded() {
+        if (!redrawNeeded) return;
+        redrawNeeded = false;
+
+        int[] visibleLengthOfTiles = new int[]{(int) Math.ceil(canvas.getWidth() / 256),   // visibleLengthOfTiles = {visibleLengthOfTilesX, visibleLengthOfTilesY}
+                (int) Math.ceil(canvas.getHeight() / 256)};
+
+        int[] indexOfFirstTiles = new int[]{(int) (mapParameters.getMinXValue() / 256),         // indexOfFirstTiles = {indexOfFirstTilesX, indexOfFirstTilesY}
+                (int) (mapParameters.getMinYValue() / 256)};
+
+        double[] offset = new double[]{indexOfFirstTiles[0] * 256 - mapParameters.getMinXValue(),     // Offset vector : offset = {xOffset, yOffset}
+                indexOfFirstTiles[1]*256 - mapParameters.getMinYValue()};
+
+        while (visibleLengthOfTiles[0]*256 + offset[0] < canvas.getWidth()) {                       // Make sure the screen is completely covered.
+            visibleLengthOfTiles[0]++;
+        }
+        while (visibleLengthOfTiles[1]*256 + offset[1] < canvas.getHeight()) {
+            visibleLengthOfTiles[1]++;
+        }
+
+        int[] indexOfLastTiles = new int[]{indexOfFirstTiles[0] + visibleLengthOfTiles[0],     // indexOfLastTiles = {indexOfLastTileX, indexOfLastTileY}
+                indexOfFirstTiles[1] + visibleLengthOfTiles[1]};
+
+        graphicContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());          // Erases the previous drawing.
+
+        for (int i = indexOfFirstTiles[0]; i < indexOfLastTiles[0]; ++i) {
+            for (int j = indexOfFirstTiles[1]; j < indexOfLastTiles[1]; ++j) {
+                try {
+                    TileManager.TileId tile = new TileManager.TileId(mapParameters.getZoomValue(), i, j);
+
+                    graphicContext.drawImage(tileManager.imageForTileAt(tile),
+                            (i - indexOfFirstTiles[0])*256 + offset[0],
+                            (j - indexOfFirstTiles[1])*256 + offset[1]);
+
+                } catch (IOException | IllegalArgumentException ignored) {
+                }
+            }
+        }
     }
 
     private void redrawOnNextPulse() {
@@ -110,60 +165,17 @@ public final class BaseMapController {
         Platform.requestNextPulse();
     }
 
-    private void redrawIfNeeded() {
-        if(!redrawNeeded)
-            return;
-
-        drawImages();
-        redrawOnNextPulse();
-        redrawNeeded = false;
-    }
-
-    private void drawImages() {
-        int zoom = mapParameters.getZoomValue();
-        double mapX = mapParameters.getMinXValue();
-        double mapY = mapParameters.getMinYValue();
-
-        for(int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
-            for (int j = 0; j <= Math.ceil(canvas.getHeight() / PIXELS_IN_TILE); j++) {
-                TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
-                        mapToTile(mapX) + i,
-                        mapToTile(mapY) + j);
-
-                try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * PIXELS_IN_TILE)
-                            - mapX, (tileToDraw.y() * PIXELS_IN_TILE) - mapY);
-                } catch (IOException ignored) {
-                }
-            }
-        }
-    }
 
     /**
-     * @return the JavaFX pane that displays the map background
-     */
-    public Pane pane(){
-        return mainPane;
-    }
-
-    /**
-     * @param position point on the earth's surface
-     */
-    public void centerOn(GeoPos position) {
-        int zoomValue = mapParameters.getZoomValue();
-        int x = (int) WebMercator.x(zoomValue, position.longitude());
-        int y = (int) WebMercator.y(zoomValue, position.latitude());
-        mapParameters.getZoom().set(zoomValue);
-        mapParameters.setMinX(x + canvas.getWidth()/2);
-        mapParameters.setMinY(y + canvas.getHeight()/2);
-    }
-
-    /**
+     * Method centering the screen on a certain point on the map.
      *
-     * @param mapCoord x or y coordinate of the point on the map
-     * @return corresponding tile coordinate
+     * @param point The point on which the screen will be centered.
      */
-    private int mapToTile(double mapCoord) {
-        return (int)Math.floor(mapCoord / PIXELS_IN_TILE);
+    public void centerOn(GeoPos point) {
+        Preconditions.checkArgument(GeoPos.isValidLatitudeT32(point.latitudeT32()));
+        double newXCoordinate = WebMercator.x(mapParameters.getZoomValue(), point.longitude()) + canvas.getWidth() / 2;      // Check this ???
+        double newYCoordinate = WebMercator.y(mapParameters.getZoomValue(), point.latitude()) + canvas.getHeight() / 2;
+
+        mapParameters.scroll(newXCoordinate - mapParameters.getMinXValue(), newYCoordinate - mapParameters.getMinYValue());
     }
 }

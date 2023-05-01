@@ -17,6 +17,7 @@ import static java.lang.Thread.sleep;
 //java --enable-preview --source 17 -cp out/production/Javions/ --module-path C:\Users\User\Desktop\openjfx-20_windows-x64_bin-sdk\javafx-sdk-20\lib --add-modules javafx.controls Javions/src/ch/epfl/javions/gui/TextUI.java
 public class TextUIVariable {
     public static void main(String[] args) throws IOException, InterruptedException {
+        System.out.println(0.3 % 0.2);
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
                         new FileInputStream("/home/rudolf/IdeaProjects/eqihiohqoifqe/Javion/test/ch/epfl/test/messages_20230318_0915.bin")))) {
@@ -37,18 +38,17 @@ public class TextUIVariable {
                 assert bytesRead == RawMessage.LENGTH;
                 ByteString message = new ByteString(bytes);
                 m = new RawMessage(timeStampNs, message);
-                Message pm = MessageParser.parse(m);
                 String CSI = "\u001B[";
                 String CLEAR_SCREEN = CSI + "2J";
                 System.out.print(CLEAR_SCREEN);
                 System.out.printf("%-6s %-10s %-10s %-20s %-10s %-10s %-7s %-7s \n", "ICAO", "CALLSIGN", "REG", "MODEL", "LONG", "LAT", "ALT", "SPD");
-                if (pm != null) {
+                if (m != null) {
                     for (ObservableAircraftState a : asm.states()) {
                         if (!order.contains(a)) {
                             order.add(a);
                         }
                     }
-                    asm.updateWithMessage(pm);
+                    asm.updateWithMessage(m);
                     asm.purge();
                     AddressComparator comp = new AddressComparator();
                     order.sort(comp);

@@ -1,3 +1,4 @@
+
 package ch.epfl.javions.gui;
 
 import javafx.beans.property.Property;
