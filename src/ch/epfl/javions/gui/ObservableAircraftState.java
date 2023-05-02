@@ -8,24 +8,37 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.Objects;
-
-
+/**
+ * This class has the purpose of tracking the evolution of the aircraft, that will subsequently be visible on the map.
+ * We track and update te relevant data, in particular, we track the trajectories of the aircraft after having received a
+ * first message, so that we will be able to plot them on the map.
+ */
 public final class ObservableAircraftState implements AircraftStateSetter {
 
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
-    private LongProperty lastMessageTimeStampNs;
-    private IntegerProperty category;
+    private final LongProperty lastMessageTimeStampNs;
+    private final IntegerProperty category;
     private CallSign callSign;
-    private DoubleProperty altitude;
+    private final DoubleProperty altitude;
     private GeoPos position;
-    private final ObservableList<AirbornePos> trajectoryObservable;
-    private final ObservableList<AirbornePos> trajectoryUnmodifiable;
-    private DoubleProperty velocity;
-    private DoubleProperty trackOrHeading;
 
-    public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData){
+    // Observable List of trajectories, that can therefore be modified if needed
+    private final ObservableList<AirbornePos> trajectoryObservable;
+    // immutable copy of the above that will be returned whenever trajectory list is accessed outside this class
+    private final ObservableList<AirbornePos> trajectoryUnmodifiable;
+    private final DoubleProperty velocity;
+    private final DoubleProperty trackOrHeading;
+
+
+    /**
+     * Initialise the observable state tracker for the aircraft.
+     *
+     * @param icaoAddress  address of the aircraft
+     * @param aircraftData record of te main data describing the aircraft, namely : {registration, typeDesignator, model, description, wakeTurbulenceCategory}
+     */
+
+    public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
         this.icaoAddress = icaoAddress;
         this.aircraftData = aircraftData;
 
@@ -41,9 +54,9 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     @Override
     public void setLastMessageTimeStampNs(long timeStampNs) {
-        if(lastMessageTimeStampNs.get() == timeStampNs){
-            if(!trajectoryObservable.isEmpty()){
-                trajectoryObservable.remove(trajectoryObservable.size()-1);
+        if (lastMessageTimeStampNs.get() == timeStampNs) {
+            if (!trajectoryObservable.isEmpty()) {
+                trajectoryObservable.remove(trajectoryObservable.size() - 1);
             }
             trajectoryObservable.add(new AirbornePos(this.position, this.altitude.get()));
         }
@@ -65,7 +78,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     public void setPosition(GeoPos position) {
         this.position = position;
 
-        if(trajectoryObservable.isEmpty() || trajectoryObservable.get(trajectoryObservable.size()-1).position != position){
+        if (trajectoryObservable.isEmpty() || trajectoryObservable.get(trajectoryObservable.size() - 1).position != position) {
             trajectoryObservable.add(new AirbornePos(position, altitude.get()));
         }
     }
@@ -85,83 +98,116 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.trackOrHeading.set(trackOrHeading);
     }
 
-    public ReadOnlyLongProperty lastMessageTimeStampNsProperty(){
+    /**
+     * Getter for the last timestamp property
+     *
+     * @return property holding the timestamp of the most recently added message
+     */
+    public ReadOnlyLongProperty lastMessageTimeStampNsProperty() {
         return lastMessageTimeStampNs;
     }
 
+    /**
+     * Access the value of the last timestamp
+     *
+     * @return value held in the last timestamp property
+     */
     public long getLastMessageTimeStampNs() {
         return lastMessageTimeStampNs.getValue();
     }
 
-    public ReadOnlyIntegerProperty categoryProperty(){
+    /**
+     * Access the category property
+     *
+     * @return categiry property
+     */
+    public ReadOnlyIntegerProperty categoryProperty() {
         return category;
     }
 
-    public int getCategory(){
+    /**
+     * Access the category property's value
+     *
+     * @return value held in the category property
+     */
+    public int getCategory() {
         return category.get();
     }
 
-    public CallSign getCallSign(){
+    public CallSign getCallSign() {
         return callSign;
     }
 
-    public ReadOnlyDoubleProperty altitudeProperty(){
+    public ReadOnlyDoubleProperty altitudeProperty() {
         return altitude;
     }
-    public double getAltitude(){
+
+    public double getAltitude() {
         return altitude.get();
     }
-    public GeoPos getPosition(){
+
+    public GeoPos getPosition() {
         return position;
     }
-    public ReadOnlyDoubleProperty velocityProperty(){
+
+    public ReadOnlyDoubleProperty velocityProperty() {
         return velocity;
     }
-    public double getVelocity(){
+
+    public double getVelocity() {
         return velocity.get();
     }
 
-    public ReadOnlyDoubleProperty trackOrHeadingProperty(){
+    public ReadOnlyDoubleProperty trackOrHeadingProperty() {
         return trackOrHeading;
     }
-    public double getTrackOrHeading(){
+
+    public double getTrackOrHeading() {
         return trackOrHeading.get();
     }
+
     public AircraftData getAircraftData() {
         return aircraftData;
     }
 
-    public AircraftRegistration getRegistration(){
+    public AircraftRegistration getRegistration() {
         return aircraftData.registration();
     }
 
-    public AircraftTypeDesignator typeDesignator(){
+    public AircraftTypeDesignator typeDesignator() {
         return aircraftData.typeDesignator();
     }
 
-    public String getModel(){
+    public String getModel() {
         return aircraftData.model();
     }
 
-    public AircraftDescription getDescription(){
+    public AircraftDescription getDescription() {
         return aircraftData.description();
     }
 
-    public WakeTurbulenceCategory wakeTurbulenceCategory(){
+    public WakeTurbulenceCategory wakeTurbulenceCategory() {
         return aircraftData.wakeTurbulenceCategory();
     }
 
-    public ObservableList<AirbornePos> trajectoryProperty(){
+    public ObservableList<AirbornePos> trajectoryProperty() {
         return trajectoryObservable;
     }
 
-    public ObservableList<AirbornePos> getTrajectory(){
+    public ObservableList<AirbornePos> getTrajectory() {
         return trajectoryUnmodifiable;
     }
 
-    public IcaoAddress getIcaoAddress(){
+    public IcaoAddress getIcaoAddress() {
         return icaoAddress;
     }
 
-    public record AirbornePos(GeoPos position, double altitude){}
+    /**
+     * Record of the most up-to-date position and altitude of the aircraft.
+     *
+     * @param position recent position
+     * @param altitude recent altitude
+     */
+    public record AirbornePos(GeoPos position, double altitude) {
+    }
 }

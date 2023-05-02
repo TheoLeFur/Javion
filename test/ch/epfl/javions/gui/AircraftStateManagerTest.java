@@ -13,9 +13,8 @@ import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AircraftStateManagerTest {
-    //git@github.com:TheoLeFur/Javion.git
 
-    public static final String message_dir = "/home/rudolf/IdeaProjects/eqihiohqoifqe/Javion/test/ch/epfl/test/messages_20230318_0915.bin";
+    public static final String message_dir = "/Users/theolefur/Javion/resources/messages_20230318_0915.bin";
 
     public static void main(String[] args) {
         try (DataInputStream s = new DataInputStream(
@@ -46,12 +45,8 @@ class AircraftStateManagerTest {
                 assert bytesRead == RawMessage.LENGTH;
                 ByteString message = new ByteString(bytes);
                 RawMessage m = new RawMessage(timeStampNs,message);
-                //System.out.println(1);
                 stateManager.updateWithMessage(m);
-                //System.out.println(2);
-                //System.out.println(m);
                 for(ObservableAircraftState o: stateManager.states()) {
-                    //System.out.println(3);
                     if(o.getAircraftData() != null) {
                         System.out.println(o.getIcaoAddress().toString() +
                                 o.getCallSign() + o.getRegistration() +
