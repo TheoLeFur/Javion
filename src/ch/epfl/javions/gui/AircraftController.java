@@ -1,3 +1,4 @@
+
 package ch.epfl.javions.gui;
 
 import javafx.beans.property.Property;
@@ -24,7 +25,6 @@ public final class AircraftController {
         this.stateProperty = stateProperty;
 
     }
-
     public Pane pane(){
 
         Pane aircraftPane = new Pane();

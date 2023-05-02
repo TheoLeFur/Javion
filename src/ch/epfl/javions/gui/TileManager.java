@@ -20,12 +20,11 @@ public final class TileManager {
 
         public static boolean isValid(int zoom, int x, int y) {
 
-            int maxNumberOfTiles = 2 << (zoom + 1);
+            int maxNumberOfTiles = 1 << zoom;
             return 0 <= zoom && zoom <= 19
-                    && x >= 0 && x <= maxNumberOfTiles
-                    && y >= 0 && y <= maxNumberOfTiles;
+                    && x >= 0 && x < maxNumberOfTiles
+                    && y >= 0 && y < maxNumberOfTiles;
         }
-
     }
 
     private final Path cacheDiskPath;
@@ -56,7 +55,8 @@ public final class TileManager {
         if (this.memoryCache.get(tileId) != null) {
             image = this.memoryCache.get(tileId);
         } else {
-            String path = "/" + tileId.zoomLevel() + "/" + tileId.x() + "/" + tileId.y() + ".png";
+            String xPath = "/" + tileId.zoomLevel() + "/" + tileId.x();
+            String path = xPath + "/" + tileId.y() + ".png";
             Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
             if (Files.exists(imgPath)) {
                 image = new Image(new FileInputStream(imgPath.toFile()));
@@ -72,8 +72,7 @@ public final class TileManager {
                     image = new Image(byteArrayInputStream);
                 }
 
-                Files.createDirectories(Path.of(this.cacheDiskPath + "/" +
-                        tileId.zoomLevel() + "/" + tileId.x()));
+                Files.createDirectories(Path.of(this.cacheDiskPath + xPath));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(byteBuffer);
