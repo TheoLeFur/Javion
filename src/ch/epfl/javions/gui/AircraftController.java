@@ -25,5 +25,11 @@ public final class AircraftController {
 
     }
 
-    public Pane pane(){return null;}
+    public Pane pane(){
+
+        Pane aircraftPane = new Pane();
+        aircraftPane.setPickOnBounds(false);
+
+
+        return null;}
 }
