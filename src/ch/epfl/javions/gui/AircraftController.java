@@ -29,6 +29,4 @@ public final class AircraftController {
         Pane aircraftPane = new Pane();
         aircraftPane.setPickOnBounds(false);
         return null;}
-
-
 }

@@ -21,7 +21,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * checks whether the latitude is in the correct T32 interval
      *
      * @param latitudeT32 Latitude in unit T32
-     * @return True if latituudeT32 is within the bounds
+     * @return True if latitudeT32 is within the bounds
      */
 
     public static boolean isValidLatitudeT32(int latitudeT32) {

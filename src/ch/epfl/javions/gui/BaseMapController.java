@@ -29,7 +29,7 @@ public final class BaseMapController {
     private final GraphicsContext contextOfMap;
     private Point2D cursorPosition;
 
-    final static int PIXELS_IN_TILE = 1 << 8;
+    private final static int PIXELS_IN_TILE = 1 << 8;
 
 
     /**
