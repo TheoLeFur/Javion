@@ -35,9 +35,10 @@ public class TextUI {
                 assert bytesRead == RawMessage.LENGTH;
                 ByteString message = new ByteString(bytes);
                 m = new RawMessage(timeStampNs, message);
-                if (m != null) {
+                Message pm = MessageParser.parse(m);
+                if (pm != null) {
                     if (i == 0) {
-                        asm.updateWithMessage(m);
+                        asm.updateWithMessage(pm);
                         time = timeStampNs;
                         ++i;
                         String CSI = "\u001B[";
@@ -61,7 +62,7 @@ public class TextUI {
                         time = timeStampNs - time;
                         long timeMs = (long) (time * 1e-7);
                         sleep(timeMs);
-                        asm.updateWithMessage(m);
+                        asm.updateWithMessage(pm);
                         String CSI = "\u001B[";
                         String CLEAR_SCREEN = CSI + "2J";
                         System.out.print(CLEAR_SCREEN);
@@ -77,8 +78,9 @@ public class TextUI {
                             String regis = (o.getRegistration() != null) ? o.getRegistration().string() : "";
                             String model = (o.getModel().length() <= 19) ? o.getModel() : o.getModel().substring(0, 16) + "...";
                             double velocity0 = Units.convert(o.getVelocity(), Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR);
-
+                            //System.out.println("haii");
                             if (o.getTrajectory().size() > 0) {
+                                //System.out.println("haii2");
                                 System.out.printf("%-6s %-8s %-6s %-20s %-10f %-10f %-7d %-7d", icao, callSign, regis, model,
                                         Units.convert(o.getTrajectory().get(o.getTrajectory().size() - 1).position().longitude(),
                                                 Units.Angle.RADIAN, Units.Angle.DEGREE),

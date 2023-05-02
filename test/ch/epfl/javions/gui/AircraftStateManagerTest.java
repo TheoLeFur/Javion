@@ -14,7 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AircraftStateManagerTest {
 
+<<<<<<< HEAD
     public static final String message_dir = "/Users/theolefur/Javion/resources/messages_20230318_0915.bin";
+=======
+    public static final String message_dir = "/Users/theolefur/Downloads/Javions/resources/messages_20230318_0915.bin";
+>>>>>>> parent of 6ca0958 (I have exchanged files that I wrote)
 
     public static void main(String[] args) {
         try (DataInputStream s = new DataInputStream(
@@ -44,7 +48,13 @@ class AircraftStateManagerTest {
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
                 ByteString message = new ByteString(bytes);
+<<<<<<< HEAD
                 RawMessage m = new RawMessage(timeStampNs,message);
+=======
+                Message m = MessageParser.parse(new RawMessage(timeStampNs,message));
+                if(m==null)break;
+                //System.out.println(1);
+>>>>>>> parent of 6ca0958 (I have exchanged files that I wrote)
                 stateManager.updateWithMessage(m);
                 for(ObservableAircraftState o: stateManager.states()) {
                     if(o.getAircraftData() != null) {

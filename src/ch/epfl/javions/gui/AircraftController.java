@@ -1,4 +1,3 @@
-
 package ch.epfl.javions.gui;
 
 import javafx.beans.property.Property;
@@ -30,4 +29,6 @@ public final class AircraftController {
         Pane aircraftPane = new Pane();
         aircraftPane.setPickOnBounds(false);
         return null;}
+
+
 }

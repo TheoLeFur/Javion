@@ -133,4 +133,24 @@ public final class MapParameters {
     public void setZoom(int zoom) {
         this.zoom.set(zoom);
     }
+
+    /**
+     * Set the value of the minY property
+     *
+     * @param minY new zoom value
+     */
+
+    public void setMinY(double minY) {
+        this.minY.set(minY);
+    }
+
+    /**
+     * Set the value of the minX property
+     *
+     * @param minX new zoom value
+     */
+
+    public void setMinX(double minX) {
+        this.minX.set(minX);
+    }
 }

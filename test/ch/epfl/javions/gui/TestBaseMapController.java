@@ -27,6 +27,6 @@ public final class TestBaseMapController extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
-        bmc.centerOn(new GeoPos((int)Units.convert(0.114620, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(0.811908, Units.Angle.RADIAN, Units.Angle.T32)));
+        //bmc.centerOn(new GeoPos((int)Units.convert(0.114620, Units.Angle.RADIAN, Units.Angle.T32), (int)Units.convert(0.811908, Units.Angle.RADIAN, Units.Angle.T32)));
     }
 }
