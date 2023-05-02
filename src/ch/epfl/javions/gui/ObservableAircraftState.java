@@ -19,9 +19,9 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final AircraftData aircraftData;
     private final LongProperty lastMessageTimeStampNs;
     private final IntegerProperty category;
-    private CallSign callSign;
+    private final ObjectProperty<CallSign> callSign;
     private final DoubleProperty altitude;
-    private GeoPos position;
+    private final ObjectProperty<GeoPos> position;
 
     // Observable List of trajectories, that can therefore be modified if needed
     private final ObservableList<AirbornePos> trajectoryObservable;
@@ -39,17 +39,19 @@ public final class ObservableAircraftState implements AircraftStateSetter {
      */
 
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
+
         this.icaoAddress = icaoAddress;
         this.aircraftData = aircraftData;
+        this.altitude = new SimpleDoubleProperty();
+        this.position = new SimpleObjectProperty<>();
+        this.category = new SimpleIntegerProperty();
+        this.callSign = new SimpleObjectProperty<>();
+        this.lastMessageTimeStampNs = new SimpleLongProperty();
+        this.velocity = new SimpleDoubleProperty();
+        this.trackOrHeading = new SimpleDoubleProperty();
 
-        altitude = new SimpleDoubleProperty();
-        category = new SimpleIntegerProperty();
-        lastMessageTimeStampNs = new SimpleLongProperty();
-        velocity = new SimpleDoubleProperty();
-        trackOrHeading = new SimpleDoubleProperty();
-
-        trajectoryObservable = FXCollections.observableArrayList();
-        trajectoryUnmodifiable = FXCollections.unmodifiableObservableList(trajectoryObservable);
+        this.trajectoryObservable = FXCollections.observableArrayList();
+        this.trajectoryUnmodifiable = FXCollections.unmodifiableObservableList(trajectoryObservable);
     }
 
     @Override
@@ -147,7 +149,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
     public GeoPos getPosition() {
-        return position;
+        return position.getValue();
     }
 
     public ReadOnlyDoubleProperty velocityProperty() {

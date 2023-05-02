@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 
+import java.awt.image.PackedColorModel;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public final class AircraftStateManager {
     public AircraftStateManager(AircraftDatabase database) {
         this.database = database;
         this.recentAircraftMessage = new HashMap<>();
-        this.knownAircraft = new SimpleSetProperty<>();
+        this.knownAircraft = FXCollections.observableSet();
         currentTimeStampNs = 0;
     }
 
@@ -54,34 +55,13 @@ public final class AircraftStateManager {
         return FXCollections.unmodifiableObservableSet(this.knownAircraft);
     }
 
-    public void updateWithMessage(RawMessage message) {
-        Objects.requireNonNull(message);
-        Message decodedMessage = MessageParser.parse(message);
-
-        try {
-            if (Objects.isNull(decodedMessage)) {
-                throw new NullPointerException("Message not valid.");
-            }
-            currentTimeStampNs = decodedMessage.timeStampNs();
-
-            if (!recentAircraftMessage.containsKey(decodedMessage.icaoAddress())) {
-                AircraftData data = database.get(decodedMessage.icaoAddress());
-
-                if (Objects.isNull(data)) {
-                    throw new NullPointerException("ICAO adress not found in the file.");
-                }
-                recentAircraftMessage.put(decodedMessage.icaoAddress(), new AircraftStateAccumulator<>(
-            new ObservableAircraftState(
-                    decodedMessage.icaoAddress(), data)));
-            }
-            recentAircraftMessage.get(decodedMessage.icaoAddress()).update(decodedMessage);
-            if (!Objects.isNull(recentAircraftMessage.get(decodedMessage.icaoAddress()).stateSetter().getPosition())) {
-                knownAircraft.add(recentAircraftMessage.get(decodedMessage.icaoAddress()).stateSetter());
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Stream error");
+    public void updateWithMessage(RawMessage message) throws IOException {
+        IcaoAddress address = message.icaoAddress();
+        if (!this.recentAircraftMessage.containsKey(address)) {
+            this.recentAircraftMessage.put(address,
+                    new AircraftStateAccumulator<>(
+                            new ObservableAircraftState(address, this.database.get(address))
+                    ));
         }
     }
 
