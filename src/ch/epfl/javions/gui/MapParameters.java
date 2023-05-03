@@ -7,8 +7,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
- * @author Rudolf Yazbeck (SCIPER : 360700)
- * @author Theo Le Fur (SCIPER : 363294)
+ * This class describes the params. of the visible portion of the map we access while interacting with the application.
+ * It is characterized by a system if local coordinates, as well as a zoom level.
  */
 public final class MapParameters {
 
@@ -24,15 +24,8 @@ public final class MapParameters {
      * @param minY y coordinate of upper left corner of the map
      */
 
-    public MapParameters(
-            int zoom,
-            double minX,
-            double minY
-    ) {
-        Preconditions.checkArgument(
-                zoom >= 6 &&
-                        zoom < 20
-        );
+    public MapParameters(int zoom, double minX, double minY) {
+        Preconditions.checkArgument(zoom >= 6 && zoom < 20);
 
         this.zoom = new SimpleIntegerProperty(zoom);
         this.minX = new SimpleDoubleProperty(minX);

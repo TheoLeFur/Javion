@@ -9,13 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
- * @author Rudolf Yazbeck (SCIPER : 360700)
- * @author Theo Le Fur (SCIPER : 363294)
+ * Class that manages the tile. As we zoom more into the OSM images, the number of pixels necessary to represent the image exponentially increases.
+ * Instead, we cut the image into tiles of 256 x 256 pixels, that are accessed whenever we need them.
  */
 public final class TileManager {
-
+    /**
+     * Record storing the identity of an OSM tile
+     * @param zoomLevel zoom level of the image
+     * @param x index of the tile, representing the x coordinate of the top left corner
+     * @param y index of the tile, representing the y coordinate of the top left corner
+     */
     public record TileId(int zoomLevel, int x, int y) {
 
         public static boolean isValid(int zoom, int x, int y) {
@@ -27,12 +33,21 @@ public final class TileManager {
         }
 
     }
-
+    // path for the cache-disk
     private final Path cacheDiskPath;
+    // url for the server name
     private final String tileServerName;
+    // max number of elements in the memory cache
     private final int maxMemoryCacheCapacity = 100;
+    // memory cache, instantiated as a LinkedHashMap
     private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
+
+    /**
+     * Constructor for tile manager.
+     * @param cacheDiskPath path of the disk cache
+     * @param tileServerName url of the server, where we request the tiles data whenever it is not yet downloaded.
+     */
 
     public TileManager(Path cacheDiskPath, String tileServerName) {
         this.cacheDiskPath = cacheDiskPath;
@@ -52,10 +67,8 @@ public final class TileManager {
 
         byte[] byteBuffer;
         Image image;
-
-        if (this.memoryCache.get(tileId) != null) {
-            image = this.memoryCache.get(tileId);
-        } else {
+        image = this.memoryCache.get(tileId);
+        if (Objects.isNull(image)) {
             String path = "/" + tileId.zoomLevel() + "/" + tileId.x() + "/" + tileId.y() + ".png";
             Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
             if (Files.exists(imgPath)) {
@@ -79,7 +92,7 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-            
+
             this.cropMemCache();
             this.memoryCache.put(tileId, image);
         }
@@ -88,7 +101,7 @@ public final class TileManager {
 
     /**
      * Whenever the memory cache map has more than 100 elements, we remove the least recently accessed
-     * element.
+     * element, so that cache memory size is bounded by 100 images.
      */
     private void cropMemCache(){
         if (this.memoryCache.size() == 100){
