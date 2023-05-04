@@ -1,11 +1,9 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -121,6 +119,7 @@ public final class AircraftController {
 
     /**
      * Create the icon element in the scene graph
+     * @param s state setter
      */
     private void createIcon(ObservableAircraftState s) {
         this.icon = new SVGPath();
@@ -133,16 +132,31 @@ public final class AircraftController {
                 s.getCategory(),
                 s.getWakeTurbulenceCategory()
         ));
+
+        // we bind the icon property to the category property, so that it tracks the changes.
         aircraftIconProperty.bind(s.categoryProperty().map(
-                c -> AircraftIcon.iconFor(
+                d -> AircraftIcon.iconFor(
                         s.getTypeDesignator(),
                         s.getDescription(),
-                        (Integer) c,
+                        d.intValue(),
                         s.getWakeTurbulenceCategory()
                 )
         ));
 
+        // bind both the content and the can rotate properties to the methods in AircraftIcon.
+        // fills the icon with the proper color
+
         this.icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
+        this.icon.rotateProperty().bind(s.trackOrHeadingProperty().map(
+                tohp -> (aircraftIconProperty.get().canRotate())
+                        ? tohp.doubleValue()
+                        : 0
+        ));
+        this.icon.fillProperty().bind(s.altitudeProperty().map(
+                a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.doubleValue()))
+        ));
+
+
     }
 
     /**
