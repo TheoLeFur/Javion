@@ -1,24 +1,43 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Units;
+import ch.epfl.javions.WebMercator;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
-import java.lang.reflect.AnnotatedArrayType;
 import java.util.Objects;
 
-
+/**
+ * Class for controlling the display of the aircraft on the background map. It will display
+ * the icons, associated information and trajectory : everything colored as a function of the altitude of
+ * the aircraft.
+ */
 public final class AircraftController {
+
+    /**
+     * We will proceed the following way. Each part of the scene graph will be created using a private method :
+     * create ... that will init the group param, take care of its placement in the graph realize the desired bindings.
+     * Afterwards, it will be placed in the constructor at the correct place.
+     */
 
 
     private final String AircraftStyleSheetPath = "resources/aircraft.css";
     private final MapParameters mapParams;
     private final ObservableSet<ObservableAircraftState> observablaAircraft;
     private final Property<ObservableAircraftState> stateProperty;
+    private Group annotatedAircraftGroup;
+    private Group trajectoryGroup;
+    private Group labelIconGroup;
+    private Group labelGroup;
+    private SVGPath icon;
 
 
     private final Pane pane;
@@ -52,64 +71,105 @@ public final class AircraftController {
         // track changes of the set of states
         this.observablaAircraft.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
-                    Group newGroup = new Group();
-                    newGroup.setId(change.getElementAdded().getIcaoAddress().toString());
-                    this.pane.getChildren().add(newGroup);
+                    ObservableAircraftState s = change.getElementAdded();
                     this.pane.getChildren().removeIf(
                             e -> Objects.equals(e.getId(),
                                     change.getElementRemoved().getIcaoAddress().toString()));
                 });
     }
 
+
+    private void createAnnotatedAircraftGroup(ObservableAircraftState s) {
+        this.annotatedAircraftGroup = new Group();
+        this.labelIconGroup.setId(s.getIcaoAddress().toString());
+        this.pane.getChildren().add(this.annotatedAircraftGroup);
+        this.annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
+        // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
+        this.annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
+
+    }
+
+
     /**
-     * Create the trajectory group, which will be represented as line segments that link the points composed
-     * by the positions in the trajectory list
-     * @param parentGroup parent group
+     * Creates the label-icon group in the scene graph that takes care of the positioning of the two subgroups
+     * label and icon.
+     *
+     * @param s state setter
      */
-    private void createTrajectoryGroup(Group parentGroup, ObservableAircraftState obsState) {
-        Group trajectory = new Group();
-        trajectory.setViewOrder(-obsState.getAltitude());
+    private void createLabelIconGroup(ObservableAircraftState s) {
+        this.labelIconGroup = new Group();
+        this.annotatedAircraftGroup.getChildren().add(this.labelIconGroup);
+        this.labelIconGroup.layoutXProperty()
+                .bind(
+                        Bindings.createDoubleBinding(() -> {
+                            double projectedX = WebMercator.x(
+                                    this.mapParams.getZoomValue(), s.getPosition().longitude());
+                            return projectedX - this.mapParams.getMinXValue();
+                        }, this.mapParams.getZoom(), this.mapParams.getMinX())
+                );
 
+        this.labelIconGroup.layoutYProperty()
+                .bind(
+                        Bindings.createDoubleBinding(
+                                () -> {
+                                    double projectedY = WebMercator.y(
+                                            this.mapParams.getZoomValue(), s.getPosition().latitude());
+                                    return projectedY - this.mapParams.getMinYValue();
+                                }, this.mapParams.getZoom(), this.mapParams.getMinY())
+                );
     }
 
-    private void createLabelGroup(Group parentGroup, double altitude) {
-        Group labelGroup = new Group();
-        labelGroup.setViewOrder(-altitude);
-    }
+    /**
+     * Create the icon element in the scene graph
+     */
+    private void createIcon(ObservableAircraftState s) {
+        this.icon = new SVGPath();
+        this.labelIconGroup.getChildren().add(this.icon);
+        this.icon.getStyleClass().add("aircraft");
 
-    private void createAircraftGroup(Group parentGroup, ObservableAircraftState obsState) {
-        Group aircraftGroup = new Group();
-        aircraftGroup.setViewOrder(-obsState.getAltitude());
-        SVGPath icon = new SVGPath();
-        icon.setContent(AircraftIcon.iconFor(
-                obsState.getTypeDesignator(),
-                obsState.getDescription(),
-                obsState.getCategory(),
-                obsState.getWakeTurbulenceCategory()
-        ).svgPath());
-        icon.setRotate(Units.convertTo(obsState.getTrackOrHeading(), Units.Angle.DEGREE));
-        icon.setFill(ColorRamp.PLASMA.at(
-                this.computeColorIndex(obsState.getAltitude())
+        ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(AircraftIcon.iconFor(
+                s.getTypeDesignator(),
+                s.getDescription(),
+                s.getCategory(),
+                s.getWakeTurbulenceCategory()
         ));
+        aircraftIconProperty.bind(s.categoryProperty().map(
+                c -> AircraftIcon.iconFor(
+                        s.getTypeDesignator(),
+                        s.getDescription(),
+                        (Integer) c,
+                        s.getWakeTurbulenceCategory()
+                )
+        ));
+
+        this.icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
     }
 
     /**
-     * Computes the color index, according to the formula c = [altitude/12000] ^ (1/3).
-     *
-     * @param altitude altitude of the aircraft.
-     * @return index c, which determines the color from the spectrum that will be chosen.
+     * Creates the trajectory subgroup in the scene graph
+     * @param s state setter
      */
-    private double computeColorIndex(double altitude) {
-        return Math.pow(Math.rint(altitude / 12000d), 1d / 3d);
-    }
+        private void createTrajectoryGroup (ObservableAircraftState s){
 
-    /**
-     * Access the main pane.
-     *
-     * @return pane superposed with background map.
-     */
-    public Pane pane() {
-        return this.pane();
-    }
+        }
 
-}
+        /**
+         * Computes the color index, according to the formula c = [altitude/12000] ^ (1/3).
+         *
+         * @param altitude altitude of the aircraft.
+         * @return index c, which determines the color from the spectrum that will be chosen.
+         */
+        private double computeColorIndex ( double altitude){
+            return Math.pow(Math.rint(altitude / 12000d), 1d / 3d);
+        }
+
+        /**
+         * Access the main pane.
+         *
+         * @return pane superposed with background map.
+         */
+        public Pane pane () {
+            return this.pane;
+        }
+
+    }
