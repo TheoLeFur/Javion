@@ -9,6 +9,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
+
 import java.io.IOException;
 
 /**
@@ -29,12 +30,15 @@ public final class BaseMapController {
     private Point2D mousePos;
     private final LongProperty scrollDeltaT;
 
-
+    // TODO : add possibility to navigate the map with keyboard
+    // TODO : add zoom control with letter "z"
 
 
     /**
-     * @param tileManager   Used to obtain the tiles of the map
-     * @param mapParameters Portion of the map that is visible
+     * Instantiates a map controller. Draws the background map and handles various control events like mouse drag or scrolling.
+     *
+     * @param tileManager   manages the access to the tiles required for proper display
+     * @param mapParameters params of the map that is visible
      */
     public BaseMapController(TileManager tileManager, MapParameters mapParameters) {
 
@@ -104,7 +108,7 @@ public final class BaseMapController {
             scrollDeltaT.set(currentTime + 200);
             mapParameters.scroll(event.getX(), event.getY());
             mapParameters.changeZoomLevel(zoomDelta);
-            mapParameters.scroll(- event.getX(),- event.getY());
+            mapParameters.scroll(-event.getX(), -event.getY());
 
         });
     }
@@ -122,7 +126,7 @@ public final class BaseMapController {
      * Whenever redrawNeeded is true, we draw the image that has to be displayed. Else we do nothing.
      */
     private void redrawIfNeeded() {
-        if(!redrawNeeded) return;
+        if (!redrawNeeded) return;
         redrawNeeded = false;
         draw();
         redrawOnNextPulse();
@@ -135,11 +139,11 @@ public final class BaseMapController {
      */
     private void draw() {
 
-        int zoom =this.mapParameters.getZoomValue();
+        int zoom = this.mapParameters.getZoomValue();
         double mapX = this.mapParameters.getMinXValue();
         double mapY = this.mapParameters.getMinYValue();
 
-        for(int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
+        for (int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
             for (int j = 0; j <= Math.ceil(canvas.getHeight() / PIXELS_IN_TILE); j++) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
                         mapToTile(mapX) + i,
@@ -155,14 +159,16 @@ public final class BaseMapController {
 
     /**
      * getter for the main pane, where the map background is hosted
+     *
      * @return the main pane
      */
-    public Pane pane(){
+    public Pane pane() {
         return pane;
     }
 
     /**
      * Centers the map at the following position
+     *
      * @param position position at which we want to center our map on : type GeoPos
      */
     public void centerOn(GeoPos position) {
@@ -170,12 +176,11 @@ public final class BaseMapController {
         int x = (int) WebMercator.x(zoomValue, position.longitude());
         int y = (int) WebMercator.y(zoomValue, position.latitude());
         mapParameters.getZoom().set(zoomValue);
-        mapParameters.setMinX(x + canvas.getWidth()/2);
-        mapParameters.setMinY(y + canvas.getHeight()/2);
+        mapParameters.setMinX(x + canvas.getWidth() / 2);
+        mapParameters.setMinY(y + canvas.getHeight() / 2);
     }
 
     /**
-     *
      * @param mapCoord Component of the position vector
      * @return the accordingly computed tile coordinates.
      */
