@@ -187,16 +187,18 @@ public final class AircraftController {
                     double y = WebMercator.y(this.mapParams.getZoomValue(), pos.position().latitude());
                     line.setStartX(x);
                     line.setStartY(y);
-                    if (iterator.hasNext()){
+                    if (iterator.hasNext()) {
                         double x_next = WebMercator.x(this.mapParams.getZoomValue(), iterator.next().position().longitude());
                         double y_next = WebMercator.y(this.mapParams.getZoomValue(), iterator.next().position().latitude());
                         line.setEndX(x_next);
                         line.setEndY(y_next);
                     }
                     this.trajectoryGroup.getChildren().add(line);
-
                 }
         );
+
+        this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
+        this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
 
 
     }
@@ -219,17 +221,18 @@ public final class AircraftController {
     public Pane pane() {
         return this.pane;
     }
-    public static void main(String[] args){
-         List<Integer> list = List.of(1,2,3,4,5);
-         Iterator<Integer> it = list.iterator();
-         it.next();
-         list.forEach(
-                 i -> {
-                     System.out.println(i);
-                     if (it.hasNext()) {
-                         System.out.println(it.next());
-                     }
-                 }
-         );
+
+    public static void main(String[] args) {
+        List<Integer> list = List.of(1, 2, 3, 4, 5);
+        Iterator<Integer> it = list.iterator();
+        it.next();
+        list.forEach(
+                i -> {
+                    System.out.println(i);
+                    if (it.hasNext()) {
+                        System.out.println(it.next());
+                    }
+                }
+        );
     }
 }
