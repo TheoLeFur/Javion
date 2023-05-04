@@ -1,6 +1,8 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.WebMercator;
+import com.sun.javafx.fxml.expression.LiteralExpression;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -9,8 +11,11 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.SVGPath;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -119,6 +124,7 @@ public final class AircraftController {
 
     /**
      * Create the icon element in the scene graph
+     *
      * @param s state setter
      */
     private void createIcon(ObservableAircraftState s) {
@@ -160,30 +166,70 @@ public final class AircraftController {
     }
 
     /**
-     * Creates the trajectory subgroup in the scene graph
+     * Creates the trajectory subgroup in the scene graph. A trajectory is a group of lines connecting
+     * the various positions contained in the list of positions accumulated by the state setter.
+     *
      * @param s state setter
      */
-        private void createTrajectoryGroup (ObservableAircraftState s){
+    private void createTrajectoryGroup(ObservableAircraftState s) {
 
-        }
+        this.trajectoryGroup = new Group();
+        this.trajectoryGroup.getStyleClass().add("trajectory");
+        this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
 
-        /**
-         * Computes the color index, according to the formula c = [altitude/12000] ^ (1/3).
-         *
-         * @param altitude altitude of the aircraft.
-         * @return index c, which determines the color from the spectrum that will be chosen.
-         */
-        private double computeColorIndex ( double altitude){
-            return Math.pow(Math.rint(altitude / 12000d), 1d / 3d);
-        }
+        List<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
+        Iterator<ObservableAircraftState.AirbornePos> iterator = trajectory.iterator();
+        iterator.next();
+        trajectory.forEach(
+                pos -> {
+                    Line line = new Line();
+                    double x = WebMercator.x(this.mapParams.getZoomValue(), pos.position().longitude());
+                    double y = WebMercator.y(this.mapParams.getZoomValue(), pos.position().latitude());
+                    line.setStartX(x);
+                    line.setStartY(y);
+                    if (iterator.hasNext()){
+                        double x_next = WebMercator.x(this.mapParams.getZoomValue(), iterator.next().position().longitude());
+                        double y_next = WebMercator.y(this.mapParams.getZoomValue(), iterator.next().position().latitude());
+                        line.setEndX(x_next);
+                        line.setEndY(y_next);
+                    }
+                    this.trajectoryGroup.getChildren().add(line);
 
-        /**
-         * Access the main pane.
-         *
-         * @return pane superposed with background map.
-         */
-        public Pane pane () {
-            return this.pane;
-        }
+                }
+        );
+
 
     }
+
+    /**
+     * Computes the color index, according to the formula c = [altitude/12000] ^ (1/3).
+     *
+     * @param altitude altitude of the aircraft.
+     * @return index c, which determines the color from the spectrum that will be chosen.
+     */
+    private double computeColorIndex(double altitude) {
+        return Math.pow(Math.rint(altitude / 12000d), 1d / 3d);
+    }
+
+    /**
+     * Access the main pane.
+     *
+     * @return pane superposed with background map.
+     */
+    public Pane pane() {
+        return this.pane;
+    }
+    public static void main(String[] args){
+         List<Integer> list = List.of(1,2,3,4,5);
+         Iterator<Integer> it = list.iterator();
+         it.next();
+         list.forEach(
+                 i -> {
+                     System.out.println(i);
+                     if (it.hasNext()) {
+                         System.out.println(it.next());
+                     }
+                 }
+         );
+    }
+}
