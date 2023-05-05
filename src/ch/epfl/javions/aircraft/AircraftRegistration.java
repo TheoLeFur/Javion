@@ -17,6 +17,6 @@ public record AircraftRegistration(String string) {
      * @throws IllegalArgumentException if the given code is either empty or not a number, letter, or .?/_+-
      */
     public AircraftRegistration {
-        Preconditions.checkArgument(allowedStrings.matcher(string).matches());
+        Preconditions.checkArgument(allowedStrings.matcher(string).matches() || string.isEmpty());
     }
 }

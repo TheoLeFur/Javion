@@ -18,6 +18,6 @@ public record AircraftTypeDesignator(String string) {
      *                                  empty string is a valid designator)
      */
     public AircraftTypeDesignator {
-        Preconditions.checkArgument(allowedStrings.matcher(string).matches());
+        Preconditions.checkArgument(allowedStrings.matcher(string).matches() || string.isEmpty());
     }
 }

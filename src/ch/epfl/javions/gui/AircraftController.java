@@ -1,7 +1,9 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
-import ch.epfl.javions.aircraft.AircraftTypeDesignator;
+import ch.epfl.javions.adsb.AircraftStateAccumulator;
+import ch.epfl.javions.aircraft.*;
 import com.sun.javafx.fxml.expression.LiteralExpression;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
@@ -145,29 +147,44 @@ public final class AircraftController {
      * @param s state setter
      */
     private void createIcon(ObservableAircraftState s) {
+
         this.icon = new SVGPath();
         this.labelIconGroup.getChildren().add(this.icon);
         this.icon.getStyleClass().add("aircraft");
-        AircraftTypeDesignator tds;
 
-        if (s.getAircraftData() == null){
-             tds = new AircraftTypeDesignator("");
-        } else tds = s.getTypeDesignator();
+        AircraftData ad = s.getAircraftData();
+
+        AircraftTypeDesignator atd;
+        AircraftDescription ads;
+        int cat;
+        WakeTurbulenceCategory wtc;
+
+        if (ad == null) {
+            atd = new AircraftTypeDesignator("");
+            ads = new AircraftDescription("");
+            cat = 0;
+            wtc = WakeTurbulenceCategory.UNKNOWN;
+        } else {
+            atd = s.getTypeDesignator();
+            ads = s.getDescription();
+            cat = s.getCategory();
+            wtc = s.getWakeTurbulenceCategory();
+        }
 
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(AircraftIcon.iconFor(
-                tds,
-                s.getDescription(),
-                s.getCategory(),
-                s.getWakeTurbulenceCategory()
+                atd,
+                ads,
+                cat,
+                wtc
         ));
 
         // we bind the icon property to the category property, so that it tracks the changes.
         aircraftIconProperty.bind(s.categoryProperty().map(
                 d -> AircraftIcon.iconFor(
-                        tds,
-                        s.getDescription(),
+                        atd,
+                        ads,
                         d.intValue(),
-                        s.getWakeTurbulenceCategory()
+                        wtc
                 )
         ));
 
@@ -175,11 +192,18 @@ public final class AircraftController {
         // fills the icon with the proper color
 
         this.icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
-        this.icon.rotateProperty().bind(s.trackOrHeadingProperty().map(
-                (tohp) -> (aircraftIconProperty.get().canRotate())
-                        ? tohp.doubleValue()
-                        : 0
-        ));
+        this.icon.rotateProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> {
+                            if (aircraftIconProperty.get().canRotate()){
+                                return Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE);
+                            } else{
+                                return 0d;
+                            }
+                        },
+                        s.trackOrHeadingProperty(), aircraftIconProperty
+                )
+        );
         this.icon.fillProperty().bind(s.altitudeProperty().map(
                 a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.doubleValue()))
         ));
