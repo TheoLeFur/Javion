@@ -1,12 +1,15 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.WebMercator;
+import ch.epfl.javions.aircraft.AircraftTypeDesignator;
 import com.sun.javafx.fxml.expression.LiteralExpression;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
@@ -14,9 +17,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.SVGPath;
 
+import java.lang.invoke.TypeDescriptor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
+//TODO : make a method for creating the whole scene graph, so that it is simpler
 
 /**
  * Class for controlling the display of the aircraft on the background map. It will display
@@ -32,7 +38,7 @@ public final class AircraftController {
      */
 
 
-    private final String AircraftStyleSheetPath = "resources/aircraft.css";
+    private final String AircraftStyleSheetPath = "/aircraft.css";
     private final MapParameters mapParams;
     private final ObservableSet<ObservableAircraftState> observablaAircraft;
     private final Property<ObservableAircraftState> stateProperty;
@@ -59,33 +65,44 @@ public final class AircraftController {
 
         this.pane = new Pane();
         this.pane.setPickOnBounds(false);
-        this.pane.getStylesheets().add(this.AircraftStyleSheetPath);
+        this.pane.getStylesheets().add(Objects.requireNonNull(getClass().getResource(this.AircraftStyleSheetPath)).toString());
 
 
         // adds the groups of the initial set passed into construction.
         this.observablaAircraft.forEach(
                 ss -> {
-                    Group AnnotatedAircraftGroup = new Group();
-                    AnnotatedAircraftGroup.setId(ss.getIcaoAddress().toString());
-                    this.pane.getChildren().add(AnnotatedAircraftGroup);
+                    this.createAnnotatedAircraftGroup(ss);
+                    this.createLabelIconGroup(ss);
+                    this.createIcon(ss);
                 }
         );
 
         // track changes of the set of states
         this.observablaAircraft.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
-                    ObservableAircraftState s = change.getElementAdded();
-                    this.pane.getChildren().removeIf(
-                            e -> Objects.equals(e.getId(),
-                                    change.getElementRemoved().getIcaoAddress().toString()));
+                    ObservableAircraftState elementAdded = change.getElementAdded();
+                    if (!Objects.isNull(elementAdded)) {
+                        this.createAnnotatedAircraftGroup(elementAdded);
+                        this.createLabelIconGroup(elementAdded);
+                        this.createIcon(elementAdded);
+                    }
+                    ObservableAircraftState elementRemoved = change.getElementRemoved();
+                    if (!Objects.isNull(elementRemoved)) {
+                        this.pane.getChildren().removeIf(
+                                e -> Objects.equals(e.getId(),
+                                        elementRemoved.getIcaoAddress().toString()));
+                    }
                 });
+
+
     }
 
 
     private void createAnnotatedAircraftGroup(ObservableAircraftState s) {
         this.annotatedAircraftGroup = new Group();
-        this.labelIconGroup.setId(s.getIcaoAddress().toString());
+        this.annotatedAircraftGroup.setId(s.getIcaoAddress().toString());
         this.pane.getChildren().add(this.annotatedAircraftGroup);
+
         this.annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
         this.annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
@@ -108,7 +125,7 @@ public final class AircraftController {
                             double projectedX = WebMercator.x(
                                     this.mapParams.getZoomValue(), s.getPosition().longitude());
                             return projectedX - this.mapParams.getMinXValue();
-                        }, this.mapParams.getZoom(), this.mapParams.getMinX())
+                        }, this.mapParams.getZoom(), this.mapParams.getMinX(), s.positionProperty())
                 );
 
         this.labelIconGroup.layoutYProperty()
@@ -118,7 +135,7 @@ public final class AircraftController {
                                     double projectedY = WebMercator.y(
                                             this.mapParams.getZoomValue(), s.getPosition().latitude());
                                     return projectedY - this.mapParams.getMinYValue();
-                                }, this.mapParams.getZoom(), this.mapParams.getMinY())
+                                }, this.mapParams.getZoom(), this.mapParams.getMinY(), s.positionProperty())
                 );
     }
 
@@ -131,9 +148,14 @@ public final class AircraftController {
         this.icon = new SVGPath();
         this.labelIconGroup.getChildren().add(this.icon);
         this.icon.getStyleClass().add("aircraft");
+        AircraftTypeDesignator tds;
+
+        if (s.getAircraftData() == null){
+             tds = new AircraftTypeDesignator("");
+        } else tds = s.getTypeDesignator();
 
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(AircraftIcon.iconFor(
-                s.getTypeDesignator(),
+                tds,
                 s.getDescription(),
                 s.getCategory(),
                 s.getWakeTurbulenceCategory()
@@ -142,7 +164,7 @@ public final class AircraftController {
         // we bind the icon property to the category property, so that it tracks the changes.
         aircraftIconProperty.bind(s.categoryProperty().map(
                 d -> AircraftIcon.iconFor(
-                        s.getTypeDesignator(),
+                        tds,
                         s.getDescription(),
                         d.intValue(),
                         s.getWakeTurbulenceCategory()
@@ -154,7 +176,7 @@ public final class AircraftController {
 
         this.icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
         this.icon.rotateProperty().bind(s.trackOrHeadingProperty().map(
-                tohp -> (aircraftIconProperty.get().canRotate())
+                (tohp) -> (aircraftIconProperty.get().canRotate())
                         ? tohp.doubleValue()
                         : 0
         ));
@@ -162,8 +184,8 @@ public final class AircraftController {
                 a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.doubleValue()))
         ));
 
-
     }
+
 
     /**
      * Creates the trajectory subgroup in the scene graph. A trajectory is a group of lines connecting
@@ -177,8 +199,11 @@ public final class AircraftController {
         this.trajectoryGroup.getStyleClass().add("trajectory");
         this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
 
-        List<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
+        ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
         Iterator<ObservableAircraftState.AirbornePos> iterator = trajectory.iterator();
+
+        // start wit an offset so that we can access the next point
+
         iterator.next();
         trajectory.forEach(
                 pos -> {
@@ -197,9 +222,9 @@ public final class AircraftController {
                 }
         );
 
+
         this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
         this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
-
 
     }
 

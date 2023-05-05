@@ -53,6 +53,7 @@ public final class BaseMapController {
         // Make the canvas follow the dimensions of the pane
         this.canvas.heightProperty().bind(this.pane.heightProperty());
         this.canvas.widthProperty().bind(this.pane.widthProperty());
+
         // Get the graphic context of the map, that allows us to draw images subsequently
         this.contextOfMap = this.canvas.getGraphicsContext2D();
 
@@ -104,11 +105,11 @@ public final class BaseMapController {
             int zoomDelta = (int) Math.signum(event.getDeltaY());
             if (zoomDelta == 0) return;
             long currentTime = System.currentTimeMillis();
-            if (currentTime < scrollDeltaT.get()) return;
-            scrollDeltaT.set(currentTime + 200);
-            mapParameters.scroll(event.getX(), event.getY());
-            mapParameters.changeZoomLevel(zoomDelta);
-            mapParameters.scroll(-event.getX(), -event.getY());
+            if (currentTime < this.scrollDeltaT.get()) return;
+            this.scrollDeltaT.set(currentTime + 200);
+            this.mapParameters.scroll(event.getX(), event.getY());
+            this.mapParameters.changeZoomLevel(zoomDelta);
+            this.mapParameters.scroll(-event.getX(), -event.getY());
 
         });
     }
@@ -118,7 +119,7 @@ public final class BaseMapController {
      * we call this method
      */
     private void redrawOnNextPulse() {
-        redrawNeeded = true;
+        this.redrawNeeded = true;
         Platform.requestNextPulse();
     }
 
@@ -126,8 +127,8 @@ public final class BaseMapController {
      * Whenever redrawNeeded is true, we draw the image that has to be displayed. Else we do nothing.
      */
     private void redrawIfNeeded() {
-        if (!redrawNeeded) return;
-        redrawNeeded = false;
+        if (!this.redrawNeeded) return;
+        this.redrawNeeded = false;
         draw();
         redrawOnNextPulse();
 
@@ -143,13 +144,13 @@ public final class BaseMapController {
         double mapX = this.mapParameters.getMinXValue();
         double mapY = this.mapParameters.getMinYValue();
 
-        for (int i = 0; i <= Math.ceil(canvas.getWidth() / PIXELS_IN_TILE); ++i) {
-            for (int j = 0; j <= Math.ceil(canvas.getHeight() / PIXELS_IN_TILE); j++) {
+        for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); ++i) {
+            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); j++) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
                         mapToTile(mapX) + i,
                         mapToTile(mapY) + j);
                 try {
-                    contextOfMap.drawImage(tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * PIXELS_IN_TILE)
+                    this.contextOfMap.drawImage(this.tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * PIXELS_IN_TILE)
                             - mapX, (tileToDraw.y() * PIXELS_IN_TILE) - mapY);
                 } catch (IOException ignored) {
                 }
@@ -163,7 +164,7 @@ public final class BaseMapController {
      * @return the main pane
      */
     public Pane pane() {
-        return pane;
+        return this.pane;
     }
 
     /**
@@ -172,12 +173,12 @@ public final class BaseMapController {
      * @param position position at which we want to center our map on : type GeoPos
      */
     public void centerOn(GeoPos position) {
-        int zoomValue = mapParameters.getZoomValue();
+        int zoomValue = this.mapParameters.getZoomValue();
         int x = (int) WebMercator.x(zoomValue, position.longitude());
         int y = (int) WebMercator.y(zoomValue, position.latitude());
-        mapParameters.getZoom().set(zoomValue);
-        mapParameters.setMinX(x + canvas.getWidth() / 2);
-        mapParameters.setMinY(y + canvas.getHeight() / 2);
+        this.mapParameters.getZoom().set(zoomValue);
+        this.mapParameters.setMinX(x + this.canvas.getWidth() / 2);
+        this.mapParameters.setMinY(y + this.canvas.getHeight() / 2);
     }
 
     /**
