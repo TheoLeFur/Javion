@@ -8,6 +8,7 @@ import ch.epfl.javions.aircraft.AircraftTypeDesignator;
 import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -19,6 +20,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 //TODO : make a method for creating the whole scene graph, so that it is simpler
@@ -256,14 +258,44 @@ public final class AircraftController {
         this.trajectoryGroup = new Group();
         this.trajectoryGroup.getStyleClass().add("trajectory");
         this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
+        BooleanProperty visibleTrajectory = this.trajectoryGroup.visibleProperty();
 
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
-        Iterator<ObservableAircraftState.AirbornePos> iterator = trajectory.iterator();
+
+
+        visibleTrajectory.bind(
+                this.stateProperty.map(
+                        sp -> sp.equals(s)
+                )
+        );
+
+
+        if (visibleTrajectory.get()) {
+
+            trajectory.addListener(
+                    (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
+                    {
+                        ObservableList<ObservableAircraftState.AirbornePos> newTraj = (ObservableList<ObservableAircraftState.AirbornePos>) change.getList();
+                        Iterator<ObservableAircraftState.AirbornePos> iterator = newTraj.iterator();
+                        this.computeTrajectory(newTraj, iterator);
+                    }
+                    );
+
+            )
+
+
+            this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
+            this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
+
+        }
+    }
+
+    private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, Iterator<ObservableAircraftState.AirbornePos> iterator) {
 
         // start wit an offset so that we can access the next point
-
         iterator.next();
-        trajectory.forEach(pos -> {
+
+        list.forEach(pos -> {
             Line line = new Line();
             double x = WebMercator.x(this.mapParams.getZoomValue(), pos.position().longitude());
             double y = WebMercator.y(this.mapParams.getZoomValue(), pos.position().latitude());
@@ -277,11 +309,6 @@ public final class AircraftController {
             }
             this.trajectoryGroup.getChildren().add(line);
         });
-
-
-        this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
-        this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
-
     }
 
     /**
