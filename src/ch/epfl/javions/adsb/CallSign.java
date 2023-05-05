@@ -1,5 +1,7 @@
 package ch.epfl.javions.adsb;
 
+import ch.epfl.javions.Preconditions;
+
 import java.util.regex.Pattern;
 
 /**
@@ -17,8 +19,6 @@ public record CallSign(String string) {
      *                                  consisting only of letters and numbers
      */
     public CallSign {
-        if (!allowedStrings.matcher(string).matches()) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(allowedStrings.matcher(string).matches() || string.isEmpty());
     }
 }

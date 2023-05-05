@@ -2,29 +2,31 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
-import ch.epfl.javions.adsb.AircraftStateAccumulator;
-import ch.epfl.javions.aircraft.*;
-import com.sun.javafx.fxml.expression.LiteralExpression;
-import javafx.beans.binding.Binding;
+import ch.epfl.javions.aircraft.AircraftData;
+import ch.epfl.javions.aircraft.AircraftDescription;
+import ch.epfl.javions.aircraft.AircraftTypeDesignator;
+import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.text.Text;
 
-import java.lang.invoke.TypeDescriptor;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 //TODO : make a method for creating the whole scene graph, so that it is simpler
+//TODO : incorporate the visibility mechanisms in the label and the trajectory
+//TODO : make the trajectory group
+//TODO : formation & optimize the code.
 
 /**
  * Class for controlling the display of the aircraft on the background map. It will display
@@ -41,6 +43,7 @@ public final class AircraftController {
 
 
     private final String AircraftStyleSheetPath = "/aircraft.css";
+    private final int LABEL_OFFSET = 4;
     private final MapParameters mapParams;
     private final ObservableSet<ObservableAircraftState> observablaAircraft;
     private final Property<ObservableAircraftState> stateProperty;
@@ -76,6 +79,7 @@ public final class AircraftController {
                     this.createAnnotatedAircraftGroup(ss);
                     this.createLabelIconGroup(ss);
                     this.createIcon(ss);
+                    this.createLabel(ss);
                 }
         );
 
@@ -87,6 +91,7 @@ public final class AircraftController {
                         this.createAnnotatedAircraftGroup(elementAdded);
                         this.createLabelIconGroup(elementAdded);
                         this.createIcon(elementAdded);
+                        this.createLabel(elementAdded);
                     }
                     ObservableAircraftState elementRemoved = change.getElementRemoved();
                     if (!Objects.isNull(elementRemoved)) {
@@ -195,9 +200,9 @@ public final class AircraftController {
         this.icon.rotateProperty().bind(
                 Bindings.createDoubleBinding(
                         () -> {
-                            if (aircraftIconProperty.get().canRotate()){
+                            if (aircraftIconProperty.get().canRotate()) {
                                 return Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE);
-                            } else{
+                            } else {
                                 return 0d;
                             }
                         },
@@ -208,6 +213,62 @@ public final class AircraftController {
                 a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.doubleValue()))
         ));
 
+    }
+
+    private void createLabel(ObservableAircraftState s) {
+
+        this.labelGroup = new Group();
+        this.labelGroup.getStyleClass().add("label");
+        this.labelIconGroup.getChildren().add(this.labelGroup);
+
+        Text text = new Text();
+        Rectangle background = new Rectangle();
+        this.labelGroup.getChildren().add(background);
+        this.labelGroup.getChildren().add(text);
+
+        text.textProperty().bind(
+                Bindings.createStringBinding(
+                        () -> String.format("%s \n %s (km/h) \u2002 %d (m) ",
+                                this.getAircraftIdForLabel(s),
+                                this.getVelocityForLabel(s),
+                                (int) (s.getAltitude())),
+                        s.altitudeProperty(),
+                        s.velocityProperty(),
+                        s.callSignProperty()
+                )
+        );
+        background.widthProperty().bind(
+                text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET)
+        );
+        background.heightProperty().bind(
+                text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET)
+        );
+    }
+
+
+    private String getVelocityForLabel(ObservableAircraftState s) {
+        if (!Objects.isNull(s.getAircraftData())) {
+            return String.valueOf((int) (Units.convertTo(
+                    s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR
+            ))
+            );
+        }
+        return "?";
+    }
+
+
+    private String getAircraftIdForLabel(ObservableAircraftState s) {
+        if (!Objects.isNull(s.getAircraftData())) {
+            String id = s.getRegistration().string();
+            if (id.isEmpty()) {
+                id = s.getCallSign().string();
+            }
+            if (id.isEmpty()) {
+                id = s.getIcaoAddress().string();
+            }
+            return id;
+        }
+        return "";
     }
 
 
@@ -272,16 +333,8 @@ public final class AircraftController {
     }
 
     public static void main(String[] args) {
-        List<Integer> list = List.of(1, 2, 3, 4, 5);
-        Iterator<Integer> it = list.iterator();
-        it.next();
-        list.forEach(
-                i -> {
-                    System.out.println(i);
-                    if (it.hasNext()) {
-                        System.out.println(it.next());
-                    }
-                }
-        );
+        String str = String.format("%f meters, %f velocity", 12.00, 13.00);
+        System.out.println(str);
+
     }
 }

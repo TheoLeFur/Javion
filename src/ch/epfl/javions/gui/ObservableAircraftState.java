@@ -119,7 +119,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return lastMessageTimeStampNs;
     }
 
-    public ReadOnlyProperty<CallSign> callsignProperty() {
+    public ReadOnlyProperty<CallSign> callSignProperty() {
         return callSign;
     }
 
