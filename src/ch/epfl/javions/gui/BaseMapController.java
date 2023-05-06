@@ -72,6 +72,7 @@ public final class BaseMapController {
         this.dragEventHandler();
 
         // setting the listeners to check for when the window is modified
+
         this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.getMinX().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
