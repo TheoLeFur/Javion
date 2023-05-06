@@ -83,10 +83,10 @@ public final class AircraftController {
 
 
         // adds the groups of the initial set passed into construction.
-        observableAircraft.forEach(this::createSceneGraph);
+        this.observableAircraft.forEach(this::createSceneGraph);
 
         // track changes of the set of states
-        observableAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
+        this.observableAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
                     ObservableAircraftState elementAdded = change.getElementAdded();
                     if (!Objects.isNull(elementAdded)) {
                         this.createSceneGraph(elementAdded);
@@ -111,15 +111,20 @@ public final class AircraftController {
         this.createLabelIconGroup(s);
         this.createIcon(s);
         this.createLabel(s);
+        this.createTrajectoryGroup(s);
+        this.aircraftSelectionEventHandler(s);
 
     }
 
-
+    /**
+     * Handles the click-on-icon event and places s in the stateProperty placeholder.
+     * @param s state setter
+     */
     private void aircraftSelectionEventHandler(ObservableAircraftState s) {
         this.icon.setOnMouseClicked(
-                event -> {
+                (event) -> {
                     this.stateProperty.setValue(s);
-                    this.createTrajectoryGroup(s);
+                    System.out.println("clicked");
                 }
         );
     }
@@ -215,7 +220,11 @@ public final class AircraftController {
 
     }
 
-
+    /**
+     * Create the aircraft label, visible with a zoom level greater or equal than 11. It is composed of a text placed in a rectangle,
+     * holding information about the aircraft id, velocity and altitude.
+     * @param s state setter
+     */
     private void createLabel(ObservableAircraftState s) {
 
         Group labelGroup = new Group();
@@ -226,7 +235,6 @@ public final class AircraftController {
                         z -> (z.intValue() >= this.VISIBLE_LABEL_ZOOM_THRESHOLD)
                 )
         );
-        System.out.println(this.mapParams.getZoomValue());
 
 
         Text text = new Text();
@@ -298,10 +306,9 @@ public final class AircraftController {
 
         BooleanProperty visibleTrajectory = this.trajectoryGroup.visibleProperty();
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.trajectoryProperty();
-        this.aircraftSelectionEventHandler(s);
-        visibleTrajectory.bind(this.stateProperty.map(sp -> sp.equals(s)));
+        visibleTrajectory.bind(this.stateProperty.map(sp ->sp.equals(s)));
 
-        if (visibleTrajectory.get()) {
+        if (trajectoryGroup.isVisible()) {
 
             trajectory.addListener(
                     (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
@@ -327,7 +334,11 @@ public final class AircraftController {
 
     }
 
-
+    /**
+     * Method for computing the trajectory
+     * @param list list of positions
+     * @param zoomValue current zoom value
+     */
     private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
 
         // start wit an offset so that we can access the next point
@@ -385,6 +396,5 @@ public final class AircraftController {
     public Pane pane() {
         return this.pane;
     }
-
 
 }
