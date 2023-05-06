@@ -14,6 +14,9 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
@@ -58,6 +61,14 @@ public final class AircraftController {
 
     private final Pane pane;
 
+    /**
+     * We instantiate an aircraft controller class, that will control the display of the aircraft on the map, their labels and their trajectories.
+     *
+     * @param mapParams          parameters of the visible map (minX, minY and zoom value)
+     * @param observableAircraft set of aircraft that are currently observable
+     * @param stateProperty      property of the aircraft we clicked on.
+     */
+
     public AircraftController(MapParameters mapParams, ObservableSet<ObservableAircraftState> observableAircraft, Property<ObservableAircraftState> stateProperty) {
         // init the constructor params
         this.mapParams = mapParams;
@@ -72,31 +83,45 @@ public final class AircraftController {
 
 
         // adds the groups of the initial set passed into construction.
-        this.observablaAircraft.forEach(ss -> {
-            this.createAnnotatedAircraftGroup(ss);
-            this.createLabelIconGroup(ss);
-            this.createIcon(ss);
-            this.createLabel(ss);
-        });
+        this.observablaAircraft.forEach(this::createSceneGraph);
 
         // track changes of the set of states
         this.observablaAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             ObservableAircraftState elementAdded = change.getElementAdded();
             if (!Objects.isNull(elementAdded)) {
-                this.createAnnotatedAircraftGroup(elementAdded);
-                this.createLabelIconGroup(elementAdded);
-                this.createIcon(elementAdded);
-                this.createLabel(elementAdded);
+                this.createSceneGraph(elementAdded);
             }
             ObservableAircraftState elementRemoved = change.getElementRemoved();
             if (!Objects.isNull(elementRemoved)) {
                 this.pane.getChildren().removeIf(e -> Objects.equals(e.getId(), elementRemoved.getIcaoAddress().toString()));
             }
-        });
+        }
+        );
 
 
     }
 
+    /**
+     * Creates the whole scene graph for the aircraft controller
+     *
+     * @param s state setter
+     */
+    private void createSceneGraph(ObservableAircraftState s) {
+        this.createAnnotatedAircraftGroup(s);
+        this.createLabelIconGroup(s);
+        this.createIcon(s);
+        this.createLabel(s);
+        this.createTrajectoryGroup(s);
+    }
+
+
+
+    /**
+     * Creates the annotated aircraft group. Handles the overlapping of aircraft, giving priority of display to the one
+     * having the highest altitude
+     *
+     * @param s
+     */
     private void createAnnotatedAircraftGroup(ObservableAircraftState s) {
         this.annotatedAircraftGroup = new Group();
         this.annotatedAircraftGroup.setId(s.getIcaoAddress().toString());
@@ -107,6 +132,7 @@ public final class AircraftController {
         this.annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
 
     }
+
 
 
     /**
@@ -186,7 +212,7 @@ public final class AircraftController {
         this.labelIconGroup.getChildren().add(this.labelGroup);
         this.labelGroup.visibleProperty().bind(
                 this.mapParams.getZoom().map(
-                        z -> (z.intValue() >= 11)
+                        z -> (z.intValue() >= this.VISIBLE_LABEL_ZOOM_THRESHOLD)
                 )
         );
         System.out.println(this.mapParams.getZoomValue());
@@ -258,31 +284,29 @@ public final class AircraftController {
         this.trajectoryGroup = new Group();
         this.trajectoryGroup.getStyleClass().add("trajectory");
         this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
+
         BooleanProperty visibleTrajectory = this.trajectoryGroup.visibleProperty();
+        ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.trajectoryProperty();
 
-        ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
-
-
-        visibleTrajectory.bind(
-                this.stateProperty.map(
-                        sp -> sp.equals(s)
-                )
-        );
-
+        visibleTrajectory.bind(this.stateProperty.map(sp -> sp.equals(s)));
 
         if (visibleTrajectory.get()) {
 
             trajectory.addListener(
                     (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
                     {
-                        ObservableList<ObservableAircraftState.AirbornePos> newTraj = (ObservableList<ObservableAircraftState.AirbornePos>) change.getList();
-                        Iterator<ObservableAircraftState.AirbornePos> iterator = newTraj.iterator();
-                        this.computeTrajectory(newTraj, iterator);
+                        while (change.next()) {
+                            if (change.wasAdded()) {
+                                this.computeTrajectory(s.getTrajectory(), this.mapParams.getZoomValue());
+                            }
+                        }
                     }
-                    );
+            );
 
-            )
-
+            this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
+                this.trajectoryGroup.getChildren().clear();
+                this.computeTrajectory(s.getTrajectory(), newVal.intValue());
+            });
 
             this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
             this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
@@ -290,25 +314,42 @@ public final class AircraftController {
         }
     }
 
-    private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, Iterator<ObservableAircraftState.AirbornePos> iterator) {
+
+    private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
 
         // start wit an offset so that we can access the next point
+
+        Iterator<ObservableAircraftState.AirbornePos> iterator = list.iterator();
         iterator.next();
 
         list.forEach(pos -> {
-            Line line = new Line();
-            double x = WebMercator.x(this.mapParams.getZoomValue(), pos.position().longitude());
-            double y = WebMercator.y(this.mapParams.getZoomValue(), pos.position().latitude());
-            line.setStartX(x);
-            line.setStartY(y);
-            if (iterator.hasNext()) {
-                double x_next = WebMercator.x(this.mapParams.getZoomValue(), iterator.next().position().longitude());
-                double y_next = WebMercator.y(this.mapParams.getZoomValue(), iterator.next().position().latitude());
-                line.setEndX(x_next);
-                line.setEndY(y_next);
-            }
-            this.trajectoryGroup.getChildren().add(line);
-        });
+                    if (iterator.hasNext()) {
+
+                        Line line = new Line();
+
+                        double x = WebMercator.x(zoomValue, pos.position().longitude());
+                        double y = WebMercator.y(zoomValue, pos.position().latitude());
+
+                        line.setStartX(x);
+                        line.setStartY(y);
+
+                        ObservableAircraftState.AirbornePos nextPos = iterator.next();
+
+                        double x_next = WebMercator.x(zoomValue, nextPos.position().longitude());
+                        double y_next = WebMercator.y(zoomValue, nextPos.position().latitude());
+
+                        line.setEndX(x_next);
+                        line.setEndY(y_next);
+
+                        Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
+                        Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
+
+                        line.setStroke(new LinearGradient(x, y, x_next, y_next, true, CycleMethod.NO_CYCLE, s1, s2));
+                        this.trajectoryGroup.getChildren().add(line);
+                    }
+
+                }
+        );
     }
 
     /**
