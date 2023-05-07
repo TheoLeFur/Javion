@@ -29,7 +29,7 @@ import java.util.Objects;
 
 //TODO : incorporate the visibility mechanisms in the label and the trajectory
 //TODO : formation & optimize the code.
-//TODO : complete the docs
+
 
 /**
  * Class for controlling the display of the aircraft on the background map. It will display
@@ -113,6 +113,8 @@ public final class AircraftController {
         this.createLabel(s);
         this.aircraftSelectionEventHandler(s);
         this.createTrajectoryGroup(s);
+
+
 
     }
 
