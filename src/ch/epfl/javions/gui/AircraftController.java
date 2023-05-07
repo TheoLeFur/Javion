@@ -7,7 +7,6 @@ import ch.epfl.javions.aircraft.AircraftDescription;
 import ch.epfl.javions.aircraft.AircraftTypeDesignator;
 import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -107,25 +106,24 @@ public final class AircraftController {
      * @param s state setter
      */
     private void createSceneGraph(ObservableAircraftState s) {
+
         this.createAnnotatedAircraftGroup(s);
         this.createLabelIconGroup(s);
         this.createIcon(s);
         this.createLabel(s);
-        this.createTrajectoryGroup(s);
         this.aircraftSelectionEventHandler(s);
+        this.createTrajectoryGroup(s);
 
     }
 
     /**
      * Handles the click-on-icon event and places s in the stateProperty placeholder.
+     *
      * @param s state setter
      */
     private void aircraftSelectionEventHandler(ObservableAircraftState s) {
         this.icon.setOnMouseClicked(
-                (event) -> {
-                    this.stateProperty.setValue(s);
-                    System.out.println("clicked");
-                }
+                (event) -> this.stateProperty.setValue(s)
         );
     }
 
@@ -161,7 +159,8 @@ public final class AircraftController {
         this.labelIconGroup.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
             double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
             return projectedX - this.mapParams.getMinXValue();
-        }, this.mapParams.getZoom(), this.mapParams.getMinX(), s.positionProperty()));
+        },
+                this.mapParams.getZoom(), this.mapParams.getMinX(), s.positionProperty()));
 
         this.labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
             double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
@@ -180,7 +179,6 @@ public final class AircraftController {
         this.icon = new SVGPath();
         this.labelIconGroup.getChildren().add(this.icon);
         this.icon.getStyleClass().add("aircraft");
-
         AircraftData ad = s.getAircraftData();
 
         AircraftTypeDesignator atd;
@@ -223,6 +221,7 @@ public final class AircraftController {
     /**
      * Create the aircraft label, visible with a zoom level greater or equal than 11. It is composed of a text placed in a rectangle,
      * holding information about the aircraft id, velocity and altitude.
+     *
      * @param s state setter
      */
     private void createLabel(ObservableAircraftState s) {
@@ -304,39 +303,40 @@ public final class AircraftController {
         this.trajectoryGroup.getStyleClass().add("trajectory");
         this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
 
-        BooleanProperty visibleTrajectory = this.trajectoryGroup.visibleProperty();
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.trajectoryProperty();
-        visibleTrajectory.bind(this.stateProperty.map(sp ->sp.equals(s)));
+        this.trajectoryGroup.visibleProperty().bind(this.stateProperty.map(sp -> sp.equals(s)));
 
-        if (trajectoryGroup.isVisible()) {
+        this.trajectoryGroup.visibleProperty().addListener((o, oV, nV) -> {
 
-            trajectory.addListener(
-                    (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
-                    {
-                        while (change.next()) {
-                            if (change.wasAdded()) {
-                                this.computeTrajectory(s.getTrajectory(), this.mapParams.getZoomValue());
+                    this.trajectoryGroup.getChildren().clear();
+                    trajectory.addListener(
+                            (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
+                            {
+                                while (change.next()) {
+                                    if (change.wasAdded()) {
+                                        this.computeTrajectory(s.getTrajectory(), this.mapParams.getZoomValue());
+                                    }
+                                }
                             }
-                        }
-                    }
-            );
+                    );
 
+                    this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
+                        this.trajectoryGroup.getChildren().clear();
+                        this.computeTrajectory(s.getTrajectory(), newVal.intValue());
+                    });
 
-            this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
-                this.trajectoryGroup.getChildren().clear();
-                this.computeTrajectory(s.getTrajectory(), newVal.intValue());
-            });
+                    this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
+                    this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
 
-            this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
-            this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
-
-        }
+                }
+        );
 
     }
 
     /**
      * Method for computing the trajectory
-     * @param list list of positions
+     *
+     * @param list      list of positions
      * @param zoomValue current zoom value
      */
     private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
@@ -396,5 +396,4 @@ public final class AircraftController {
     public Pane pane() {
         return this.pane;
     }
-
 }
