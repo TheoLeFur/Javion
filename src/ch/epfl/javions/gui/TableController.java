@@ -1,13 +1,12 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.AircraftDescription;
 import ch.epfl.javions.aircraft.AircraftRegistration;
 import ch.epfl.javions.aircraft.AircraftTypeDesignator;
 import ch.epfl.javions.aircraft.IcaoAddress;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -15,13 +14,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -180,7 +177,7 @@ public final class TableController {
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.MODEL),
-                                CALLSIGN,
+                                MODEL,
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue().getModel())
                         )
                         ,
@@ -205,18 +202,30 @@ public final class TableController {
 
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
 
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(0);
-        nf.setMaximumFractionDigits(4);
         tv.getColumns().addAll(List.of(
-                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getPosition().latitude())), nf, LATITUDE),
-                this.createNumericalColumn((f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getPosition().longitude()))), nf, LONGITUDE)
-        ));
-        nf.setMaximumFractionDigits(0);
-        tv.getColumns().addAll(List.of(
-                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getAltitude())), nf, ALTITUDE),
-                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getVelocity())), nf, VELOCITY)
-        ));
+                        this.createNumericalColumn(LATITUDE,
+                                f -> new SimpleDoubleProperty(f.getValue().getPosition().latitude()),
+                                4,
+                                Units.Angle.DEGREE
+                        ),
+                        this.createNumericalColumn(LONGITUDE,
+                                f -> new SimpleDoubleProperty(f.getValue().getPosition().longitude()),
+                                4,
+                                Units.Angle.DEGREE
+                        ),
+                        this.createNumericalColumn(ALTITUDE,
+                                f -> f.getValue().altitudeProperty(),
+                                0,
+                                Units.Length.METER
+                        ),
+                        this.createNumericalColumn(VELOCITY,
+                                f -> f.getValue().velocityProperty(),
+                                0,
+                                Units.Speed.KILOMETER_PER_HOUR
+                        )
+                )
+        );
+
 
     }
 
@@ -242,39 +251,43 @@ public final class TableController {
     /**
      * Creates a numerical column, for messages holding number values.
      *
-     * @param value lambda associating state to number representing it in the table
-     * @param nf    number format for easy transition from String to Integer and vice-versa.
      * @return numerical column
      */
 
     private TableColumn<ObservableAircraftState, String> createNumericalColumn(
-            Callback<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> value,
-            NumberFormat nf,
-            String title
+            String title,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ReadOnlyDoubleProperty> map,
+            int decimals,
+            double unit
     ) {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.getStyleClass().add("numeric");
         column.setPrefWidth(PREFERRED_WIDTH_NUMERIC);
 
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(0);
+        nf.setMaximumFractionDigits(decimals);
 
-        column.setCellValueFactory(value);
-
-
-        column.setComparator(
-                (s1, s2) -> {
-                    if (s1.isEmpty() || s2.isEmpty()) {
-                        return s1.compareTo(s2);
-                    } else {
-                        try {
-                            return Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
-                        } catch (ParseException e) {
-                            System.out.println("String cannot be parsed");
-                            throw new RuntimeException(e);
-                        }
-                    }
+        column.setCellValueFactory(
+                f -> {
+                    ReadOnlyDoubleProperty value = map.apply(f);
+                    return new ReadOnlyObjectWrapper<>(nf.format(Units.convertTo(value.getValue(), unit)));
                 }
         );
+
+
+        column.setComparator((s1, s2) -> {
+            if (s1.isEmpty() || s2.isEmpty()) {
+                return s1.compareTo(s2);
+            } else {
+                try {
+                    return Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
 
         return column;
