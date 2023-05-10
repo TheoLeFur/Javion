@@ -19,7 +19,11 @@ import javafx.util.Callback;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * This class takes care of the display of the table of states of the aircraft.
@@ -52,33 +56,22 @@ public final class TableController {
         }
     }
 
-    private enum DECIMALS {
-        LONGITUDE,
-        LATITUDE,
-        ALTITUDE,
-        VELOCITY;
-
-        private static int decimals(DECIMALS d) {
-            return switch (d) {
-                case LONGITUDE -> 4;
-                case LATITUDE -> 4;
-                case ALTITUDE -> 0;
-                case VELOCITY -> 0;
-            };
-        }
-
-        private static int getDecimals(DECIMALS d) {
-            return decimals(d);
-        }
-
-
-    }
+    private final String ICAO = "ICAO";
+    private final String CALLSIGN = "CALL_SIGN";
+    private final String REGISTRATION = "REGISTRATION";
+    private final String MODEL = "MODEL";
+    private final String TYPE = "TYPE";
+    private final String DESCRIPTION = "DESCRIPTION";
+    private final String LATITUDE = "LATITUDE";
+    private final String LONGITUDE = "LONGITUDE";
+    private final String ALTITUDE = "ALTITUDE";
+    private final String VELOCITY = "VELOCITY";
 
 
     private final double PREFERRED_WIDTH_NUMERIC = 85;
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
     private final Pane pane;
-    private TableView<ObservableAircraftState> tableView;
+    private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
     private final ObjectProperty<ObservableAircraftState> selectedAircraftState;
     private Consumer<ObservableAircraftState> cs;
@@ -94,15 +87,17 @@ public final class TableController {
         this.selectedAircraftState = new SimpleObjectProperty<>();
 
         this.pane = new Pane();
-        TableView<ObservableAircraftState> tableView = buildSceneGraph();
+
 
         // add a listener on the set of observable states :
+        this.tableView = new TableView<>();
+        this.buildSceneGraph(this.tableView);
 
         this.observableSet.addListener(
                 (SetChangeListener<ObservableAircraftState>) change -> {
-                    tableView.getItems().add(change.getElementAdded());
-                    tableView.getItems().remove(change.getElementRemoved());
-                    tableView.sort();
+                    this.tableView.getItems().add(change.getElementAdded());
+                    this.tableView.getItems().remove(change.getElementRemoved());
+                    this.tableView.sort();
                 }
         );
 
@@ -122,96 +117,106 @@ public final class TableController {
      * @param cs
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> cs) {
-        cs.accept(this.selectedAircraftState.getValue());
+        if (!Objects.isNull(cs)) cs.accept(this.selectedAircraftState.getValue());
     }
 
     /**
      * Builds the main scene graph.
      */
-    private TableView<ObservableAircraftState> buildSceneGraph() {
+    private void buildSceneGraph(TableView<ObservableAircraftState> tv) {
 
-        this.tableView = new javafx.scene.control.TableView<>();
-        tableView.getStylesheets().add(TABLE_STYLE_SHEET_PATH);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
-        tableView.setTableMenuButtonVisible(true);
+        tv.getStylesheets().add(TABLE_STYLE_SHEET_PATH);
+        tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tv.setTableMenuButtonVisible(true);
+        this.pane.getChildren().add(tv);
 
         this.selectedAircraftState.addListener(
                 (p, oldVal, newVal) -> {
-                    tableView.getSelectionModel().select(newVal);
-                    tableView.scrollTo(newVal);
+                    tv.getSelectionModel().select(newVal);
+                    tv.scrollTo(newVal);
                 }
         );
 
-        tableView.getSelectionModel()
+        tv.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((p, oldVal, newVal) ->
                         this.selectedAircraftState.setValue(newVal));
 
 
-        tableView.setOnMouseClicked(event -> {
+        tv.setOnMouseClicked(event -> {
             int clickCount = event.getClickCount();
             MouseButton button = event.getButton();
             if (clickCount == 2 && button.equals(MouseButton.PRIMARY)) {
+                System.out.println("good");
                 this.setOnDoubleClick(this.cs);
             }
         });
 
-        this.createTextColumns();
-
-        return tableView;
-
-    }
-
-    private void createTextColumns() {
-
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO),
-                                f -> {
-                                    ObservableValue<IcaoAddress> addressObservableValue = new ReadOnlyObjectWrapper<>(f.getValue().getIcaoAddress());
-                                    return addressObservableValue.map(IcaoAddress::string);
-                                }
-                        )
-                );
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.ID),
-                                f -> f.getValue().callSignProperty().map(CallSign::string)
-                        )
-                );
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION),
-                        f -> {
-                            ObservableValue<AircraftRegistration> registrationObservableValue = new ReadOnlyObjectWrapper<>(f.getValue().getRegistration());
-                            return registrationObservableValue.map(AircraftRegistration::string);
-                        }));
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL),
-                        f -> new ReadOnlyObjectWrapper<>(f.getValue().getModel()))
-                );
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.TYPE),
-                        f -> {
-                            ObservableValue<AircraftTypeDesignator> typeDesignatorObservableValue = new ReadOnlyObjectWrapper<>(f.getValue().getTypeDesignator());
-                            return typeDesignatorObservableValue.map(AircraftTypeDesignator::string);
-                        }));
-
-        this.tableView.getColumns()
-                .add(this.createTextualColumn(WIDTH.getWidth(WIDTH.DESCRIPTION),
-                                f -> {
-                                    ObservableValue<AircraftDescription> descriptionObservableValue = new ReadOnlyObjectWrapper<>(f.getValue().getDescription());
-                                    return descriptionObservableValue.map(AircraftDescription::string);
-                                }
-                        )
-                );
+        // Creates textual and numerical columns.
+        this.createTextColumns(tv);
+        this.createNumericColumns(tv);
 
     }
 
-    private void createNumericColumns() {
+    private void createTextColumns(TableView<ObservableAircraftState> tv) {
 
+
+        tv.getColumns().addAll(List.of(
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.ICAO),
+                                ICAO,
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getIcaoAddress()).map(IcaoAddress::string)
+                        ),
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.ID),
+                                CALLSIGN,
+                                f -> f.getValue().callSignProperty().map(CallSign::string))
+                        ,
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.REGISTRATION),
+                                REGISTRATION,
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getRegistration()).map(AircraftRegistration::string)
+                        )
+                        ,
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.MODEL),
+                                CALLSIGN,
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getModel())
+                        )
+                        ,
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.TYPE),
+                                TYPE,
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getTypeDesignator()).map(AircraftTypeDesignator::string)
+                        )
+                        ,
+                        this.createTextualColumn(
+                                WIDTH.getWidth(WIDTH.DESCRIPTION),
+                                DESCRIPTION,
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getDescription()).map(AircraftDescription::string)
+
+
+                        )
+                )
+        );
+
+    }
+
+
+    private void createNumericColumns(TableView<ObservableAircraftState> tv) {
+
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(0);
+        nf.setMaximumFractionDigits(4);
+        tv.getColumns().addAll(List.of(
+                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getPosition().latitude())), nf, LATITUDE),
+                this.createNumericalColumn((f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getPosition().longitude()))), nf, LONGITUDE)
+        ));
+        nf.setMaximumFractionDigits(0);
+        tv.getColumns().addAll(List.of(
+                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getAltitude())), nf, ALTITUDE),
+                this.createNumericalColumn(f -> new ReadOnlyObjectWrapper<>(nf.format(f.getValue().getVelocity())), nf, VELOCITY)
+        ));
 
     }
 
@@ -220,16 +225,16 @@ public final class TableController {
      * Creates a column for string type values.
      *
      * @param width preferred width of the column.
-     * @param value lambda associating the ObservableAircraftState with the String value representing it in the table.
      * @return string column
      */
     private TableColumn<ObservableAircraftState, String> createTextualColumn(
             int width,
-            Callback<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> value) {
+            String title,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> map) {
 
-        TableColumn<ObservableAircraftState, String> column = new TableColumn<>();
+        TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
-        column.setCellValueFactory(value);
+        column.setCellValueFactory(map::apply);
 
         return column;
     }
@@ -237,24 +242,24 @@ public final class TableController {
     /**
      * Creates a numerical column, for messages holding number values.
      *
-     * @param value          lambda associating state to number representing it in the table
-     * @param decimalNumbers number of decimal numbers allowed in the numerical representation
+     * @param value lambda associating state to number representing it in the table
+     * @param nf    number format for easy transition from String to Integer and vice-versa.
      * @return numerical column
      */
 
     private TableColumn<ObservableAircraftState, String> createNumericalColumn(
             Callback<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> value,
-            int decimalNumbers) {
+            NumberFormat nf,
+            String title
+    ) {
 
-        TableColumn<ObservableAircraftState, String> column = new TableColumn<>();
+        TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.getStyleClass().add("numeric");
         column.setPrefWidth(PREFERRED_WIDTH_NUMERIC);
 
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(0);
-        nf.setMaximumFractionDigits(decimalNumbers);
 
         column.setCellValueFactory(value);
+
 
         column.setComparator(
                 (s1, s2) -> {
