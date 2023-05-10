@@ -51,16 +51,6 @@ public final class TableController {
         }
     }
 
-    private final String ICAO = "ICAO";
-    private final String CALLSIGN = "CALL_SIGN";
-    private final String REGISTRATION = "REGISTRATION";
-    private final String MODEL = "MODEL";
-    private final String TYPE = "TYPE";
-    private final String DESCRIPTION = "DESCRIPTION";
-    private final String LATITUDE = "LATITUDE";
-    private final String LONGITUDE = "LONGITUDE";
-    private final String ALTITUDE = "ALTITUDE";
-    private final String VELOCITY = "VELOCITY";
     private final double PREFERRED_WIDTH_NUMERIC = 85;
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
     private final Pane pane;
@@ -165,37 +155,37 @@ public final class TableController {
         tv.getColumns().addAll(List.of(
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.ICAO),
-                                ICAO,
+                                "ICAO",
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.ID),
-                                CALLSIGN,
+                                "CALLSIGN",
                                 f -> f.getValue().callSignProperty().map(CallSign::string)
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.REGISTRATION),
-                                REGISTRATION,
+                                "REGISTRATION",
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.MODEL),
-                                MODEL,
+                                "MODEL",
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.TYPE),
-                                TYPE,
+                                "TYPE",
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.DESCRIPTION),
-                                DESCRIPTION,
+                                "DESCRIPTION",
                                 f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
 
 
@@ -206,29 +196,29 @@ public final class TableController {
     }
 
     /**
-     * Handles te creation of all the numerical columns in the table
+     * Handles the creation of all the numerical columns in the table
      *
      * @param tv table view
      */
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
 
         tv.getColumns().addAll(List.of(
-                        this.createNumericalColumn(LATITUDE,
+                        this.createNumericalColumn("LATITUDE",
                                 f -> new SimpleDoubleProperty(f.getValue().getPosition().latitude()),
                                 4,
                                 Units.Angle.DEGREE
                         ),
-                        this.createNumericalColumn(LONGITUDE,
+                        this.createNumericalColumn("LONGITUDE",
                                 f -> new SimpleDoubleProperty(f.getValue().getPosition().longitude()),
                                 4,
                                 Units.Angle.DEGREE
                         ),
-                        this.createNumericalColumn(ALTITUDE,
+                        this.createNumericalColumn("ALTITUDE",
                                 f -> f.getValue().altitudeProperty(),
                                 0,
                                 Units.Length.METER
                         ),
-                        this.createNumericalColumn(VELOCITY,
+                        this.createNumericalColumn("VELOCITY",
                                 f -> f.getValue().velocityProperty(),
                                 0,
                                 Units.Speed.KILOMETER_PER_HOUR
