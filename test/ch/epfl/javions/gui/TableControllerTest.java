@@ -7,10 +7,7 @@ import ch.epfl.javions.adsb.RawMessage;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -72,7 +69,7 @@ public final class TableControllerTest extends Application {
             public void handle(long now) {
 
                 try {
-                    for (int i = 0; i < 100; i++) {
+                    for (int i = 0; i < 10; i++) {
                         if (mi.hasNext()) {
                             Message m = MessageParser.parse(mi.next());
                             if (m != null) asm.updateWithMessage(m);

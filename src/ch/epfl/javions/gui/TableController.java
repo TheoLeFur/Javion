@@ -3,6 +3,7 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.*;
+import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
@@ -60,8 +61,6 @@ public final class TableController {
     private final String LONGITUDE = "LONGITUDE";
     private final String ALTITUDE = "ALTITUDE";
     private final String VELOCITY = "VELOCITY";
-
-
     private final double PREFERRED_WIDTH_NUMERIC = 85;
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
     private final Pane pane;
@@ -109,14 +108,16 @@ public final class TableController {
     }
 
     /**
-     * @param cs
+     * @param cs consumer value.
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> cs) {
         if (!Objects.isNull(cs)) cs.accept(this.selectedAircraftState.getValue());
     }
 
     /**
-     * Builds the main scene graph.
+     * Builds the main scene graph
+     *
+     * @param tv table view
      */
     private void buildSceneGraph(TableView<ObservableAircraftState> tv) {
 
@@ -153,6 +154,11 @@ public final class TableController {
 
     }
 
+    /**
+     * Handles teh creation of all the textual values
+     *
+     * @param tv table view
+     */
     private void createTextColumns(TableView<ObservableAircraftState> tv) {
 
 
@@ -184,7 +190,7 @@ public final class TableController {
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.TYPE),
                                 TYPE,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e ->e.typeDesignator().string())
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())
                         )
                         ,
                         this.createTextualColumn(
@@ -199,7 +205,11 @@ public final class TableController {
 
     }
 
-
+    /**
+     * Handles te creation of all the numerical columns in the table
+     *
+     * @param tv table view
+     */
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
 
         tv.getColumns().addAll(List.of(
@@ -231,9 +241,11 @@ public final class TableController {
 
 
     /**
-     * Creates a column for string type values.
+     * Creates a textual column.
      *
-     * @param width preferred width of the column.
+     * @param width width, depending on the size of the string the property accounts for
+     * @param title title of the column
+     * @param map   function extracting values of the property
      * @return string column
      */
     private TableColumn<ObservableAircraftState, String> createTextualColumn(
@@ -249,14 +261,18 @@ public final class TableController {
     }
 
     /**
-     * Creates a numerical column, for messages holding number values.
+     * Creates numerical column for the table view
      *
+     * @param title    title
+     * @param map      map extracting necessary value from properties
+     * @param decimals number of decimals desired in the decimal representation
+     * @param unit     unit of the extracted value
      * @return numerical column
      */
 
     private TableColumn<ObservableAircraftState, String> createNumericalColumn(
             String title,
-            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ReadOnlyDoubleProperty> map,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, DoubleExpression> map,
             int decimals,
             double unit
     ) {
@@ -269,12 +285,7 @@ public final class TableController {
         nf.setMinimumFractionDigits(0);
         nf.setMaximumFractionDigits(decimals);
 
-        column.setCellValueFactory(
-                f -> {
-                    ReadOnlyDoubleProperty value = map.apply(f);
-                    return new ReadOnlyObjectWrapper<>(nf.format(Units.convertTo(value.getValue(), unit)));
-                }
-        );
+        column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v.doubleValue(), unit))));
 
 
         column.setComparator((s1, s2) -> {
