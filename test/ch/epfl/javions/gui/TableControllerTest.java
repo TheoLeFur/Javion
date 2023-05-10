@@ -55,24 +55,16 @@ public final class TableControllerTest extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Path tileCache = Path.of("tile-cache");
-        TileManager tm =
-                new TileManager(tileCache, "tile.openstreetmap.org");
-        MapParameters mp =
-                new MapParameters(17, 17_389_327, 11_867_430);
-        BaseMapController bmc = new BaseMapController(tm, mp);
 
         URL dbUrl = getClass().getResource("/aircraft.zip");
         assert dbUrl != null;
-
         String f = Path.of(dbUrl.toURI()).toString();
         var db = new AircraftDatabase(f);
 
         AircraftStateManager asm = new AircraftStateManager(db);
-        ObjectProperty<ObservableAircraftState> sap = new SimpleObjectProperty<>();
         TableController tab = new TableController(asm.states());
         primaryStage.setScene(new Scene(tab.pane()));
         primaryStage.show();
-
         var mi = readAllMessages(message_dir).iterator();
 
         new AnimationTimer() {
@@ -80,9 +72,11 @@ public final class TableControllerTest extends Application {
             public void handle(long now) {
 
                 try {
-                    for (int i = 0; i < 10; i++) {
-                        Message m = MessageParser.parse(mi.next());
-                        if (m != null) asm.updateWithMessage(m);
+                    for (int i = 0; i < 100; i++) {
+                        if (mi.hasNext()) {
+                            Message m = MessageParser.parse(mi.next());
+                            if (m != null) asm.updateWithMessage(m);
+                        }
                     }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);

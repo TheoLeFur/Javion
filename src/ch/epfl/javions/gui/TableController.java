@@ -2,10 +2,7 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.CallSign;
-import ch.epfl.javions.aircraft.AircraftDescription;
-import ch.epfl.javions.aircraft.AircraftRegistration;
-import ch.epfl.javions.aircraft.AircraftTypeDesignator;
-import ch.epfl.javions.aircraft.IcaoAddress;
+import ch.epfl.javions.aircraft.*;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
@@ -94,7 +91,8 @@ public final class TableController {
                 (SetChangeListener<ObservableAircraftState>) change -> {
                     this.tableView.getItems().add(change.getElementAdded());
                     this.tableView.getItems().remove(change.getElementRemoved());
-                    this.tableView.sort();
+
+                    if (change.wasAdded()) this.tableView.sort();
                 }
         );
 
@@ -162,35 +160,37 @@ public final class TableController {
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.ICAO),
                                 ICAO,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getIcaoAddress()).map(IcaoAddress::string)
-                        ),
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())
+                        )
+                        ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.ID),
                                 CALLSIGN,
-                                f -> f.getValue().callSignProperty().map(CallSign::string))
+                                f -> f.getValue().callSignProperty().map(CallSign::string)
+                        )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.REGISTRATION),
                                 REGISTRATION,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getRegistration()).map(AircraftRegistration::string)
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.MODEL),
                                 MODEL,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getModel())
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.TYPE),
                                 TYPE,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getTypeDesignator()).map(AircraftTypeDesignator::string)
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e ->e.typeDesignator().string())
                         )
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.DESCRIPTION),
                                 DESCRIPTION,
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getDescription()).map(AircraftDescription::string)
+                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
 
 
                         )
