@@ -29,8 +29,6 @@ import javafx.scene.text.Text;
 import java.util.Iterator;
 import java.util.Objects;
 
-//TODO : incorporate the visibility mechanisms in the label and the trajectory
-//TODO : formation & optimize the code.
 
 
 /**
@@ -331,13 +329,13 @@ public final class AircraftController {
 
 
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
-            
+
                     if (trajectoryGroup.isVisible()) {
 
                         trajectory.addListener(
                                 (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
                                 {
-                                    System.out.println("access");
+                                    trajectoryGroup.getChildren().clear();
                                     while (change.next()) {
                                         if (change.wasAdded()) {
                                             this.computeTrajectory(trajectoryGroup, s.getTrajectory(), this.mapParams.getZoomValue());
