@@ -26,16 +26,25 @@ import java.util.function.Function;
  */
 public final class TableController {
 
+    /**
+     * Stores the widths of various columns.
+     */
+
     private enum WIDTH {
         ICAO,
         ID,
         REGISTRATION,
         MODEL,
         TYPE,
-        DESCRIPTION;
+        DESCRIPTION,
+        NUMERIC;
 
-
-        private static int width(WIDTH width) {
+        /**
+         * get width from enum instance
+         * @param width enum instance
+         * @return width of column of the same name
+         */
+        private static int getWidth(WIDTH width) {
             return switch (width) {
                 case ICAO -> 60;
                 case ID -> 70;
@@ -43,15 +52,12 @@ public final class TableController {
                 case MODEL -> 230;
                 case TYPE -> 50;
                 case DESCRIPTION -> 70;
+                case NUMERIC ->  85;
             };
         }
 
-        private static int getWidth(WIDTH width) {
-            return width(width);
-        }
     }
 
-    private final double PREFERRED_WIDTH_NUMERIC = 85;
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
     private final Pane pane;
     private final TableView<ObservableAircraftState> tableView;
@@ -73,6 +79,7 @@ public final class TableController {
 
 
         // add a listener on the set of observable states :
+
         this.tableView = new TableView<>();
         this.buildSceneGraph(this.tableView);
 
@@ -139,9 +146,14 @@ public final class TableController {
         });
 
         // Creates textual and numerical columns.
+
+        this.createColumns(tv);
+
+    }
+
+    private void createColumns(TableView<ObservableAircraftState> tv) {
         this.createTextColumns(tv);
         this.createNumericColumns(tv);
-
     }
 
     /**
@@ -245,6 +257,7 @@ public final class TableController {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
+
         column.setCellValueFactory(map::apply);
 
         return column;
@@ -269,7 +282,7 @@ public final class TableController {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.getStyleClass().add("numeric");
-        column.setPrefWidth(PREFERRED_WIDTH_NUMERIC);
+        column.setPrefWidth(WIDTH.getWidth(WIDTH.NUMERIC));
 
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(0);
@@ -285,6 +298,7 @@ public final class TableController {
                 try {
                     return Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
                 } catch (ParseException e) {
+                    System.out.println("ERROR : one of the strings you compare cannot be parsed");
                     throw new RuntimeException(e);
                 }
             }
