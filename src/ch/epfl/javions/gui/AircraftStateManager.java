@@ -71,14 +71,18 @@ public final class AircraftStateManager {
 
     /**
      * Delete all the states associated to the addresses that have not sent any message for more than one minute.
-     */
+     **/
+
+
     public void purge() {
-        long lastUpdateTime = prevMessage.timeStampNs();
-        for (AircraftStateAccumulator<ObservableAircraftState> ac : accumulatorIcaoAddressMap.values()) {
-            if (ac.stateSetter().getLastMessageTimeStampNs() - lastUpdateTime >= MINUTE) {
-                aircraftSet.remove(ac.stateSetter());
-            }
-        }
+        accumulatorIcaoAddressMap.values().forEach(
+                ac -> {
+                    if (ac.stateSetter().getLastMessageTimeStampNs() - prevMessage.timeStampNs() >= MINUTE) {
+                        this.aircraftSet.remove(ac.stateSetter());
+                        this.accumulatorIcaoAddressMap.remove(ac.stateSetter().getIcaoAddress());
+                    }
+                }
+        );
     }
 
     /**

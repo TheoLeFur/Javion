@@ -1,4 +1,5 @@
 package ch.epfl.javions.gui;
+
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.CallSign;
@@ -22,6 +23,7 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 public final class ObservableAircraftState implements AircraftStateSetter {
     public record AirbornePos(GeoPos position, double altitude) {
     }
+
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
     private final LongProperty lastMessageTimeStampNs;
@@ -51,7 +53,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.position = new SimpleObjectProperty<>();
         this.trajectory = observableArrayList();
         this.unmodifiableTrajectory = unmodifiableObservableList(trajectory);
-        this.altitude = new SimpleDoubleProperty();
+        this.altitude = new SimpleDoubleProperty(-1);
         this.velocity = new SimpleDoubleProperty();
         this.trackOrHeading = new SimpleDoubleProperty();
     }
@@ -130,7 +132,9 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-        updateTrajectory();
+        if (this.getAltitude() != -1) {
+            this.trajectory.add(new AirbornePos(position, this.altitudeProperty().getValue()));
+        }
     }
 
     public ReadOnlyProperty<GeoPos> positionProperty() {
@@ -152,7 +156,17 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setAltitude(double altitude) {
         this.altitude.set(altitude);
-        updateTrajectory();
+        if (!Objects.isNull(this.getPosition())) {
+            AirbornePos pos = new AirbornePos(this.getPosition(), altitude);
+            this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
+            if (trajectory.isEmpty()) {
+                this.trajectory.add(pos);
+            }
+            else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) {
+                this.setLastPosition(pos);
+            }
+
+        }
     }
 
     public ReadOnlyDoubleProperty altitudeProperty() {
@@ -185,18 +199,19 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return trackOrHeading;
     }
 
-    private void updateTrajectory() {
-        if (!Objects.isNull(this.getPosition())) {
-            AirbornePos currentPosition = new AirbornePos(this.getPosition(), this.getAltitude());
-            if (this.trajectory.isEmpty() ||  getPosition().equals(this.getLastPosition().position)) {
-                trajectory.add(currentPosition);
-                this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
-            } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) this.setLastPosition(currentPosition);
-        }
-    }
+//    private void updateTrajectory() {
+//        if (!Objects.isNull(this.getPosition())) {
+//            AirbornePos currentPosition = new AirbornePos(this.getPosition(), this.getAltitude());
+//            if (this.trajectory.isEmpty() ||  getPosition().equals(this.getLastPosition().position)) {
+//                trajectory.add(currentPosition);
+//                this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
+//            } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) this.setLastPosition(currentPosition);
+//        }
+//    }
+
 
     private AirbornePos getLastPosition() {
-        return this.trajectory.get(this.trajectory.size() -1);
+        return this.trajectory.get(this.trajectory.size() - 1);
     }
 
     private void setLastPosition(AirbornePos newPosition) {
