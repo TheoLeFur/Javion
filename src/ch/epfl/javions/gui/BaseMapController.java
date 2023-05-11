@@ -131,8 +131,6 @@ public final class BaseMapController {
         if (!this.redrawNeeded) return;
         this.redrawNeeded = false;
         draw();
-        redrawOnNextPulse();
-
     }
 
 

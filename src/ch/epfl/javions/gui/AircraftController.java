@@ -54,10 +54,6 @@ public final class AircraftController {
     private final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mapParams;
     private Property<ObservableAircraftState> stateProperty;
-    private Group annotatedAircraftGroup;
-    private Group trajectoryGroup;
-    private Group labelIconGroup;
-    private SVGPath icon;
     private final ObservableSet<ObservableAircraftState> observableAircraft;
 
 
@@ -111,12 +107,13 @@ public final class AircraftController {
      */
     private void createSceneGraph(ObservableAircraftState s) {
 
-        this.createAnnotatedAircraftGroup(s);
-        this.createLabelIconGroup(s);
-        this.createIcon(s);
-        this.createLabel(s);
-        this.createTrajectoryGroup(s);
-        this.aircraftSelectionEventHandler(s);
+        Group annotatedAircraftGroup = this.createAnnotatedAircraftGroup(s);
+        this.createTrajectoryGroup(s, annotatedAircraftGroup);
+        Group labelIconGroup = this.createLabelIconGroup(s, annotatedAircraftGroup);
+        SVGPath icon = this.createIcon(s, labelIconGroup);
+        this.aircraftSelectionEventHandler(s, icon);
+        this.createLabel(s, labelIconGroup);
+
 
     }
 
@@ -125,17 +122,10 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private void aircraftSelectionEventHandler(ObservableAircraftState s) {
+    private void aircraftSelectionEventHandler(ObservableAircraftState s, SVGPath icon) {
 
-        this.icon.setOnMouseClicked(
-                (event) -> {
-                    System.out.println(s.getRegistration());
-                    this.stateProperty.setValue(s);
-                    System.out.println(this.stateProperty.getValue().getRegistration());
-                    System.out.println(s.equals(this.stateProperty.getValue()));
-                    System.out.println(trajectoryGroup.getId());
-                    trajectoryGroup.visibleProperty().bind(stateProperty.map(sp -> sp.equals(s)));
-                }
+        icon.setOnMouseClicked(
+                (event) -> this.stateProperty.setValue(s)
         );
     }
 
@@ -146,15 +136,19 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private void createAnnotatedAircraftGroup(ObservableAircraftState s) {
+    private Group createAnnotatedAircraftGroup(ObservableAircraftState s) {
 
-        this.annotatedAircraftGroup = new Group();
-        this.annotatedAircraftGroup.setId(s.getIcaoAddress().toString());
-        this.pane.getChildren().add(this.annotatedAircraftGroup);
+        Group annotatedAircraftGroup = new Group();
+        annotatedAircraftGroup.setId(s.getIcaoAddress().toString());
 
-        this.annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
+        this.pane.getChildren().add(annotatedAircraftGroup);
+
+        annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
-        this.annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
+        annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
+
+
+        return annotatedAircraftGroup;
 
     }
 
@@ -165,21 +159,24 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private void createLabelIconGroup(ObservableAircraftState s) {
+    private Group createLabelIconGroup(ObservableAircraftState s, Group annotatedAircraftGroup) {
 
-        this.labelIconGroup = new Group();
-        this.annotatedAircraftGroup.getChildren().add(this.labelIconGroup);
+        Group labelIconGroup = new Group();
+        annotatedAircraftGroup.getChildren().add(labelIconGroup);
 
-        this.labelIconGroup.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
+        labelIconGroup.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
                     double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
                     return projectedX - this.mapParams.getMinXValue();
                 },
                 this.mapParams.getZoom(), this.mapParams.getMinX(), s.positionProperty()));
 
-        this.labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
+        labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
             double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
             return projectedY - this.mapParams.getMinYValue();
         }, this.mapParams.getZoom(), this.mapParams.getMinY(), s.positionProperty()));
+
+
+        return labelIconGroup;
     }
 
 
@@ -188,11 +185,11 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private void createIcon(ObservableAircraftState s) {
+    private SVGPath createIcon(ObservableAircraftState s, Group labelIconGroup) {
 
-        this.icon = new SVGPath();
-        this.labelIconGroup.getChildren().add(this.icon);
-        this.icon.getStyleClass().add("aircraft");
+        SVGPath icon = new SVGPath();
+        labelIconGroup.getChildren().add(icon);
+        icon.getStyleClass().add("aircraft");
         AircraftData ad = s.getAircraftData();
 
         AircraftTypeDesignator atd;
@@ -220,15 +217,17 @@ public final class AircraftController {
         // bind both the content and the can rotate properties to the methods in AircraftIcon.
         // fills the icon with the proper color
 
-        this.icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
-        this.icon.rotateProperty().bind(Bindings.createDoubleBinding(() -> {
+        icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
+        icon.rotateProperty().bind(Bindings.createDoubleBinding(() -> {
             if (aircraftIconProperty.get().canRotate()) {
                 return Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE);
             } else {
                 return 0d;
             }
         }, s.trackOrHeadingProperty(), aircraftIconProperty));
-        this.icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
+        icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
+
+        return icon;
 
     }
 
@@ -238,14 +237,19 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private void createLabel(ObservableAircraftState s) {
+    private Group createLabel(ObservableAircraftState s, Group labelIconGroup) {
 
         Group labelGroup = new Group();
         labelGroup.getStyleClass().add("label");
-        this.labelIconGroup.getChildren().add(labelGroup);
+        labelIconGroup.getChildren().add(labelGroup);
         labelGroup.visibleProperty().bind(
-                this.mapParams.getZoom().map(
-                        z -> (z.intValue() >= this.VISIBLE_LABEL_ZOOM_THRESHOLD)
+                Bindings.createBooleanBinding(
+                        () ->
+                                this.mapParams.getZoom().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD
+                                        || s.equals(this.stateProperty.getValue())
+                        ,
+                        this.mapParams.getZoom(),
+                        this.stateProperty
                 )
         );
 
@@ -266,6 +270,8 @@ public final class AircraftController {
 
         background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
         background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
+
+        return labelGroup;
     }
 
 
@@ -313,42 +319,46 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private Group createTrajectoryGroup(ObservableAircraftState s) {
+    private Group createTrajectoryGroup(ObservableAircraftState s, Group annotatedAircraftGroup) {
 
-        this.trajectoryGroup = new Group();
-        this.trajectoryGroup.getStyleClass().add("trajectory");
-        this.trajectoryGroup.setId(s.getRegistration().string());
-        this.annotatedAircraftGroup.getChildren().add(trajectoryGroup);
+        Group trajectoryGroup = new Group();
+        trajectoryGroup.getStyleClass().add("trajectory");
+        annotatedAircraftGroup.getChildren().add(trajectoryGroup);
 
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
 
-        this.trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
+        trajectoryGroup.visibleProperty().bind(this.stateProperty.map(sp -> sp.equals(s)));
 
-                    trajectory.addListener(
-                            (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
-                            {
-                                System.out.println("access");
-                                while (change.next()) {
-                                    if (change.wasAdded()) {
-                                        this.computeTrajectory(s.getTrajectory(), this.mapParams.getZoomValue());
+        trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
+
+                    if (trajectoryGroup.isVisible()) {
+
+                        trajectory.addListener(
+                                (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
+                                {
+                                    System.out.println("access");
+                                    while (change.next()) {
+                                        if (change.wasAdded()) {
+                                            this.computeTrajectory(trajectoryGroup, s.getTrajectory(), this.mapParams.getZoomValue());
+                                        }
                                     }
                                 }
-                            }
-                    );
+                        );
 
-                    this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
-                        this.trajectoryGroup.getChildren().clear();
-                        this.computeTrajectory(s.getTrajectory(), newVal.intValue());
-                    });
+                        this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
+                            trajectoryGroup.getChildren().clear();
+                            this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
+                        });
 
-                    this.trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
-                    this.trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
+                        trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
+                        trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
 
+                    }
                 }
-
-
         );
-        return this.trajectoryGroup;
+
+
+        return trajectoryGroup;
 
     }
 
@@ -358,7 +368,7 @@ public final class AircraftController {
      * @param list      list of positions
      * @param zoomValue current zoom value
      */
-    private void computeTrajectory(ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
+    private void computeTrajectory(Group trajectoryGroup, ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
 
         // start wit an offset so that we can access the next point
 
@@ -388,7 +398,7 @@ public final class AircraftController {
                         Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
 
                         line.setStroke(new LinearGradient(x, y, x_next, y_next, true, CycleMethod.NO_CYCLE, s1, s2));
-                        this.trajectoryGroup.getChildren().add(line);
+                        trajectoryGroup.getChildren().add(line);
                     }
 
                 }
