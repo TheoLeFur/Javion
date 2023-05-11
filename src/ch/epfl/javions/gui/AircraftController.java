@@ -329,8 +329,9 @@ public final class AircraftController {
 
         trajectoryGroup.visibleProperty().bind(this.stateProperty.map(sp -> sp.equals(s)));
 
-        trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
 
+        trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
+            
                     if (trajectoryGroup.isVisible()) {
 
                         trajectory.addListener(
@@ -352,8 +353,9 @@ public final class AircraftController {
 
                         trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
                         trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
-
                     }
+
+
                 }
         );
 
