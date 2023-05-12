@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -31,6 +32,7 @@ public final class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
 
         URL u = getClass().getResource("/aircraft.zip");
         assert u != null;
@@ -114,18 +116,25 @@ public final class Main extends Application {
 
         try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
             byte[] bytes = new byte[RawMessage.LENGTH];
+
             while (true) {
+
                 long timeStampNs = s.readLong();
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
                 RawMessage rm = RawMessage.of(timeStampNs, bytes);
                 assert rm != null;
                 Message m = MessageParser.parse(rm);
+
                 if (m != null) messageQueue.add(m);
             }
-        } catch (EOFException e) {
+
+
+        } catch (
+                EOFException e) {
             // do nothing
-        } catch (IOException e) {
+        } catch (
+                IOException e) {
             throw new RuntimeException(e);
         }
         System.out.println(messageQueue.size());
