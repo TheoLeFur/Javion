@@ -221,7 +221,7 @@ public final class TableController {
                                 Units.Angle.DEGREE
                         ),
                         this.createNumericalColumn("LONGITUDE",
-                                f -> new SimpleDoubleProperty(f.getValue().getPosition().longitude()),
+                                f -> new s
                                 4,
                                 Units.Angle.DEGREE
                         ),

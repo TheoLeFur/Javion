@@ -53,7 +53,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.position = new SimpleObjectProperty<>();
         this.trajectory = observableArrayList();
         this.unmodifiableTrajectory = unmodifiableObservableList(trajectory);
-        this.altitude = new SimpleDoubleProperty(-1);
+        this.altitude = new SimpleDoubleProperty(Double.NaN);
         this.velocity = new SimpleDoubleProperty();
         this.trackOrHeading = new SimpleDoubleProperty();
     }
@@ -132,7 +132,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-        if (this.getAltitude() != -1) {
+        if (!Double.isNaN(this.getAltitude())) {
             this.trajectory.add(new AirbornePos(position, this.altitudeProperty().getValue()));
         }
     }
@@ -161,8 +161,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
             this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
             if (trajectory.isEmpty()) {
                 this.trajectory.add(pos);
-            }
-            else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) {
+            } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) {
                 this.setLastPosition(pos);
             }
 

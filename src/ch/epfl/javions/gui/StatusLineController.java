@@ -2,6 +2,8 @@ package ch.epfl.javions.gui;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 
@@ -13,24 +15,19 @@ import javafx.scene.text.Text;
 public class StatusLineController {
 
     private final BorderPane pane;
-    private final TableController tc;
-    private final AircraftController ac;
+    private final IntegerProperty aircraftCountProperty;
+    private final LongProperty messageCountProperty;
+
 
     /**
-     * Instantiates a status line controller.
-     *
-     * @param tc table controller
-     * @param ac aircraft controller
+     * default constructor.
      */
 
-    public StatusLineController(
-            TableController tc,
-            AircraftController ac
-    ) {
+    public StatusLineController() {
 
         this.pane = new BorderPane();
-        this.tc = tc;
-        this.ac = ac;
+        this.aircraftCountProperty = new SimpleIntegerProperty();
+        this.messageCountProperty = new SimpleLongProperty();
         this.createSceneGraph();
 
     }
@@ -38,6 +35,7 @@ public class StatusLineController {
     /**
      * Method that creates the basic scene graph
      */
+
     private void createSceneGraph() {
 
         Text leftText = new Text();
@@ -71,7 +69,7 @@ public class StatusLineController {
      * @return integer property containing the number of visible aircraft
      */
     public IntegerProperty aircraftCountProperty() {
-        return null;
+        return this.aircraftCountProperty;
     }
 
     /**
@@ -80,7 +78,6 @@ public class StatusLineController {
      * @return long property containing the number of received messages
      */
     public LongProperty messageCountProperty() {
-        return null;
+        return this.messageCountProperty;
     }
-
 }
