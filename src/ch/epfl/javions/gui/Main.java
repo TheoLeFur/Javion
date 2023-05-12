@@ -8,6 +8,7 @@ import ch.epfl.javions.demodulation.AdsbDemodulator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
@@ -22,7 +23,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
-
 
 
     public static void main(String[] args) {
@@ -50,7 +50,7 @@ public final class Main extends Application {
         BaseMapController bmc = new BaseMapController(tm, mp);
 
         SplitPane mainPane = new SplitPane();
-
+        mainPane.setOrientation(Orientation.VERTICAL);
         this.createSceneGraph(mainPane, bmc, ac, tc, slc);
 
         primaryStage.setScene(new Scene(mainPane));
@@ -76,8 +76,11 @@ public final class Main extends Application {
             public void handle(long now) {
                 try {
                     for (int i = 0; i < 10; i++) {
-                        Message m = messageQueue.remove();
-                        if (!Objects.isNull(m)) asm.updateWithMessage(m);
+                        if (!messageQueue.isEmpty()) {
+                            Message m = messageQueue.remove();
+                            if (!Objects.isNull(m)) asm.updateWithMessage(m);
+                        }
+
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -86,8 +89,6 @@ public final class Main extends Application {
             }
         }.start();
     }
-
-
 
 
     private ConcurrentLinkedQueue<Message> demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
@@ -112,11 +113,7 @@ public final class Main extends Application {
     private ConcurrentLinkedQueue<Message> readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
 
 
-        try (DataInputStream s = new DataInputStream((
-                new BufferedInputStream(
-                        new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile())
-                )
-        ))) {
+        try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
             byte[] bytes = new byte[RawMessage.LENGTH];
             while (true) {
                 long timeStampNs = s.readLong();
@@ -125,28 +122,24 @@ public final class Main extends Application {
                 RawMessage rm = RawMessage.of(timeStampNs, bytes);
                 assert rm != null;
                 Message m = MessageParser.parse(rm);
-                messageQueue.add(m);
+                if (m != null) messageQueue.add(m);
             }
         } catch (EOFException e) {
             // do nothing
-        } catch
-        (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return messageQueue;
     }
 
-    private void createSceneGraph(SplitPane mainPane,
-                                  BaseMapController bmc,
-                                  AircraftController ac,
-                                  TableController tc,
-                                  StatusLineController slc) {
+    private void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
 
         StackPane aircraftPane = new StackPane(bmc.pane(), ac.pane());
         BorderPane metaPane = new BorderPane();
         metaPane.setCenter(tc.pane());
         metaPane.setTop(slc.pane());
-        mainPane.getItems().addAll(List.of(aircraftPane, metaPane));
+        mainPane.getItems().add(aircraftPane);
+        mainPane.getItems().add(metaPane);
 
     }
 

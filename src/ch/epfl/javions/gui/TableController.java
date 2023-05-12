@@ -3,9 +3,10 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.CallSign;
-import ch.epfl.javions.aircraft.*;
-import javafx.beans.binding.DoubleExpression;
-import javafx.beans.property.*;
+import ch.epfl.javions.aircraft.AircraftData;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -258,7 +259,6 @@ public final class TableController {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
-
         column.setCellValueFactory(map::apply);
 
         return column;
