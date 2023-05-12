@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.*;
@@ -216,22 +217,22 @@ public final class TableController {
 
         tv.getColumns().addAll(List.of(
                         this.createNumericalColumn("LATITUDE",
-                                f -> new SimpleDoubleProperty(f.getValue().getPosition().latitude()),
+                                f -> f.getValue().positionProperty().map(GeoPos::latitude),
                                 4,
                                 Units.Angle.DEGREE
                         ),
                         this.createNumericalColumn("LONGITUDE",
-                                f -> new s
+                                f -> f.getValue().positionProperty().map(GeoPos::longitude),
                                 4,
                                 Units.Angle.DEGREE
                         ),
                         this.createNumericalColumn("ALTITUDE",
-                                f -> f.getValue().altitudeProperty(),
+                                f -> f.getValue().altitudeProperty().map(Number::doubleValue),
                                 0,
                                 Units.Length.METER
                         ),
                         this.createNumericalColumn("VELOCITY",
-                                f -> f.getValue().velocityProperty(),
+                                f -> f.getValue().velocityProperty().map(Number::doubleValue),
                                 0,
                                 Units.Speed.KILOMETER_PER_HOUR
                         )
@@ -275,7 +276,7 @@ public final class TableController {
 
     private TableColumn<ObservableAircraftState, String> createNumericalColumn(
             String title,
-            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, DoubleExpression> map,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<Double>> map,
             int decimals,
             double unit
     ) {
@@ -288,7 +289,7 @@ public final class TableController {
         nf.setMinimumFractionDigits(0);
         nf.setMaximumFractionDigits(decimals);
 
-        column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v.doubleValue(), unit))));
+        column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v, unit))));
 
 
         column.setComparator((s1, s2) -> {
