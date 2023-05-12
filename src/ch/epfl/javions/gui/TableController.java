@@ -123,6 +123,10 @@ public final class TableController {
         tv.getStylesheets().add(TABLE_STYLE_SHEET_PATH);
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         tv.setTableMenuButtonVisible(true);
+
+        tv.prefWidthProperty().bind(this.pane.widthProperty());
+        tv.prefHeightProperty().bind(this.pane.heightProperty());
+
         this.pane.getChildren().add(tv);
 
         this.selectedAircraftState.addListener(

@@ -32,8 +32,6 @@ public final class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        String fileName = "/Users/theolefur/Javion/resources/messages_20230318_0915.bin";
-
         URL u = getClass().getResource("/aircraft.zip");
         assert u != null;
         Path p = Path.of(u.toURI());
@@ -72,6 +70,8 @@ public final class Main extends Application {
         }).start();
 
         new AnimationTimer() {
+
+
             @Override
             public void handle(long now) {
                 try {
@@ -80,7 +80,6 @@ public final class Main extends Application {
                             Message m = messageQueue.remove();
                             if (!Objects.isNull(m)) asm.updateWithMessage(m);
                         }
-
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -129,6 +128,7 @@ public final class Main extends Application {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println(messageQueue.size());
         return messageQueue;
     }
 

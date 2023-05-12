@@ -7,6 +7,7 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,6 +20,7 @@ public final class AircraftStateManager {
     private final AircraftDatabase database;
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> accumulatorIcaoAddressMap;
     private final ObservableSet<ObservableAircraftState> aircraftSet;
+    private final ObservableSet<ObservableAircraftState> readOnlyAircraftSet;
     private Message prevMessage;
     private final long MINUTE = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
 
@@ -32,6 +34,7 @@ public final class AircraftStateManager {
         this.database = database;
         this.accumulatorIcaoAddressMap = new HashMap<>();
         this.aircraftSet = FXCollections.observableSet();
+        this.readOnlyAircraftSet = FXCollections.unmodifiableObservableSet(this.aircraftSet);
     }
 
     /**
@@ -40,7 +43,7 @@ public final class AircraftStateManager {
      * @return view on set of states
      */
     public ObservableSet<ObservableAircraftState> states() {
-        return FXCollections.unmodifiableObservableSet(aircraftSet);
+        return this.readOnlyAircraftSet;
     }
 
     /**
