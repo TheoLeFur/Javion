@@ -8,6 +8,8 @@ import ch.epfl.javions.demodulation.AdsbDemodulator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
@@ -23,6 +25,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
+
 
 
     public static void main(String[] args) {
@@ -43,10 +46,15 @@ public final class Main extends Application {
         TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
         AircraftStateManager asm = new AircraftStateManager(db);
         MapParameters mp = new MapParameters(8, 33530, 23070);
-        AircraftController ac = new AircraftController(mp, asm.states());
-        TableController tc = new TableController((asm.states()));
+
         StatusLineController slc = new StatusLineController();
         BaseMapController bmc = new BaseMapController(tm, mp);
+
+        ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
+        AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
+        TableController tc = new TableController((asm.states()), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
+
+
 
         SplitPane mainPane = new SplitPane();
         mainPane.setOrientation(Orientation.VERTICAL);
@@ -58,6 +66,7 @@ public final class Main extends Application {
         primaryStage.show();
 
         slc.aircraftCountProperty().bind(Bindings.size(asm.states()));
+
 
         List<String> params = getParameters().getRaw();
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
@@ -77,6 +86,7 @@ public final class Main extends Application {
                 try {
                     for (int i = 0; i < 10; i++) {
                         if (!messageQueue.isEmpty()) {
+                            slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
                             Message m = messageQueue.remove();
                             if (!Objects.isNull(m)) asm.updateWithMessage(m);
                         }
@@ -120,7 +130,6 @@ public final class Main extends Application {
 
                 long timeStampNs = s.readLong();
                 long currentTime = System.nanoTime();
-
                 Thread.sleep((long) (Math.max(0, (timeStampNs - (currentTime - start))) / 1000000d));
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
@@ -128,7 +137,10 @@ public final class Main extends Application {
                 Message m;
                 if (rm != null) {
                     m = MessageParser.parse(rm);
-                    if (m != null) messageQueue.add(m);
+                    if (m != null) {
+                        messageQueue.add(m);
+
+                    }
                 }
 
             }

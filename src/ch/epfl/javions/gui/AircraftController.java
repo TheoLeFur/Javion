@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Objects;
 
 
-
 /**
  * Class for controlling the display of the aircraft on the background map. It will display
  * the icons, associated information and trajectory : everything colored as a function of the altitude of
@@ -50,7 +49,7 @@ public final class AircraftController {
     // Minimal zoom level for making labels visible
     private final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mapParams;
-    private Property<ObservableAircraftState> stateProperty;
+    private Property<ObservableAircraftState> selectedAircraft;
     private final ObservableSet<ObservableAircraftState> observableAircraft;
 
 
@@ -63,11 +62,11 @@ public final class AircraftController {
      * @param observableAircraft set of aircraft that are currently observable
      */
 
-    public AircraftController(MapParameters mapParams, ObservableSet<ObservableAircraftState> observableAircraft) {
+    public AircraftController(MapParameters mapParams, ObservableSet<ObservableAircraftState> observableAircraft, ObjectProperty<ObservableAircraftState> selectedAircraft) {
 
         // init the constructor params
         this.mapParams = mapParams;
-        this.stateProperty = new SimpleObjectProperty<>();
+        this.selectedAircraft = selectedAircraft;
         this.observableAircraft = observableAircraft;
 
         // Build the scene graph
@@ -77,11 +76,14 @@ public final class AircraftController {
         this.pane.getStylesheets().add(Objects.requireNonNull(getClass().getResource(this.AircraftStyleSheetPath)).toString());
 
 
-        // adds the groups of the initial set passed into construction.
+        // We construct a graph for every state in the initial set of values passed into the constructor.
+
         this.observableAircraft.forEach(this::createSceneGraph);
 
 
-        // track changes of the set of states
+        // track changes of the set of states, if element is added, we build its corresponding graph, if element
+        // is removed, then we remove the graph of the removed states.
+
         this.observableAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
                     ObservableAircraftState elementAdded = change.getElementAdded();
                     if (!Objects.isNull(elementAdded)) {
@@ -122,7 +124,7 @@ public final class AircraftController {
     private void aircraftSelectionEventHandler(ObservableAircraftState s, SVGPath icon) {
 
         icon.setOnMouseClicked(
-                (event) -> this.stateProperty.setValue(s)
+                (event) -> this.selectedAircraft.setValue(s)
         );
     }
 
@@ -141,7 +143,9 @@ public final class AircraftController {
         this.pane.getChildren().add(annotatedAircraftGroup);
 
         annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
+
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
+
         annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
 
 
@@ -209,10 +213,10 @@ public final class AircraftController {
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(AircraftIcon.iconFor(atd, ads, cat, wtc));
 
         // we bind the icon property to the category property, so that it tracks the changes.
+
         aircraftIconProperty.bind(s.categoryProperty().map(d -> AircraftIcon.iconFor(atd, ads, d.intValue(), wtc)));
 
         // bind both the content and the can rotate properties to the methods in AircraftIcon.
-        // fills the icon with the proper color
 
         icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
         icon.rotateProperty().bind(Bindings.createDoubleBinding(() -> {
@@ -243,10 +247,10 @@ public final class AircraftController {
                 Bindings.createBooleanBinding(
                         () ->
                                 this.mapParams.getZoom().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD
-                                        || s.equals(this.stateProperty.getValue())
+                                        || s.equals(this.selectedAircraft.getValue())
                         ,
                         this.mapParams.getZoom(),
-                        this.stateProperty
+                        this.selectedAircraft
                 )
         );
 
@@ -255,6 +259,7 @@ public final class AircraftController {
         Rectangle background = new Rectangle();
         labelGroup.getChildren().add(background);
         labelGroup.getChildren().add(text);
+
 
         text.textProperty().bind(Bindings.createStringBinding(
                 () -> String.format("%s \n %s (km/h) \u2002 %d (m) ",
@@ -267,6 +272,7 @@ public final class AircraftController {
 
         background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
         background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
+
 
         return labelGroup;
     }
@@ -324,7 +330,7 @@ public final class AircraftController {
 
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
 
-        trajectoryGroup.visibleProperty().bind(this.stateProperty.map(sp -> sp.equals(s)));
+        trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
 
 
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
@@ -412,7 +418,7 @@ public final class AircraftController {
      * @return index c, which determines the color from the spectrum that will be chosen.
      */
     private double computeColorIndex(double altitude) {
-        return Math.pow(altitude / 12000.0, 0.333);
+        return Math.pow(altitude / 12000.0, 1d/3d);
     }
 
 

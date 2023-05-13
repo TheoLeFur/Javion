@@ -7,10 +7,11 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 
 /**

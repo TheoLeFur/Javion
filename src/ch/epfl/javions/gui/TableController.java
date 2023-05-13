@@ -43,6 +43,7 @@ public final class TableController {
 
         /**
          * get width from enum instance
+         *
          * @param width enum instance
          * @return width of column of the same name
          */
@@ -54,7 +55,7 @@ public final class TableController {
                 case MODEL -> 230;
                 case TYPE -> 50;
                 case DESCRIPTION -> 70;
-                case NUMERIC ->  85;
+                case NUMERIC -> 85;
             };
         }
 
@@ -64,7 +65,7 @@ public final class TableController {
     private final Pane pane;
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
-    private final ObjectProperty<ObservableAircraftState> selectedAircraftState;
+    private final ObjectProperty<ObservableAircraftState> selectedAircraft;
     private Consumer<ObservableAircraftState> cs;
 
     /**
@@ -72,13 +73,13 @@ public final class TableController {
      *
      * @param obsSet set of observable states passed into construction.
      */
-    public TableController(ObservableSet<ObservableAircraftState> obsSet) {
+    public TableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft, Consumer<ObservableAircraftState> cs) {
 
         this.observableSet = obsSet;
-        this.selectedAircraftState = new SimpleObjectProperty<>();
+        this.selectedAircraft = selectedAircraft;
 
         this.pane = new Pane();
-
+        this.cs = cs;
 
         // add a listener on the set of observable states :
 
@@ -110,7 +111,7 @@ public final class TableController {
      * @param cs consumer value.
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> cs) {
-        if (!Objects.isNull(cs)) cs.accept(this.selectedAircraftState.getValue());
+        if (!Objects.isNull(cs)) cs.accept(this.selectedAircraft.getValue());
     }
 
     /**
@@ -129,7 +130,7 @@ public final class TableController {
 
         this.pane.getChildren().add(tv);
 
-        this.selectedAircraftState.addListener(
+        this.selectedAircraft.addListener(
                 (p, oldVal, newVal) -> {
                     tv.getSelectionModel().select(newVal);
                     tv.scrollTo(newVal);
@@ -139,7 +140,7 @@ public final class TableController {
         tv.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((p, oldVal, newVal) ->
-                        this.selectedAircraftState.setValue(newVal));
+                        this.selectedAircraft.setValue(newVal));
 
 
         tv.setOnMouseClicked(event -> {

@@ -176,8 +176,8 @@ public final class BaseMapController {
         int x = (int) WebMercator.x(zoomValue, position.longitude());
         int y = (int) WebMercator.y(zoomValue, position.latitude());
         this.mapParameters.getZoom().set(zoomValue);
-        this.mapParameters.setMinX(x + this.canvas.getWidth() / 2);
-        this.mapParameters.setMinY(y + this.canvas.getHeight() / 2);
+        this.mapParameters.setMinX(x - this.canvas.getWidth() / 2);
+        this.mapParameters.setMinY(y - this.canvas.getHeight() / 2);
     }
 
     /**

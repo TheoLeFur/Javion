@@ -7,6 +7,8 @@ import ch.epfl.javions.adsb.RawMessage;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -15,6 +17,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class TableControllerTest extends Application {
 
@@ -59,7 +62,8 @@ public final class TableControllerTest extends Application {
         var db = new AircraftDatabase(f);
 
         AircraftStateManager asm = new AircraftStateManager(db);
-        TableController tab = new TableController(asm.states());
+        ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
+        TableController tab = new TableController(asm.states(), selectedAircraft, null);
         primaryStage.setScene(new Scene(tab.pane()));
         primaryStage.show();
         var mi = readAllMessages(message_dir).iterator();
