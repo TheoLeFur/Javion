@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class Main extends Application {
 
 
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -53,7 +52,6 @@ public final class Main extends Application {
         ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
         AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
         TableController tc = new TableController((asm.states()), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
-
 
 
         SplitPane mainPane = new SplitPane();
