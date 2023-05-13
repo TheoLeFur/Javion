@@ -73,7 +73,6 @@ public final class Main extends Application {
 
         new AnimationTimer() {
 
-
             @Override
             public void handle(long now) {
                 try {
@@ -117,6 +116,8 @@ public final class Main extends Application {
         try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
             byte[] bytes = new byte[RawMessage.LENGTH];
 
+            long startNs = System.currentTimeMillis() * 1000000;
+
             while (true) {
 
                 long timeStampNs = s.readLong();
@@ -125,8 +126,11 @@ public final class Main extends Application {
                 RawMessage rm = RawMessage.of(timeStampNs, bytes);
                 assert rm != null;
                 Message m = MessageParser.parse(rm);
+                assert m!= null;
+                System.out.println(m.timeStampNs());
 
                 if (m != null) messageQueue.add(m);
+
             }
 
 
