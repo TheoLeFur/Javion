@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -91,7 +90,7 @@ public final class Main extends Application {
     }
 
 
-    private ConcurrentLinkedQueue<Message> demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
+    private void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
 
         try (InputStream s = System.in) {
             AdsbDemodulator adm = new AdsbDemodulator(s);
@@ -106,30 +105,31 @@ public final class Main extends Application {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return messageQueue;
     }
 
 
-    private ConcurrentLinkedQueue<Message> readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
+    private void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
 
 
         try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
             byte[] bytes = new byte[RawMessage.LENGTH];
 
-            long startNs = System.currentTimeMillis() * 1000000;
+            long start = System.nanoTime();
 
             while (true) {
 
                 long timeStampNs = s.readLong();
+                long currentTime = System.nanoTime();
+
+                Thread.sleep((long) (Math.max(0, (timeStampNs - (currentTime - start))) / 1000000d));
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
                 RawMessage rm = RawMessage.of(timeStampNs, bytes);
-                assert rm != null;
-                Message m = MessageParser.parse(rm);
-                assert m!= null;
-                System.out.println(m.timeStampNs());
-
-                if (m != null) messageQueue.add(m);
+                Message m;
+                if (rm != null) {
+                    m = MessageParser.parse(rm);
+                    if (m != null) messageQueue.add(m);
+                }
 
             }
 
@@ -138,11 +138,9 @@ public final class Main extends Application {
                 EOFException e) {
             // do nothing
         } catch (
-                IOException e) {
+                IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(messageQueue.size());
-        return messageQueue;
     }
 
     private void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
