@@ -74,6 +74,7 @@ public final class Main extends Application {
         List<String> params = getParameters().getRaw();
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
+
         new Thread(() -> {
             if (params.isEmpty()) {
                 this.demodulateMessages(messageQueue);
@@ -81,6 +82,7 @@ public final class Main extends Application {
                 this.readMessagesFromFile(params.get(0), messageQueue);
             }
         }).start();
+
 
         new AnimationTimer() {
 
@@ -100,7 +102,9 @@ public final class Main extends Application {
 
             }
         }.start();
+
     }
+
 
     /**
      * This method demodulates messages received from antenna using an ADSB-Demodulator. It placed the demodulated messages
@@ -124,6 +128,7 @@ public final class Main extends Application {
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Method for reading messages from file. The thread places the messages in the queue according to their timestamp, putting
@@ -171,8 +176,9 @@ public final class Main extends Application {
         }
     }
 
+
     /**
-     * Creates teh final scene graph
+     * Creates the final scene graph
      *
      * @param mainPane main  pane
      * @param bmc      base map controller
