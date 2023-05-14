@@ -287,7 +287,9 @@ public final class AircraftController {
     private String getVelocityForLabel(ObservableAircraftState s) {
 
         if (!Objects.isNull(s.getAircraftData())) {
-            return String.valueOf((int) (Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR)));
+            if (!Double.isNaN(s.velocityProperty().getValue())) {
+                return String.valueOf((int) (Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR)));
+            }
         }
         return "?";
     }

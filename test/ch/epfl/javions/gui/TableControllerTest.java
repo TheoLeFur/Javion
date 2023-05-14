@@ -17,7 +17,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public final class TableControllerTest extends Application {
 

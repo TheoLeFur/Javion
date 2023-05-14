@@ -14,13 +14,22 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 
 
 /**
- * Represents the state of an aircraft, this state is characterised by the fact
- * it's observable in the sence of the Observer design pattern
+ * In this class, we represent the characteristic of an aircraft's state. It stores the
+ * attributes of an aircraft that are susceptible to change in time in javaFX properties.
+ * The class is implemented based on the javaFX bean pattern.
  *
- * @author Rudolf Yazbeck (SCIPER : 360700)
  * @author Theo Le Fur (SCIPER : 363294)
  */
 public final class ObservableAircraftState implements AircraftStateSetter {
+
+    /**
+     * Record of the position of the aircraft, which in 3d Euclidian space, is characterized by
+     * (long, lat, A), where A is the aircraft's altitude, that is the distance between the aircraft and
+     * the sphere.
+     *
+     * @param position position of the aircraft, characterised by an instance of GeoPos
+     * @param altitude aircraft's altitude
+     */
     public record AirbornePos(GeoPos position, double altitude) {
     }
 
@@ -31,7 +40,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final ObjectProperty<CallSign> callSign;
     private final ObjectProperty<GeoPos> position;
     private final ObservableList<AirbornePos> trajectory;
-    private final ObservableList<AirbornePos> unmodifiableTrajectory;
+    private final ObservableList<AirbornePos> trajectoryView;
     private final DoubleProperty altitude;
     private final DoubleProperty velocity;
     private final DoubleProperty trackOrHeading;
@@ -45,6 +54,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
      * @param aircraftData of the aircraft
      */
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
+
         this.icaoAddress = icaoAddress;
         this.aircraftData = aircraftData;
         this.lastMessageTimeStampNs = new SimpleLongProperty();
@@ -52,43 +62,101 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.callSign = new SimpleObjectProperty<>();
         this.position = new SimpleObjectProperty<>();
         this.trajectory = observableArrayList();
-        this.unmodifiableTrajectory = unmodifiableObservableList(trajectory);
+        this.trajectoryView = unmodifiableObservableList(this.trajectory);
+
+        // both altitude and velocity are initialised to Nan, so that we can detect whenever
+        // some data is absent from messages.
+
         this.altitude = new SimpleDoubleProperty(Double.NaN);
-        this.velocity = new SimpleDoubleProperty();
+        this.velocity = new SimpleDoubleProperty(Double.NaN);
         this.trackOrHeading = new SimpleDoubleProperty();
     }
 
+    /**
+     * Getter to access IcaoAddress
+     *
+     * @return icaoAddress
+     */
     public IcaoAddress getIcaoAddress() {
         return this.icaoAddress;
     }
+
+    /**
+     * Getter to access Aircraft Data
+     *
+     * @return Aircraft Data
+     */
 
     public AircraftData getAircraftData() {
         return this.aircraftData;
     }
 
+    /**
+     * Getter to access the registration
+     *
+     * @return aircraft's registration no.
+     */
+
     public AircraftRegistration getRegistration() {
         return aircraftData.registration();
     }
+
+    /**
+     * Getter to access the aircraft's type
+     *
+     * @return aircraft's type
+     */
 
     public AircraftTypeDesignator getTypeDesignator() {
         return aircraftData.typeDesignator();
     }
 
+    /**
+     * Getter to access the aircraft's model
+     *
+     * @return aircraft's model
+     */
     public String getModel() {
         return aircraftData.model();
     }
+
+    /**
+     * Getter to access the aircraft's description
+     *
+     * @return aircraft's description
+     */
 
     public AircraftDescription getDescription() {
         return aircraftData.description();
     }
 
+    /**
+     * Getter to access the aircraft's turbulence category
+     *
+     * @return aircraft's turbulence category.
+     */
+
     public WakeTurbulenceCategory getWakeTurbulenceCategory() {
         return aircraftData.wakeTurbulenceCategory();
     }
 
+    /**
+     * Access the category property. It makes sense to use a javaFX property for a placeholder
+     * to the category's values, since the category may change through time in the situation when the
+     * category is not available until some message will bring its value.
+     *
+     * @return category property
+     */
+
     public ReadOnlyIntegerProperty categoryProperty() {
         return category;
     }
+
+    /**
+     * Access the category's value
+     *
+     * @return value stored in category property
+     */
 
     public int getCategory() {
         return category.get();
@@ -99,6 +167,23 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.category.set(category);
     }
 
+    /**
+     * Access the call sign property
+     *
+     * @return call sign property.
+     */
+
+    public ReadOnlyProperty<CallSign> callSignProperty() {
+        return callSign;
+    }
+
+    /**
+     * Access the call sign's value
+     *
+     * @return value stored in call sign property
+     */
+
+
     public CallSign getCallSign() {
         return callSign.get();
     }
@@ -107,6 +192,12 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     public void setCallSign(CallSign callSign) {
         this.callSign.set(callSign);
     }
+
+    /**
+     * Access the value of the timestamp of the last message.
+     *
+     * @return value of the last timestamp
+     */
 
     public long getLastMessageTimeStampNs() {
         return lastMessageTimeStampNs.get();
@@ -117,16 +208,22 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.lastMessageTimeStampNs.set(timeStampNs);
     }
 
+    /**
+     * Access the property serving as placeholder to the value of the timestamp of the last message
+     *
+     * @return time stamp long property
+     */
+
     public ReadOnlyLongProperty lastMessageTimeStampNsProperty() {
-        return lastMessageTimeStampNs;
+        return this.lastMessageTimeStampNs;
     }
 
-    public ReadOnlyProperty<CallSign> callSignProperty() {
-        return callSign;
-    }
-
+    /**
+     * Access the value held in the position property.
+     * @return position in GeoPos coordinates.
+     */
     public GeoPos getPosition() {
-        return position.get();
+        return this.position.get();
     }
 
     @Override
@@ -137,17 +234,28 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         }
     }
 
+    /**
+     * Access the position property.
+     * @return Position property
+     */
+
     public ReadOnlyProperty<GeoPos> positionProperty() {
         return position;
     }
 
+    /**
+     * Access the trajectory as observable, unmodifiable list.
+     * @return Position property
+     */
+
     public ObservableList<AirbornePos> getTrajectory() {
-        return unmodifiableTrajectory;
+        return trajectoryView;
     }
 
-    public ObservableList<AirbornePos> trajectoryProperty() {
-        return unmodifiableTrajectory;
-    }
+    /**
+     * Access the value of the altitude held in the altitude property
+     * @return value of the altitude
+     */
 
     public double getAltitude() {
         return altitude.get();
@@ -168,9 +276,19 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         }
     }
 
+    /**
+     * Access the altitude property
+     * @return altitude property
+     */
+
     public ReadOnlyDoubleProperty altitudeProperty() {
         return altitude;
     }
+
+    /**
+     * Access the value of the velocity
+     * @return velocity
+     */
 
     public double getVelocity() {
         return velocity.get();
@@ -181,9 +299,18 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.velocity.set(velocity);
     }
 
+    /**
+     * Access the velocity property
+     * @return velocity property
+     */
     public ReadOnlyDoubleProperty velocityProperty() {
         return velocity;
     }
+
+    /**
+     * Access the value held in the track or heading property
+     * @return track or heading value
+     */
 
     public double getTrackOrHeading() {
         return trackOrHeading.get();
@@ -194,19 +321,13 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.trackOrHeading.set(trackOrHeading);
     }
 
+    /**
+     * Access the track or heading property
+     * @return track or heading property
+     */
     public ReadOnlyDoubleProperty trackOrHeadingProperty() {
         return trackOrHeading;
     }
-
-//    private void updateTrajectory() {
-//        if (!Objects.isNull(this.getPosition())) {
-//            AirbornePos currentPosition = new AirbornePos(this.getPosition(), this.getAltitude());
-//            if (this.trajectory.isEmpty() ||  getPosition().equals(this.getLastPosition().position)) {
-//                trajectory.add(currentPosition);
-//                this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
-//            } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) this.setLastPosition(currentPosition);
-//        }
-//    }
 
 
     private AirbornePos getLastPosition() {
