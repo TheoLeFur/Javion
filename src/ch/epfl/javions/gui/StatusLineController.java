@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 
 
 /**
- * This class controls the status line in the final graphical interface. It will be displaying the number of visibles
+ * This class controls the status line in the final graphical interface. It will be displaying the number of visible
  * aircraft as well as the number of received messages/
  */
 public class StatusLineController {
@@ -20,7 +20,8 @@ public class StatusLineController {
 
 
     /**
-     * default constructor.
+     * Default constructor. Takes care of creating the status line that will lie between the map and the table.
+     * Creates the two properties for visible aircraft and number of received messages.
      */
 
     public StatusLineController() {
@@ -44,12 +45,8 @@ public class StatusLineController {
         this.pane.setLeft(leftText);
         this.pane.setRight(rightText);
 
-        leftText.textProperty().bind(this.aircraftCountProperty().map(
-                acp -> "Aeronefs visibles : " + acp.doubleValue()
-        ));
-        rightText.textProperty().bind(this.messageCountProperty().map(
-                acp -> "Messages recus : " + acp.doubleValue()
-        ));
+        leftText.textProperty().bind(this.aircraftCountProperty().map(acp -> "Aeronefs visibles : " + acp.doubleValue()));
+        rightText.textProperty().bind(this.messageCountProperty().map(acp -> "Messages recus : " + acp.doubleValue()));
 
 
     }
