@@ -1,10 +1,11 @@
-package ch.epfl.javions.gui;
+package ch.epfl.javions;
 
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.demodulation.AdsbDemodulator;
+import ch.epfl.javions.gui.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -26,7 +27,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
 
-
+    /**
+     * Launches ta javaFX application
+     *
+     * @param args arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }
@@ -97,7 +102,12 @@ public final class Main extends Application {
         }.start();
     }
 
-
+    /**
+     * This method demodulates messages received from antenna using an ADSB-Demodulator. It placed the demodulated messages
+     * in a queue
+     *
+     * @param messageQueue queue that stores the decoded messages.
+     */
     private void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
 
         try (InputStream s = System.in) {
@@ -114,6 +124,14 @@ public final class Main extends Application {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Method for reading messages from file. The thread places the messages in the queue according to their timestamp, putting
+     * execution to sleep if necessary.
+     *
+     * @param fileName     name of file
+     * @param messageQueue queue that stores messages from file.
+     */
 
 
     private void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
@@ -152,6 +170,16 @@ public final class Main extends Application {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Creates teh final scene graph
+     *
+     * @param mainPane main  pane
+     * @param bmc      base map controller
+     * @param ac       aircraft controller
+     * @param tc       table controller
+     * @param slc      status line controller
+     */
 
     private void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
 
