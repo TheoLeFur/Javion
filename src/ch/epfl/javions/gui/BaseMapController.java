@@ -75,9 +75,9 @@ public final class BaseMapController {
 
         this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
-        this.mapParameters.getMinX().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
-        this.mapParameters.getMinY().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
-        this.mapParameters.getZoom().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
+        this.mapParameters.minXProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
+        this.mapParameters.minYProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
+        this.mapParameters.zoomProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
     }
 
 
@@ -175,7 +175,7 @@ public final class BaseMapController {
         int zoomValue = this.mapParameters.getZoomValue();
         int x = (int) WebMercator.x(zoomValue, position.longitude());
         int y = (int) WebMercator.y(zoomValue, position.latitude());
-        this.mapParameters.getZoom().set(zoomValue);
+        this.mapParameters.zoomProperty().set(zoomValue);
         this.mapParameters.setMinX(x - this.canvas.getWidth() / 2);
         this.mapParameters.setMinY(y - this.canvas.getHeight() / 2);
     }

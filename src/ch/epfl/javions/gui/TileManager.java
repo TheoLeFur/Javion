@@ -44,14 +44,14 @@ public final class TileManager {
 
     }
 
-    // path for the cache-disk
+    // cache-disk path
     private final Path cacheDiskPath;
-    // url for the server name
+    // server name
     private final String tileServerName;
-    // max number of elements in the memory cache
+    // max capacity of memory cache
     private final int maxMemoryCacheCapacity = 100;
 
-    // memory cache, instantiated as a LinkedHashMap
+    // memory cache
     private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
 

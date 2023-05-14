@@ -25,7 +25,7 @@ public final class MapParameters {
      */
 
     public MapParameters(int zoom, double minX, double minY) {
-        Preconditions.checkArgument(zoom >= 6 && zoom < 20);
+        Preconditions.checkArgument(zoom >= 6 && zoom <= 19);
 
         this.zoom = new SimpleIntegerProperty(zoom);
         this.minX = new SimpleDoubleProperty(minX);
@@ -88,32 +88,32 @@ public final class MapParameters {
     }
 
     /**
-     * Getter for the zoom prperty
+     * Getter for the zoom property
      *
-     * @return zoom javafx property
+     * @return zoom property
      */
 
-    public IntegerProperty getZoom() {
+    public IntegerProperty zoomProperty() {
         return zoom;
     }
 
     /**
      * Getter for the property holding the x value of the left right corner of the tile displayed
      *
-     * @return minX javafx property
+     * @return minX property
      */
 
-    public DoubleProperty getMinX() {
+    public DoubleProperty minXProperty() {
         return minX;
     }
 
     /**
      * Getter for the property holding the y value of the left right corner of the tile displayed
      *
-     * @return minY javafx property
+     * @return minY  property
      */
 
-    public DoubleProperty getMinY() {
+    public DoubleProperty minYProperty() {
         return minY;
     }
 

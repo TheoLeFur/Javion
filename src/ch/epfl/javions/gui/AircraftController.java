@@ -169,12 +169,12 @@ public final class AircraftController {
                     double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
                     return projectedX - this.mapParams.getMinXValue();
                 },
-                this.mapParams.getZoom(), this.mapParams.getMinX(), s.positionProperty()));
+                this.mapParams.zoomProperty(), this.mapParams.minXProperty(), s.positionProperty()));
 
         labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
             double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
             return projectedY - this.mapParams.getMinYValue();
-        }, this.mapParams.getZoom(), this.mapParams.getMinY(), s.positionProperty()));
+        }, this.mapParams.zoomProperty(), this.mapParams.minYProperty(), s.positionProperty()));
 
 
         return labelIconGroup;
@@ -246,10 +246,10 @@ public final class AircraftController {
         labelGroup.visibleProperty().bind(
                 Bindings.createBooleanBinding(
                         () ->
-                                this.mapParams.getZoom().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD
+                                this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD
                                         || s.equals(this.selectedAircraft.getValue())
                         ,
-                        this.mapParams.getZoom(),
+                        this.mapParams.zoomProperty(),
                         this.selectedAircraft
                 )
         );
@@ -351,13 +351,13 @@ public final class AircraftController {
                                 }
                         );
 
-                        this.mapParams.getZoom().addListener((p, oldVal, newVal) -> {
+                        this.mapParams.zoomProperty().addListener((p, oldVal, newVal) -> {
                             trajectoryGroup.getChildren().clear();
                             this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
                         });
 
-                        trajectoryGroup.layoutXProperty().bind(this.mapParams.getMinX().negate());
-                        trajectoryGroup.layoutYProperty().bind(this.mapParams.getMinY().negate());
+                        trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
+                        trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
                     }
 
 
