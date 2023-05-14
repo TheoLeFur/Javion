@@ -49,7 +49,7 @@ public final class AircraftController {
     // Minimal zoom level for making labels visible
     private final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mapParams;
-    private Property<ObservableAircraftState> selectedAircraft;
+    private final Property<ObservableAircraftState> selectedAircraft;
     private final ObservableSet<ObservableAircraftState> observableAircraft;
 
 
@@ -138,8 +138,7 @@ public final class AircraftController {
     private Group createAnnotatedAircraftGroup(ObservableAircraftState s) {
 
         Group annotatedAircraftGroup = new Group();
-        annotatedAircraftGroup.setId(s.getIcaoAddress().toString());
-
+        annotatedAircraftGroup.setId(s.getIcaoAddress().string());
         this.pane.getChildren().add(annotatedAircraftGroup);
 
         annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
@@ -238,7 +237,7 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private Group createLabel(ObservableAircraftState s, Group labelIconGroup) {
+    private void createLabel(ObservableAircraftState s, Group labelIconGroup) {
 
         Group labelGroup = new Group();
         labelGroup.getStyleClass().add("label");
@@ -273,8 +272,6 @@ public final class AircraftController {
         background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
         background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
 
-
-        return labelGroup;
     }
 
 
@@ -324,7 +321,7 @@ public final class AircraftController {
      *
      * @param s state setter
      */
-    private Group createTrajectoryGroup(ObservableAircraftState s, Group annotatedAircraftGroup) {
+    private void createTrajectoryGroup(ObservableAircraftState s, Group annotatedAircraftGroup) {
 
         Group trajectoryGroup = new Group();
         trajectoryGroup.getStyleClass().add("trajectory");
@@ -363,10 +360,6 @@ public final class AircraftController {
 
                 }
         );
-
-
-        return trajectoryGroup;
-
     }
 
     /**
@@ -420,7 +413,7 @@ public final class AircraftController {
      * @return index c, which determines the color from the spectrum that will be chosen.
      */
     private double computeColorIndex(double altitude) {
-        return Math.pow(altitude / 12000.0, 1d/3d);
+        return Math.pow(altitude / 12000.0, 1d / 3d);
     }
 
 

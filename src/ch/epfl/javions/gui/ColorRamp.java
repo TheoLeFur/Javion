@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Preconditions;
 import javafx.scene.paint.Color;
 
 import java.util.Collections;
@@ -40,6 +41,7 @@ public final class ColorRamp {
      * @param colorList list of colors we want to use as the base of our spectrum
      */
     public ColorRamp(List<Color> colorList) {
+        Preconditions.checkArgument(colorList.size() > 1);
         this.colorList = Collections.unmodifiableList(colorList);
     }
 
