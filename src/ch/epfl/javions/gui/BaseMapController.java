@@ -30,9 +30,6 @@ public final class BaseMapController {
     private Point2D mousePos;
     private final LongProperty scrollDeltaT;
 
-    // TODO : add possibility to navigate the map with keyboard
-    // TODO : add zoom control with letter "z"
-
 
     /**
      * Instantiates a map controller. Draws the background map and handles various control events like mouse drag or scrolling.
@@ -67,17 +64,16 @@ public final class BaseMapController {
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
 
-
-        this.scrollEventHandler();
-        this.dragEventHandler();
-
-        // setting the listeners to check for when the window is modified
-
         this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.minXProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.minYProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.zoomProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
+
+
+        this.scrollEventHandler();
+        this.dragEventHandler();
+
     }
 
 
@@ -85,6 +81,7 @@ public final class BaseMapController {
      * Handles dragging events, that is displacement on the map with the mouse/the touch bar.
      */
     private void dragEventHandler() {
+
         this.pane.setOnMousePressed(
                 event -> this.mousePos = new Point2D(event.getX(), event.getY())
         );
@@ -102,14 +99,15 @@ public final class BaseMapController {
      * Handles scrolling events, that is zooming in and out of the map.
      */
     private void scrollEventHandler() {
+
         this.pane.setOnScroll(event -> {
-            int zoomDelta = (int) Math.signum(event.getDeltaY());
-            if (zoomDelta == 0) return;
+            int dZoom = (int) Math.signum(event.getDeltaY());
+            if (dZoom == 0) return;
             long currentTime = System.currentTimeMillis();
             if (currentTime < this.scrollDeltaT.get()) return;
             this.scrollDeltaT.set(currentTime + 200);
             this.mapParameters.scroll(event.getX(), event.getY());
-            this.mapParameters.changeZoomLevel(zoomDelta);
+            this.mapParameters.changeZoomLevel(dZoom);
             this.mapParameters.scroll(-event.getX(), -event.getY());
 
         });
@@ -117,7 +115,7 @@ public final class BaseMapController {
 
     /**
      * This method requests a new drawing of the map at the next pulse. Whenever we have to redraw the display,
-     * we call this method
+     * we call this method.
      */
     private void redrawOnNextPulse() {
         this.redrawNeeded = true;
@@ -140,17 +138,17 @@ public final class BaseMapController {
     private void draw() {
 
         int zoom = this.mapParameters.getZoomValue();
-        double mapX = this.mapParameters.getMinXValue();
-        double mapY = this.mapParameters.getMinYValue();
+        double minXValue = this.mapParameters.getMinXValue();
+        double minYValue = this.mapParameters.getMinYValue();
 
         for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); ++i) {
-            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); j++) {
+            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); ++j) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
-                        mapToTile(mapX) + i,
-                        mapToTile(mapY) + j);
+                        this.tileCoords(minXValue) + i,
+                        this.tileCoords(minYValue) + j);
                 try {
-                    this.contextOfMap.drawImage(this.tileManager.imageForTileAt(tileToDraw), (tileToDraw.x() * PIXELS_IN_TILE)
-                            - mapX, (tileToDraw.y() * PIXELS_IN_TILE) - mapY);
+                    this.contextOfMap.drawImage(this.tileManager.imageForTileAt(tileToDraw), tileToDraw.x() * PIXELS_IN_TILE
+                            - minXValue, tileToDraw.y() * PIXELS_IN_TILE - minYValue);
                 } catch (IOException ignored) {
                 }
             }
@@ -184,7 +182,7 @@ public final class BaseMapController {
      * @param mapCoord Component of the position vector
      * @return the accordingly computed tile coordinates.
      */
-    private int mapToTile(double mapCoord) {
+    private int tileCoords(double mapCoord) {
         return (int) Math.floor(mapCoord / PIXELS_IN_TILE);
     }
 }
