@@ -6,7 +6,6 @@ import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.AircraftData;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -50,11 +49,10 @@ public final class TableController {
         private static int getWidth(WIDTH width) {
             return switch (width) {
                 case ICAO -> 60;
-                case ID -> 70;
+                case ID, DESCRIPTION -> 70;
                 case REGISTRATION -> 90;
                 case MODEL -> 230;
                 case TYPE -> 50;
-                case DESCRIPTION -> 70;
                 case NUMERIC -> 85;
             };
         }
@@ -66,7 +64,7 @@ public final class TableController {
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
-    private Consumer<ObservableAircraftState> cs;
+    private final Consumer<ObservableAircraftState> cs;
 
     /**
      * Instantiates a table controller.
