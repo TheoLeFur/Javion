@@ -18,11 +18,21 @@ import java.util.Objects;
 public final class TileManager {
     /**
      * Record storing the identity of an OSM tile
+     *
      * @param zoomLevel zoom level of the image
-     * @param x index of the tile, representing the x coordinate of the top left corner
-     * @param y index of the tile, representing the y coordinate of the top left corner
+     * @param x         index of the tile, representing the x coordinate of the top left corner
+     * @param y         index of the tile, representing the y coordinate of the top left corner
      */
     public record TileId(int zoomLevel, int x, int y) {
+
+        /**
+         * Asserts whether the tile parameters passed in arguments are valid args
+         *
+         * @param zoom oom level
+         * @param x    x index of the tile
+         * @param y    y index of the tile
+         * @return true if the params are valid
+         */
 
         public static boolean isValid(int zoom, int x, int y) {
 
@@ -33,19 +43,22 @@ public final class TileManager {
         }
 
     }
+
     // path for the cache-disk
     private final Path cacheDiskPath;
     // url for the server name
     private final String tileServerName;
     // max number of elements in the memory cache
     private final int maxMemoryCacheCapacity = 100;
+
     // memory cache, instantiated as a LinkedHashMap
     private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
 
 
     /**
      * Constructor for tile manager.
-     * @param cacheDiskPath path of the disk cache
+     *
+     * @param cacheDiskPath  path of the disk cache
      * @param tileServerName url of the server, where we request the tiles data whenever it is not yet downloaded.
      */
 
@@ -93,29 +106,33 @@ public final class TileManager {
                 }
             }
 
-            this.cropMemCache();
-            this.memoryCache.put(tileId, image);
+            this.addToCacheMemory(tileId, image);
         }
         return image;
     }
 
     /**
-     * Whenever the memory cache map has more than 100 elements, we remove the least recently accessed
-     * element, so that cache memory size is bounded by 100 images.
+     * Adds an image to the cache memory. Whenever the latter's size exceed 100, we delete
+     * the exceeding elements according to reverse access ordering.
+     *
+     * @param id    id of tile
+     * @param image image of tile.
      */
-    private void cropMemCache(){
-        if (this.memoryCache.size() == 100){
+    private void addToCacheMemory(TileId id, Image image) {
+        if (this.memoryCache.size() == 100) {
             TileId firstId = this.memoryCache.keySet().iterator().next();
             this.memoryCache.remove(firstId);
-
         }
+
+        this.memoryCache.put(id, image);
     }
 
     /**
      * Getter for memoryCache, used in testing
+     *
      * @return Memory Cache containing the 100 most recently accessed images by the program.
      */
-    public Map<TileId, Image> getMemoryCache(){
+    public Map<TileId, Image> getMemoryCache() {
         return this.memoryCache;
     }
 }

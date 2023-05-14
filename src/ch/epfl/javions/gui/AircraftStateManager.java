@@ -58,13 +58,10 @@ public final class AircraftStateManager {
     public void updateWithMessage(Message message) throws IOException {
         IcaoAddress address = message.icaoAddress();
         if (!this.addresToAsmMap.containsKey(address)) {
-            this.addresToAsmMap.put(
-                    address,
-                    new AircraftStateAccumulator<>(
-                            new ObservableAircraftState(
-                                    address,
-                                    this.database.get(address)
-                            )
+            this.addresToAsmMap.put(address, new AircraftStateAccumulator<>(new ObservableAircraftState(
+                            address,
+                            this.database.get(address)
+                    )
                     )
             );
         }
