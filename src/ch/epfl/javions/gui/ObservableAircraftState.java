@@ -220,6 +220,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the value held in the position property.
+     *
      * @return position in GeoPos coordinates.
      */
     public GeoPos getPosition() {
@@ -236,6 +237,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the position property.
+     *
      * @return Position property
      */
 
@@ -245,6 +247,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the trajectory as observable, unmodifiable list.
+     *
      * @return Position property
      */
 
@@ -254,6 +257,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the value of the altitude held in the altitude property
+     *
      * @return value of the altitude
      */
 
@@ -278,6 +282,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the altitude property
+     *
      * @return altitude property
      */
 
@@ -287,6 +292,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the value of the velocity
+     *
      * @return velocity
      */
 
@@ -301,6 +307,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the velocity property
+     *
      * @return velocity property
      */
     public ReadOnlyDoubleProperty velocityProperty() {
@@ -309,6 +316,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the value held in the track or heading property
+     *
      * @return track or heading value
      */
 
@@ -323,6 +331,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Access the track or heading property
+     *
      * @return track or heading property
      */
     public ReadOnlyDoubleProperty trackOrHeadingProperty() {
@@ -333,6 +342,11 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private AirbornePos getLastPosition() {
         return this.trajectory.get(this.trajectory.size() - 1);
     }
+
+    /**
+     * Replace the last position in the trajectory by the new position value.
+     * @param newPosition value of the new position.
+     */
 
     private void setLastPosition(AirbornePos newPosition) {
         this.trajectory.set(this.trajectory.size() - 1, newPosition);
