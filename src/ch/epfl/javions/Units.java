@@ -6,6 +6,9 @@ package ch.epfl.javions;
  */
 public final class Units {
 
+    // mili prefix
+    public static final double MILI = 1e-3;
+
     // Centi prefix
     public static final double CENTI = 1e-2;
 
@@ -91,8 +94,11 @@ public final class Units {
     }
 
     public final static class Time {
+
+
         //1 second
         public static final double SECOND = 1;
+        public static final double MILISECOND = SECOND * MILI;
         // 1 minute
         public static final double MINUTE = 60 * SECOND;
         // 1 hour

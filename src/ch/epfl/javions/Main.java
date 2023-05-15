@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
 
-    private final int SECOND_MS = 1000;
 
     /**
      * Launches the javaFX application
@@ -109,7 +108,7 @@ public final class Main extends Application {
                                 public void run() {
                                     asm.purge();
                                 }
-                            }, SECOND_MS);
+                            }, (long) (Units.convertTo(Units.Time.SECOND, Units.Time.MILISECOND)));
                         }
                     }
                 } catch (IOException e) {
