@@ -345,6 +345,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
      * Replace the last position in the trajectory by the new position value.
+     *
      * @param newPosition value of the new position.
      */
 

@@ -23,12 +23,16 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
 
+    private final int SECOND_MS = 1000;
+
     /**
-     * Launches ta javaFX application
+     * Launches the javaFX application
      *
      * @param args arguments
      */
@@ -75,13 +79,16 @@ public final class Main extends Application {
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
 
-        new Thread(() -> {
+        Thread messageAccumulationThread = new Thread(() -> {
             if (params.isEmpty()) {
                 this.demodulateMessages(messageQueue);
             } else {
                 this.readMessagesFromFile(params.get(0), messageQueue);
             }
-        }).start();
+
+        });
+        messageAccumulationThread.setDaemon(true);
+        messageAccumulationThread.start();
 
 
         new AnimationTimer() {
@@ -94,12 +101,20 @@ public final class Main extends Application {
                             slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
                             Message m = messageQueue.remove();
                             if (!Objects.isNull(m)) asm.updateWithMessage(m);
+                            Timer timer = new Timer(true);
+
+                            // calls method purge from AircraftStateManager to eliminate the display of obsolete aircraft.
+                            timer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    asm.purge();
+                                }
+                            }, SECOND_MS);
                         }
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
             }
         }.start();
 

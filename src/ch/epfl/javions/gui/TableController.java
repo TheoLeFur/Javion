@@ -145,7 +145,6 @@ public final class TableController {
             int clickCount = event.getClickCount();
             MouseButton button = event.getButton();
             if (clickCount == 2 && button.equals(MouseButton.PRIMARY)) {
-                System.out.println("good");
                 this.setOnDoubleClick(this.cs);
             }
         });
