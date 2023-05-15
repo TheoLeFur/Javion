@@ -21,10 +21,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
@@ -94,22 +91,23 @@ public final class Main extends Application {
 
             @Override
             public void handle(long now) {
+
                 try {
                     for (int i = 0; i < 10; i++) {
                         if (!messageQueue.isEmpty()) {
                             slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
                             Message m = messageQueue.remove();
                             if (!Objects.isNull(m)) asm.updateWithMessage(m);
-                            Timer timer = new Timer(true);
-
-                            // calls method purge from AircraftStateManager to eliminate the display of obsolete aircraft.
+                            Timer timer = new Timer();
                             timer.schedule(new TimerTask() {
                                 @Override
                                 public void run() {
                                     asm.purge();
+                                    System.out.println("purged");
                                 }
-                            }, (long) (Units.convertTo(Units.Time.SECOND, Units.Time.MILISECOND)));
+                            }, 1000);
                         }
+
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
