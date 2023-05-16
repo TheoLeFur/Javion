@@ -14,7 +14,7 @@ import ch.epfl.javions.aircraft.IcaoAddress;
  */
 public record RawMessage(long timeStampNs, ByteString bytes) {
 
-    //Length in bytes of ADSB messages
+    // number of bytes stored in ADS-B message
     public static final int LENGTH = 14;
     private static final Crc24 CRC_24 = new Crc24(Crc24.GENERATOR);
     private final static int DF_MESSAGE_LENGTH = 17;

@@ -21,10 +21,10 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     //constant that is the number of bits that represent the callSign characters and aircraft category
     static final int ME_ATTRIBUTE_SIZE = 48;
-    static final int CA_START = 48;
     static final int CA_SIZE = 3;
     static final int C1_START = 42;
     static final int CALLSIGN_CHARACTER_SIZE = 6;
+
     public AircraftIdentificationMessage {
         Objects.requireNonNull(icaoAddress);
         Objects.requireNonNull(callSign);

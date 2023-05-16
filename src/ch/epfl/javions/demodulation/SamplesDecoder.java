@@ -4,6 +4,7 @@ import ch.epfl.javions.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLOutput;
 import java.util.Objects;
 
 
@@ -48,7 +49,7 @@ public final class SamplesDecoder {
             byte strongByte = this.buffer[bufferIndex];
             byte weakByte = this.buffer[bufferIndex + 1];
             short concat = (short) (strongByte << Byte.SIZE | weakByte);
-            int THRESHOLD = 2048;
+            short THRESHOLD = 2048;
             batch[i] = (short) (Short.reverseBytes(concat) - THRESHOLD);
             // TODO : find some way to not use the reverseByte method (no real reason why, it is very efficient).
 

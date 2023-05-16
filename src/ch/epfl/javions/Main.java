@@ -1,5 +1,6 @@
 package ch.epfl.javions;
 
+
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -17,6 +18,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
 
 import java.io.*;
 import java.net.URL;

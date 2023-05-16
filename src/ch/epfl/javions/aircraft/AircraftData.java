@@ -22,6 +22,7 @@ public record AircraftData(AircraftRegistration registration, AircraftTypeDesign
      * @param model                  model of aircraft
      * @param description            additional description of aircraft
      * @param wakeTurbulenceCategory category
+     * @throws NullPointerException whenever one of the arguments passed at construction is null.
      */
     public AircraftData {
 

@@ -2,10 +2,7 @@ package ch.epfl.javions.aircraft;
 
 import ch.epfl.javions.Preconditions;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /**
  * @param string decimal representation of the ICAO of the plane

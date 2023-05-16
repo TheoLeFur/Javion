@@ -1,18 +1,21 @@
 package ch.epfl.javions;
 
-import java.math.BigInteger;
-
 /**
- * @author Rudolf Yazbeck (SCIPER: 360700)
- * @author Theo Le Fur (SCIPER: 363294)
+ * This class evaluates the CRC24 of each received ADS-B message. The crc24 is an error detection algorithm that
+ * will let us eliminate the corrupted messages from the feed.
  */
 public final class Crc24 {
 
-    //constant that represents the 24 weak bits of the generator used to calculate the crc24 of the ADSB messages
+    // 24 weak bits of the generator
     public final static int GENERATOR = 0xFFF409;
     private final int[] builtTable;
-    static int MAIN_TABLE_SIZE = 256;
-    static int BITS_TO_EXTRACT = 24;
+
+    // main table size
+    public static int MAIN_TABLE_SIZE = 256;
+
+    //number of bits to extract at each time
+    public static int BITS_TO_EXTRACT = 24;
+
     /**
      * @param generator key that will be used for the cyclic redundancy check
      */

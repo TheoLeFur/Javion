@@ -72,7 +72,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
             }
 
             default -> {
-                // pass
+                // do nothing
             }
         }
     }

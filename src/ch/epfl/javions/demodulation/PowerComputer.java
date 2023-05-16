@@ -28,6 +28,7 @@ public final class PowerComputer {
      * @throws IllegalArgumentException whenever the batchSize is not divisible by 8, or whenever non-positive
      */
     public PowerComputer(InputStream stream, int batchSize) {
+
         Preconditions.checkArgument(batchSize % Byte.SIZE == 0 && batchSize > 0);
         this.batchSize = batchSize;
         this.buffer = new short[Short.BYTES * batchSize];
