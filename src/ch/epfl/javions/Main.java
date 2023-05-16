@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main extends Application {
 
+    private final long SECOND_NS = 1_000_000_000L;
+
 
     /**
      * Launches the javaFX application
@@ -89,6 +91,8 @@ public final class Main extends Application {
 
         new AnimationTimer() {
 
+            private long prevMethodCallTimeStamp;
+
             @Override
             public void handle(long now) {
 
@@ -98,16 +102,11 @@ public final class Main extends Application {
                             slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
                             Message m = messageQueue.remove();
                             if (!Objects.isNull(m)) asm.updateWithMessage(m);
-                            Timer timer = new Timer();
-                            timer.schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    asm.purge();
-                                    System.out.println("purged");
-                                }
-                            }, 1000);
+                            if (now - prevMethodCallTimeStamp > SECOND_NS) {
+                                asm.purge();
+                                this.prevMethodCallTimeStamp = now;
+                            }
                         }
-
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
