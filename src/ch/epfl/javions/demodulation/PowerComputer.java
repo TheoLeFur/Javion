@@ -7,10 +7,9 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Class for computing the power of signals by processing the stream batch-wse and computing the power
+ * Class for computing the power of signals by processing the stream batch-wise and computing the power
  * associated to it.
  *
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public final class PowerComputer {
@@ -50,17 +49,28 @@ public final class PowerComputer {
         for (int i = 0; i < batchSize; i += 1) {
             this.addToList(this.buffer[2 * i]);
             this.addToList(this.buffer[2 * i + 1]);
-            batch[i] = (int) (
-                    Math.pow(this.powerMemoryDeque.get(7) - this.powerMemoryDeque.get(5) + this.powerMemoryDeque.get(3) - this.powerMemoryDeque.get(1), 2)
-                    + Math.pow(this.powerMemoryDeque.get(6) - this.powerMemoryDeque.get(4) + this.powerMemoryDeque.get(2) - this.powerMemoryDeque.get(0), 2)
-            );
+            batch[i] = this.computeSignalPower();
         }
-        return count/2;
+        return count / 2;
+    }
+
+    /**
+     * Method for computing the signal's power
+     *
+     * @return corresponding power of the signal.
+     */
+
+    private int computeSignalPower() {
+        return (int) (
+                Math.pow(this.powerMemoryDeque.get(7) - this.powerMemoryDeque.get(5) + this.powerMemoryDeque.get(3) - this.powerMemoryDeque.get(1), 2)
+                        + Math.pow(this.powerMemoryDeque.get(6) - this.powerMemoryDeque.get(4) + this.powerMemoryDeque.get(2) - this.powerMemoryDeque.get(0), 2)
+        );
     }
 
 
     /**
      * Adds element to the top of the list. If the size of the list exceeds Byte.SIZE, then the last element is popped
+     *
      * @param s element to be added
      */
     private void addToList(short s) {

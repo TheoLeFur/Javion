@@ -26,7 +26,6 @@ public final class MapParameters {
 
     public MapParameters(int zoom, double minX, double minY) {
         Preconditions.checkArgument(zoom >= 6 && zoom <= 19);
-
         this.zoom = new SimpleIntegerProperty(zoom);
         this.minX = new SimpleDoubleProperty(minX);
         this.minY = new SimpleDoubleProperty(minY);
@@ -34,7 +33,7 @@ public final class MapParameters {
     }
 
     /**
-     * Translate the corner coordinates by a vector of coordinate representation [tX, tY].
+     * Translate the corner coordinates by a vector of coordinate representation (tX, tY).
      *
      * @param tX x coordinate of the vector
      * @param tY y coordinate of the vector
@@ -50,7 +49,6 @@ public final class MapParameters {
      * @param zoomIncrement positive or negative, depending on whether we want to zoom in or zoom out.
      */
     public void changeZoomLevel(int zoomIncrement) {
-
         int newZoomValue = zoomIncrement + getZoomValue();
         if (newZoomValue <= 19 && newZoomValue >= 6) {
             zoom.set(newZoomValue);
@@ -115,16 +113,6 @@ public final class MapParameters {
 
     public DoubleProperty minYProperty() {
         return minY;
-    }
-
-    /**
-     * Set the value of the zoom property
-     *
-     * @param zoom new zoom value
-     */
-
-    public void setZoom(int zoom) {
-        this.zoom.set(zoom);
     }
 
     /**

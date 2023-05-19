@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public final class BaseMapController {
 
-    // Side length of a tile, 256 pixels
+    // Side length of a tile
     private final static int PIXELS_IN_TILE = (int) Math.scalb(1, 8);
 
     private final Pane pane;
@@ -54,7 +54,7 @@ public final class BaseMapController {
         // Get the graphic context of the map, that allows us to draw images subsequently
         this.contextOfMap = this.canvas.getGraphicsContext2D();
 
-        // So that we call the drawing function at construction
+        // So that we call the draw function at construction
         this.redrawNeeded = true;
         this.scrollDeltaT = new SimpleLongProperty();
 

@@ -19,24 +19,26 @@ import java.util.Objects;
  */
 public final class AircraftStateManager {
 
-    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> addresToAsmMap;
-    private final ObservableSet<ObservableAircraftState> aircraftSet;
+    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> addressToAsmTable;
+    private final ObservableSet<ObservableAircraftState> observableAircraftSet;
     private final ObservableSet<ObservableAircraftState> readOnlyAircraftSet;
-    private Message prevMessage;
     private final AircraftDatabase database;
     private final long MINUTE_NS = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
+
+    // attribute for storing the aircraft's previous message.
+    private Message prevMessage;
 
     /**
      * Creates the state manager. Associates to each address a state accumulator composed of a set of observable states.
      * Stores the significant states in an observable set.
      *
-     * @param database database containing the essential data on aircrafts.
+     * @param database database containing the essential data on aircraft.
      */
     public AircraftStateManager(AircraftDatabase database) {
         this.database = database;
-        this.addresToAsmMap = new HashMap<>();
-        this.aircraftSet = FXCollections.observableSet();
-        this.readOnlyAircraftSet = FXCollections.unmodifiableObservableSet(this.aircraftSet);
+        this.addressToAsmTable = new HashMap<>();
+        this.observableAircraftSet = FXCollections.observableSet();
+        this.readOnlyAircraftSet = FXCollections.unmodifiableObservableSet(this.observableAircraftSet);
     }
 
     /**
@@ -57,33 +59,34 @@ public final class AircraftStateManager {
      */
     public void updateWithMessage(Message message) throws IOException {
         IcaoAddress address = message.icaoAddress();
-        if (!this.addresToAsmMap.containsKey(address)) {
-            this.addresToAsmMap.put(address, new AircraftStateAccumulator<>(new ObservableAircraftState(
+        if (!this.addressToAsmTable.containsKey(address)) {
+            this.addressToAsmTable.put(address, new AircraftStateAccumulator<>(new ObservableAircraftState(
                             address,
                             this.database.get(address)
                     )
                     )
             );
         }
-        AircraftStateAccumulator<ObservableAircraftState> stateAccumulator = this.addresToAsmMap.get(address);
+        AircraftStateAccumulator<ObservableAircraftState> stateAccumulator = this.addressToAsmTable.get(address);
         stateAccumulator.update(message);
         ObservableAircraftState stateSetter = stateAccumulator.stateSetter();
-        if (!Objects.isNull(stateSetter.getPosition())) this.aircraftSet.add(stateSetter);
+        if (!Objects.isNull(stateSetter.getPosition())) this.observableAircraftSet.add(stateSetter);
         this.prevMessage = message;
     }
 
     /**
      * Purges all the states and their corresponding accumulators, whose addresses have not issued any
-     * message signal for more than one minute.
+     * message signal for more than one minute. This ensures that aircraft that cannot be tracked anymore due to loss
+     * of signal are not displayed on the map anymore.
      **/
 
 
     public void purge() {
-        addresToAsmMap.values().forEach(
+        addressToAsmTable.values().forEach(
                 ac -> {
-                    if (ac.stateSetter().getLastMessageTimeStampNs() - prevMessage.timeStampNs() >= MINUTE_NS) {
-                        this.aircraftSet.remove(ac.stateSetter());
-                        this.addresToAsmMap.remove(ac.stateSetter().getIcaoAddress());
+                    if (ac.stateSetter().getLastMessageTimeStampNs() - this.prevMessage.timeStampNs() >= MINUTE_NS) {
+                        this.observableAircraftSet.remove(ac.stateSetter());
+                        this.addressToAsmTable.remove(ac.stateSetter().getIcaoAddress());
                     }
                 }
         );
