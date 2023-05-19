@@ -4,6 +4,7 @@ import ch.epfl.javions.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 
 /**
  * Class for computing the power of signals by processing the stream batch-wse and computing the power
@@ -15,8 +16,7 @@ import java.io.InputStream;
 public final class PowerComputer {
 
     private final short[] buffer;
-
-    private final short[] powerMemory;
+    private final List<Short> powerMemoryDeque;
     private final SamplesDecoder decoder;
     private final int batchSize;
 
@@ -28,13 +28,12 @@ public final class PowerComputer {
      * @throws IllegalArgumentException whenever the batchSize is not divisible by 8, or whenever non-positive
      */
     public PowerComputer(InputStream stream, int batchSize) {
-
         Preconditions.checkArgument(batchSize % Byte.SIZE == 0 && batchSize > 0);
         this.batchSize = batchSize;
         this.buffer = new short[Short.BYTES * batchSize];
         this.decoder = new SamplesDecoder(stream, this.buffer.length);
-        this.powerMemory = new short[Byte.SIZE];
-
+        this.powerMemoryDeque = new ArrayList<>(Byte.SIZE);
+        this.powerMemoryDeque.addAll(Collections.nCopies(Byte.SIZE, (short) 0));
     }
 
     /**
@@ -46,19 +45,27 @@ public final class PowerComputer {
      */
 
     public int readBatch(int[] batch) throws IOException {
-        Preconditions.checkArgument(batch.length == this.buffer.length / 2);
+        Preconditions.checkArgument((batch.length == this.buffer.length / 2));
         int count = this.decoder.readBatch(this.buffer);
-        for (int i = 0; i < batchSize; i++) {
-            for (int k = 0; k < this.powerMemory.length - 2; k++) {
-                powerMemory[k] = powerMemory[k + 2];
-            }
-            // TODO : find a more efficient way to realise the above permutation
-            powerMemory[7] = this.buffer[2 * i + 1];
-            powerMemory[6] = this.buffer[2 * i];
-
-            batch[i] = (int) (Math.pow(powerMemory[7] - powerMemory[5] + powerMemory[3] - powerMemory[1], 2) +
-                    Math.pow(powerMemory[6] - powerMemory[4] + powerMemory[2] - powerMemory[0], 2));
+        for (int i = 0; i < batchSize; i += 1) {
+            this.addToList(this.buffer[2 * i]);
+            this.addToList(this.buffer[2 * i + 1]);
+            batch[i] = (int) (
+                    Math.pow(this.powerMemoryDeque.get(7) - this.powerMemoryDeque.get(5) + this.powerMemoryDeque.get(3) - this.powerMemoryDeque.get(1), 2)
+                    + Math.pow(this.powerMemoryDeque.get(6) - this.powerMemoryDeque.get(4) + this.powerMemoryDeque.get(2) - this.powerMemoryDeque.get(0), 2)
+            );
         }
-        return count / 2;
+        return count/2;
+    }
+
+
+    /**
+     * Adds element to the top of the list. If the size of the list exceeds Byte.SIZE, then the last element is popped
+     * @param s element to be added
+     */
+    private void addToList(short s) {
+        if (this.powerMemoryDeque.size() == Byte.SIZE)
+            this.powerMemoryDeque.remove(0);
+        this.powerMemoryDeque.add(s);
     }
 }
