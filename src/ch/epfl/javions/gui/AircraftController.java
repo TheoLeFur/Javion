@@ -44,8 +44,10 @@ public final class AircraftController {
 
     // Style sheet that will be used
     private final String AircraftStyleSheetPath = "/aircraft.css";
+
     // Offset in for the margin in the rectangular label
     private final int LABEL_OFFSET = 4;
+
     // Minimal zoom level for making labels visible
     private final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mapParams;
@@ -105,15 +107,12 @@ public final class AircraftController {
      * @param s state setter
      */
     private void createSceneGraph(ObservableAircraftState s) {
-
         Group annotatedAircraftGroup = this.createAnnotatedAircraftGroup(s);
         this.createTrajectoryGroup(s, annotatedAircraftGroup);
         Group labelIconGroup = this.createLabelIconGroup(s, annotatedAircraftGroup);
         SVGPath icon = this.createIcon(s, labelIconGroup);
         this.aircraftSelectionEventHandler(s, icon);
         this.createLabel(s, labelIconGroup);
-
-
     }
 
     /**
@@ -122,7 +121,6 @@ public final class AircraftController {
      * @param s state setter
      */
     private void aircraftSelectionEventHandler(ObservableAircraftState s, SVGPath icon) {
-
         icon.setOnMouseClicked(
                 (event) -> this.selectedAircraft.setValue(s)
         );
@@ -136,17 +134,12 @@ public final class AircraftController {
      * @param s state setter
      */
     private Group createAnnotatedAircraftGroup(ObservableAircraftState s) {
-
         Group annotatedAircraftGroup = new Group();
         annotatedAircraftGroup.setId(s.getIcaoAddress().string());
         this.pane.getChildren().add(annotatedAircraftGroup);
-
         annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
-
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
-
         annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
-
 
         return annotatedAircraftGroup;
 
@@ -169,12 +162,10 @@ public final class AircraftController {
                     return projectedX - this.mapParams.getMinXValue();
                 },
                 this.mapParams.zoomProperty(), this.mapParams.minXProperty(), s.positionProperty()));
-
         labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
             double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
             return projectedY - this.mapParams.getMinYValue();
         }, this.mapParams.zoomProperty(), this.mapParams.minYProperty(), s.positionProperty()));
-
 
         return labelIconGroup;
     }
@@ -228,7 +219,6 @@ public final class AircraftController {
         icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
 
         return icon;
-
     }
 
     /**
@@ -244,12 +234,10 @@ public final class AircraftController {
         labelIconGroup.getChildren().add(labelGroup);
         labelGroup.visibleProperty().bind(
                 Bindings.createBooleanBinding(
-                        () ->
-                                this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD
-                                        || s.equals(this.selectedAircraft.getValue())
+                        () -> this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD ||
+                                s.equals(this.selectedAircraft.getValue())
                         ,
-                        this.mapParams.zoomProperty(),
-                        this.selectedAircraft
+                        this.mapParams.zoomProperty(), this.selectedAircraft
                 )
         );
 
@@ -258,7 +246,6 @@ public final class AircraftController {
         Rectangle background = new Rectangle();
         labelGroup.getChildren().add(background);
         labelGroup.getChildren().add(text);
-
 
         text.textProperty().bind(Bindings.createStringBinding(
                 () -> String.format("%s \n %s (km/h) \u2002 %d (m) ",
