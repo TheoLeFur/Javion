@@ -4,14 +4,12 @@ import ch.epfl.javions.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLOutput;
 import java.util.Objects;
 
 
 /**
  * This class instantiates a mechanism for decoding raw messages coming from the aircraft.
  *
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public final class SamplesDecoder {
@@ -42,17 +40,16 @@ public final class SamplesDecoder {
      * @throws IOException whenever error is raised while reading the stream.
      */
     public int readBatch(short[] batch) throws IOException {
+
         Preconditions.checkArgument(batch.length == this.batchSize);
         int N = stream.readNBytes(buffer, 0, this.buffer.length);
         for (int i = 0; i < batchSize; i++) {
             int bufferIndex = 2 * i;
             byte strongByte = this.buffer[bufferIndex];
             byte weakByte = this.buffer[bufferIndex + 1];
-            short concat = (short) (strongByte << Byte.SIZE | weakByte);
+            short concat = (short) (((weakByte & 0xFF) << 8) | strongByte & 0xFF);
             short THRESHOLD = 2048;
-            batch[i] = (short) (Short.reverseBytes(concat) - THRESHOLD);
-            // TODO : find some way to not use the reverseByte method (no real reason why, it is very efficient).
-
+            batch[i] = (short) (concat - THRESHOLD);
         }
         return N/2;
     }

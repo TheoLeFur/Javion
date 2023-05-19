@@ -19,7 +19,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ public final class Main extends Application {
 
 
     /**
-     * Launches the javaFX application
+     * Launches the main application.
      *
      * @param args arguments
      */
@@ -92,7 +91,6 @@ public final class Main extends Application {
 
 
         new AnimationTimer() {
-
             private long prevMethodCallTimeStamp;
 
             @Override
@@ -115,13 +113,12 @@ public final class Main extends Application {
                 }
             }
         }.start();
-
     }
 
 
     /**
-     * This method demodulates messages received from antenna using an ADSB-Demodulator. It placed the demodulated messages
-     * in a queue
+     * This method demodulates messages received from antenna using an ADS-B demodulator. It places the demodulated messages
+     * in a queue.
      *
      * @param messageQueue queue that stores the decoded messages.
      */

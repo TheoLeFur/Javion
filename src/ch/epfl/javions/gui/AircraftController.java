@@ -326,16 +326,12 @@ public final class AircraftController {
         Group trajectoryGroup = new Group();
         trajectoryGroup.getStyleClass().add("trajectory");
         annotatedAircraftGroup.getChildren().add(trajectoryGroup);
-
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
-
-        trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
-
-
+        trajectoryGroup.visibleProperty().bind(
+                this.selectedAircraft.map(sp -> sp.equals(s)));
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
 
                     if (trajectoryGroup.isVisible()) {
-
                         trajectory.addListener(
                                 (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
                                 {

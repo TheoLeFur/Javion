@@ -1,7 +1,6 @@
 package ch.epfl.javions.adsb;
 
 /**
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public final class MessageParser {
