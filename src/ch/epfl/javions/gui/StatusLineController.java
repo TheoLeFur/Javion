@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 
 /**
  * This class controls the status line in the final graphical interface. It will be displaying the number of visible
- * aircraft as well as the number of received messages/
+ * aircraft as well as the number of received messages.
  */
 public class StatusLineController {
 
@@ -38,15 +38,12 @@ public class StatusLineController {
      */
 
     private void createSceneGraph() {
-
         Text leftText = new Text();
         Text rightText = new Text();
-
         this.pane.setLeft(leftText);
         this.pane.setRight(rightText);
-
-        leftText.textProperty().bind(this.aircraftCountProperty().map(acp -> "Aeronefs visibles : " + acp.doubleValue()));
-        rightText.textProperty().bind(this.messageCountProperty().map(acp -> "Messages recus : " + acp.doubleValue()));
+        leftText.textProperty().bind(this.aircraftCountProperty().map(acp -> "AERONEFS VISIBLES : " + acp.doubleValue()));
+        rightText.textProperty().bind(this.messageCountProperty().map(acp -> "MESSAGES RECUS : " + acp.doubleValue()));
 
 
     }

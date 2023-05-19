@@ -23,7 +23,7 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 public final class ObservableAircraftState implements AircraftStateSetter {
 
     /**
-     * Record of the position of the aircraft, which in 3d Euclidian space, is characterized by
+     * Record of the position of the aircraft, which in 3d-Space, is characterized by
      * (long, lat, A), where A is the aircraft's altitude, that is the distance between the aircraft and
      * the sphere.
      *
@@ -338,10 +338,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return trackOrHeading;
     }
 
-
-    private AirbornePos getLastPosition() {
-        return this.trajectory.get(this.trajectory.size() - 1);
-    }
 
     /**
      * Replace the last position in the trajectory by the new position value.
