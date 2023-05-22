@@ -26,7 +26,6 @@ public final class TestTileManager extends Application {
 
         Platform.exit();
     }
-
     @Test
     void testImageForFileAt() throws IOException {
 
@@ -47,6 +46,4 @@ public final class TestTileManager extends Application {
         assertNull(memoryCache.get(new TileManager.TileId(10, 1, 1)));
 
     }
-
-
 }
