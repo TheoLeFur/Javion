@@ -77,11 +77,8 @@ public final class AircraftController {
         this.pane.setPickOnBounds(false);
         this.pane.getStylesheets().add(Objects.requireNonNull(getClass().getResource(this.AircraftStyleSheetPath)).toString());
 
-
-        // We construct a graph for every state in the initial set of values passed into the constructor.
-
+        // We construct a graph for every state in the initial set of values passed into the constructor
         this.observableAircraft.forEach(this::createSceneGraph);
-
 
         // track changes of the set of states, if element is added, we build its corresponding graph, if element
         // is removed, then we remove the graph of the removed states.
@@ -107,6 +104,7 @@ public final class AircraftController {
      * @param s state setter
      */
     private void createSceneGraph(ObservableAircraftState s) {
+        
         Group annotatedAircraftGroup = this.createAnnotatedAircraftGroup(s);
         this.createTrajectoryGroup(s, annotatedAircraftGroup);
         Group labelIconGroup = this.createLabelIconGroup(s, annotatedAircraftGroup);
