@@ -12,7 +12,7 @@ import javafx.collections.SetChangeListener;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -60,7 +60,7 @@ public final class TableController {
     }
 
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
-    private final Pane pane;
+    private final BorderPane pane;
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
@@ -76,7 +76,7 @@ public final class TableController {
         this.observableSet = obsSet;
         this.selectedAircraft = selectedAircraft;
 
-        this.pane = new Pane();
+        this.pane = new BorderPane();
         this.cs = cs;
 
         // add a listener on the set of observable states :
@@ -101,7 +101,7 @@ public final class TableController {
      * @return pane holding the table.
      */
 
-    public Pane pane() {
+    public BorderPane pane() {
         return this.pane;
     }
 
@@ -123,10 +123,7 @@ public final class TableController {
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         tv.setTableMenuButtonVisible(true);
 
-        tv.prefWidthProperty().bind(this.pane.widthProperty());
-        tv.prefHeightProperty().bind(this.pane.heightProperty());
-
-        this.pane.getChildren().add(tv);
+        this.pane.setCenter(tv);
 
         this.selectedAircraft.addListener(
                 (p, oldVal, newVal) -> {
