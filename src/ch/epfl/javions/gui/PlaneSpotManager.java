@@ -5,15 +5,26 @@ import ch.epfl.javions.aircraft.AircraftRegistration;
 import javafx.scene.image.Image;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 
 public final class PlaneSpotManager {
+
+    public static final class FileToHashMap {
+
+        public static Map<String, String> jsonToMap(String fileName) {
+            return null;
+        }
+    }
 
     private final Path cacheDiskPath;
     private final String serverName;
@@ -31,7 +42,7 @@ public final class PlaneSpotManager {
         Image img = this.memoryCache.get(reg);
 
         if (img == null) {
-            String path = "/" + reg.string() + ".png";
+            String path = "/" + reg.string();
             Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
             if (Files.exists(imgPath))
                 img = new Image(new FileInputStream(imgPath.toFile()));
@@ -50,6 +61,8 @@ public final class PlaneSpotManager {
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(buffer);
                 }
+
+
             }
             this.addToCacheMemory(reg, img);
         }
