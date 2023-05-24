@@ -5,16 +5,12 @@ import ch.epfl.javions.aircraft.AircraftRegistration;
 import javafx.scene.image.Image;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 
 public final class PlaneSpotManager {
@@ -76,5 +72,15 @@ public final class PlaneSpotManager {
         }
         this.memoryCache.put(reg, image);
     }
+
+    /**
+     * Returns the URL from which one can request the image
+     * @param file name of the .json file
+     * @return String url.
+     */
+    public static String handleJson(String file) {
+        return file.substring(file.indexOf("thumbnail") + 19, file.indexOf("jpg") + 3);
+    }
+
 
 }
