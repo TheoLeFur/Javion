@@ -54,8 +54,8 @@ public final class MapParameters {
         int newZoomValue = zoomIncrement + getZoomValue();
         if (newZoomValue <= 19 && newZoomValue >= 6) {
             zoom.set(newZoomValue);
-            minX.set(getMinXValue() * Math.pow(2, zoomIncrement));
-            minY.set(getMinYValue() * Math.pow(2, zoomIncrement));
+            minX.set(getMinXValue() * Math.scalb(1, zoomIncrement));
+            minY.set(getMinYValue() * Math.scalb(1, zoomIncrement));
         }
     }
 

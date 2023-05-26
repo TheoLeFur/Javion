@@ -15,10 +15,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 
 import java.text.NumberFormat;
-
 import java.text.ParseException;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -63,6 +61,7 @@ public final class TableController {
 
 
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
+    private final boolean TABLE_MENU_BUTTON_VISIBLE = true;
     private final BorderPane pane;
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
@@ -90,10 +89,8 @@ public final class TableController {
         this.observableSet.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             this.tableView.getItems().add(change.getElementAdded());
             this.tableView.getItems().remove(change.getElementRemoved());
-
             if (change.wasAdded()) this.tableView.sort();
         });
-
     }
 
     /**
@@ -110,7 +107,7 @@ public final class TableController {
      * @param cs consumer value.
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> cs) {
-        if (!Objects.isNull(cs)) cs.accept(this.selectedAircraft.getValue());
+        if (cs != null) cs.accept(this.selectedAircraft.getValue());
     }
 
     /**
@@ -122,8 +119,7 @@ public final class TableController {
 
         tv.getStylesheets().add(TABLE_STYLE_SHEET_PATH);
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
-        tv.setTableMenuButtonVisible(true);
-
+        tv.setTableMenuButtonVisible(TABLE_MENU_BUTTON_VISIBLE);
         this.pane.setCenter(tv);
 
         this.selectedAircraft.addListener((p, oldVal, newVal) -> {
@@ -131,19 +127,16 @@ public final class TableController {
             tv.scrollTo(newVal);
         });
 
-        tv.getSelectionModel().selectedItemProperty().addListener((p, oldVal, newVal) -> this.selectedAircraft.setValue(newVal));
-
+        tv.getSelectionModel().selectedItemProperty().addListener(
+                (p, oldVal, newVal) -> this.selectedAircraft.setValue(newVal));
 
         tv.setOnMouseClicked(event -> {
             int clickCount = event.getClickCount();
             MouseButton button = event.getButton();
-            if (clickCount == 2 && button.equals(MouseButton.PRIMARY)) {
+            if (clickCount == 2 && button.equals(MouseButton.PRIMARY))
                 this.setOnDoubleClick(this.cs);
-            }
         });
-
         // Creates textual and numerical columns.
-
         this.createColumns(tv);
 
     }
@@ -159,8 +152,6 @@ public final class TableController {
      * @param tv table view
      */
     private void createTextColumns(TableView<ObservableAircraftState> tv) {
-
-
         tv.getColumns().addAll(List.of(
                 this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ICAO",
                         f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())),
@@ -184,7 +175,6 @@ public final class TableController {
      * @param tv table view
      */
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
-
         tv.getColumns().addAll(List.of(
                 this.createNumericalColumn(
                         "LATITUDE",
@@ -218,7 +208,6 @@ public final class TableController {
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
         column.setCellValueFactory(map::apply);
-
         return column;
     }
 
@@ -244,24 +233,18 @@ public final class TableController {
         column.setPrefWidth(WIDTH.getWidth(WIDTH.NUMERIC));
 
         NumberFormat nf = NumberFormat.getInstance();
-        nf.setMinimumFractionDigits(0);
         nf.setMaximumFractionDigits(decimals);
 
         column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v, unit))));
-
         column.setComparator((s1, s2) -> {
-            if (s1.isEmpty() || s2.isEmpty()) {
-                return s1.compareTo(s2);
-            } else {
-                try {
-                    return Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
-                } catch (ParseException e) {
-                    System.out.println("ERROR : one of the strings you compare cannot be parsed");
-                    throw new RuntimeException(e);
-                }
+            try {
+                return (s1.isEmpty() || s2.isEmpty())
+                        ? s1.compareTo(s2)
+                        : Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
             }
         });
-
         return column;
 
     }

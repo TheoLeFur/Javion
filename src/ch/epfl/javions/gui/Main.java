@@ -34,6 +34,9 @@ public final class Main extends Application {
 
     // One second in nanoseconds
     private final long SECOND_NS = 1_000_000_000L;
+    private final int MIN_WIDTH = 800;
+    private final int MIN_HEIGHT = 600;
+
     // name of the file containing the messages
     private final String MESSAGE_FILE_NAME = "/aircraft.zip";
     // name of te dir where we store tiles queried from the open street map server
@@ -50,7 +53,6 @@ public final class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -65,13 +67,12 @@ public final class Main extends Application {
         TileManager tm = new TileManager(tileCache, TILE_SERVER_NAME);
         AircraftStateManager asm = new AircraftStateManager(db);
         MapParameters mp = new MapParameters(8, 33530, 23070);
-
         StatusLineController slc = new StatusLineController();
         BaseMapController bmc = new BaseMapController(tm, mp);
-
         ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
         AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
-        TableController tc = new TableController((asm.states()), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
+        TableController tc = new TableController(
+                asm.states(), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
 
 
         SplitPane mainPane = new SplitPane();
@@ -79,8 +80,8 @@ public final class Main extends Application {
         this.createSceneGraph(mainPane, bmc, ac, tc, slc);
 
         primaryStage.setScene(new Scene(mainPane));
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(MIN_WIDTH);
+        primaryStage.setMinHeight(MIN_HEIGHT);
         primaryStage.show();
 
         slc.aircraftCountProperty().bind(Bindings.size(asm.states()));
@@ -96,7 +97,6 @@ public final class Main extends Application {
                 this.readMessagesFromFile(params.get(0), messageQueue);
         });
 
-
         messageAccumulationThread.setDaemon(true);
         messageAccumulationThread.start();
 
@@ -105,7 +105,6 @@ public final class Main extends Application {
 
             @Override
             public void handle(long now) {
-
                 try {
                     for (int i = 0; i < 10; i++) {
                         if (!messageQueue.isEmpty()) {
@@ -142,8 +141,7 @@ public final class Main extends Application {
                 Message m = MessageParser.parse(nextMessage);
                 messageQueue.add(m);
             }
-        } catch (EOFException e) {
-            //ignore
+        } catch (EOFException ignored) {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

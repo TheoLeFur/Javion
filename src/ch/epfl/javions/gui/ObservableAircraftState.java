@@ -219,9 +219,8 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-        if (!Double.isNaN(this.getAltitude())) {
+        if (!Double.isNaN(this.getAltitude()))
             this.trajectory.add(new AirbornePos(position, this.altitudeProperty().getValue()));
-        }
     }
 
     /**
@@ -257,15 +256,13 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setAltitude(double altitude) {
         this.altitude.set(altitude);
-        if (!Objects.isNull(this.getPosition())) {
+        if (this.getPosition() != null) {
             AirbornePos pos = new AirbornePos(this.getPosition(), altitude);
             long lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
-            if (trajectory.isEmpty()) {
+            if (trajectory.isEmpty())
                 this.trajectory.add(pos);
-            } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) {
+            else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs())
                 this.setLastPosition(pos);
-            }
-
         }
     }
 

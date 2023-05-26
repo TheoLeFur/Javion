@@ -143,6 +143,7 @@ public final class AircraftController {
         annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
         annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
+
         return annotatedAircraftGroup;
 
     }
@@ -279,7 +280,7 @@ public final class AircraftController {
      * Formats the altitude on the labels display
      *
      * @param s state setter
-     * @return value of the velocity in km/h if available, else ?
+     * @return value of the altitude in m if available, else ?
      */
     private String getAltitudeForLabel(ObservableAircraftState s) {
         return !Objects.isNull(s.getAircraftData()) && !Double.isNaN(s.getAltitude())
@@ -297,14 +298,12 @@ public final class AircraftController {
      */
     private String getAircraftIdForLabel(ObservableAircraftState s) {
 
-        if (!Objects.isNull(s.getAircraftData())) {
+        if (!(s.getAircraftData() == null)) {
             String id = s.getRegistration().string();
-            if (id.isEmpty()) {
+            if (id.isEmpty())
                 id = s.getCallSign().string();
-            }
-            if (id.isEmpty()) {
+            if (id.isEmpty())
                 id = s.getIcaoAddress().string();
-            }
             return id;
         }
         return "";
@@ -322,6 +321,7 @@ public final class AircraftController {
         Group trajectoryGroup = new Group();
         trajectoryGroup.getStyleClass().add("trajectory");
         annotatedAircraftGroup.getChildren().add(trajectoryGroup);
+
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
         trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
@@ -336,17 +336,14 @@ public final class AircraftController {
                 });
 
                 this.mapParams.zoomProperty().addListener((p, oldVal, newVal) -> {
-                    trajectoryGroup.getChildren().clear();
-                    this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
-                }
+                            trajectoryGroup.getChildren().clear();
+                            this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
+                        }
                 );
-
                 // set the position of the trajectory
                 trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
                 trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
             }
-
-
         });
     }
 
@@ -373,14 +370,25 @@ public final class AircraftController {
                 line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
 
                 // coloring of the trajectory
-                Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
-                Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
-                line.setStroke(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, s1, s2));
-
+                this.trajectoryColorHandler(line, pos, nextPos);
                 trajectoryGroup.getChildren().add(line);
             }
 
         });
+    }
+
+    /**
+     * Handles the coloring of the trajectory
+     *
+     * @param line    line joining the points of coordinates pos and nextPos
+     * @param pos     beginning of the line
+     * @param nextPos end of the line
+     */
+
+    private void trajectoryColorHandler(Line line, ObservableAircraftState.AirbornePos pos, ObservableAircraftState.AirbornePos nextPos) {
+        Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
+        Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
+        line.setStroke(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, s1, s2));
     }
 
 
