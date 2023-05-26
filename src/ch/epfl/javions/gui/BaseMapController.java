@@ -9,7 +9,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
-
 import java.io.IOException;
 
 /**
@@ -175,11 +174,13 @@ public final class BaseMapController {
      */
     public void centerOn(GeoPos position) {
         int zoomValue = this.mapParameters.getZoomValue();
-        int x = (int) WebMercator.x(zoomValue, position.longitude());
-        int y = (int) WebMercator.y(zoomValue, position.latitude());
         this.mapParameters.zoomProperty().set(zoomValue);
-        this.mapParameters.setMinX(x - this.canvas.getWidth() / 2);
-        this.mapParameters.setMinY(y - this.canvas.getHeight() / 2);
+        this.mapParameters.setMinX(
+                (int) WebMercator.x(zoomValue, position.longitude())
+                        - this.canvas.getWidth() / 2);
+        this.mapParameters.setMinY(
+                (int) WebMercator.y(zoomValue, position.latitude())
+                        - this.canvas.getHeight() / 2);
     }
 
     /**
