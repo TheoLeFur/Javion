@@ -50,6 +50,7 @@ public final class TileManager {
     private final Path cacheDiskPath;
     // server name
     private final String tileServerName;
+
     // max capacity of memory cache
     private final int maxMemoryCacheCapacity = 100;
 
@@ -83,6 +84,7 @@ public final class TileManager {
         byte[] byteBuffer;
         Image image;
         image = this.memoryCache.get(tileId);
+
         if (Objects.isNull(image)) {
             String path = "/" + tileId.zoomLevel() + "/" + tileId.x() + "/" + tileId.y() + ".png";
             Path imgPath = Path.of(this.cacheDiskPath.toString() + path);
@@ -107,7 +109,6 @@ public final class TileManager {
                     o.write(byteBuffer);
                 }
             }
-
             this.addToCacheMemory(tileId, image);
         }
         return image;
@@ -121,10 +122,9 @@ public final class TileManager {
      * @param image image of tile.
      */
     private void addToCacheMemory(TileId id, Image image) {
-        if (this.memoryCache.size() == 100) {
-            TileId firstId = this.memoryCache.keySet().iterator().next();
-            this.memoryCache.remove(firstId);
-        }
+        if (this.memoryCache.size() == 100)
+            this.memoryCache.remove(
+                    this.memoryCache.keySet().iterator().next());
         this.memoryCache.put(id, image);
     }
 

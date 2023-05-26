@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 /**
  * @param string call sign
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record CallSign(String string) {

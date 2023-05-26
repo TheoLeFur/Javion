@@ -14,7 +14,6 @@ import java.util.Objects;
  * @param parity      of the message (0 or 1)
  * @param x           normalized local longitude
  * @param y           normalized local latitude
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,

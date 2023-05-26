@@ -9,7 +9,6 @@ import java.util.Objects;
 /**
  * Class for navigating through the outputs of the power computer using a constant size window.
  * Defines some utility methods useful for accessing the relevant values.
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public final class PowerWindow {

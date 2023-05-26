@@ -339,29 +339,20 @@ public final class AircraftController {
      */
     private void computeTrajectory(Group trajectoryGroup, ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
 
-        // start wit an offset so that we can access the next point
-
         Iterator<ObservableAircraftState.AirbornePos> iterator = list.iterator();
+        // start wit an offset so that we can access the next point
         iterator.next();
 
         list.forEach(pos -> {
             if (iterator.hasNext()) {
 
                 Line line = new Line();
-
-                double x = WebMercator.x(zoomValue, pos.position().longitude());
-                double y = WebMercator.y(zoomValue, pos.position().latitude());
-
-                line.setStartX(x);
-                line.setStartY(y);
+                line.setStartX(WebMercator.x(zoomValue, pos.position().longitude()));
+                line.setStartY(WebMercator.y(zoomValue, pos.position().latitude()));
 
                 ObservableAircraftState.AirbornePos nextPos = iterator.next();
-
-                double x_next = WebMercator.x(zoomValue, nextPos.position().longitude());
-                double y_next = WebMercator.y(zoomValue, nextPos.position().latitude());
-
-                line.setEndX(x_next);
-                line.setEndY(y_next);
+                line.setEndX(WebMercator.x(zoomValue, nextPos.position().longitude()));
+                line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
 
                 Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
                 Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));

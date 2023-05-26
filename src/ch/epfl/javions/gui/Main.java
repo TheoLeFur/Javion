@@ -1,4 +1,4 @@
-package ch.epfl.javions;
+package ch.epfl.javions.gui;
 
 
 import ch.epfl.javions.adsb.Message;
@@ -6,7 +6,6 @@ import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.demodulation.AdsbDemodulator;
-import ch.epfl.javions.gui.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -22,12 +21,26 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+
+/**
+ * @author Theo Le Fur
+ * SCIPER : 363294
+ * Main application threads
+ */
 public final class Main extends Application {
 
+    // One second in nanoseconds
     private final long SECOND_NS = 1_000_000_000L;
+    // name of the file containing the messages
+    private final String MESSAGE_FILE_NAME = "/aircraft.zip";
+    // name of te dir where we store tiles queried from the open street map server
+    private final String DISK_CACHE_NAME = "tile-cache";
+    // name of the server from which tiles are queried
+    private final String TILE_SERVER_NAME = "tile.openstreetmap.org";
 
 
     /**
@@ -43,14 +56,14 @@ public final class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
 
-        URL u = getClass().getResource("/aircraft.zip");
+        URL u = getClass().getResource(MESSAGE_FILE_NAME);
         assert u != null;
         Path p = Path.of(u.toURI());
         AircraftDatabase db = new AircraftDatabase(p.toString());
 
-        Path tileCache = Path.of("tile-cache");
+        Path tileCache = Path.of(DISK_CACHE_NAME);
 
-        TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
+        TileManager tm = new TileManager(tileCache, TILE_SERVER_NAME);
         AircraftStateManager asm = new AircraftStateManager(db);
         MapParameters mp = new MapParameters(8, 33530, 23070);
 
@@ -158,10 +171,12 @@ public final class Main extends Application {
             long start = System.nanoTime();
 
             while (true) {
-
                 long timeStampNs = s.readLong();
                 long currentTime = System.nanoTime();
-                Thread.sleep((long) (Math.max(0, (timeStampNs - (currentTime - start))) / 1000000d));
+
+                Thread.sleep((long) (
+                        Math.max(0, (timeStampNs - (currentTime - start))) / 1000000d));
+
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
                 RawMessage rm = RawMessage.of(timeStampNs, bytes);
@@ -170,16 +185,10 @@ public final class Main extends Application {
                     m = MessageParser.parse(rm);
                     if (m != null) {
                         messageQueue.add(m);
-
                     }
                 }
-
             }
-
-
-        } catch (
-                EOFException e) {
-            // do nothing
+        } catch (EOFException ignored) {
         } catch (
                 IOException | InterruptedException e) {
             throw new RuntimeException(e);

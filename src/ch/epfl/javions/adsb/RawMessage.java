@@ -9,7 +9,6 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 /**
  * @param timeStampNs time stamp of the message in nanoseconds
  * @param bytes       14 bytes that make up an ADS-B  message
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record RawMessage(long timeStampNs, ByteString bytes) {

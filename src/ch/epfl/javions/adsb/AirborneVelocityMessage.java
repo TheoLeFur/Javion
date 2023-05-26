@@ -12,7 +12,6 @@ import java.util.Objects;
  * @param icaoAddress
  * @param speed
  * @param trackOrHeading
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed,

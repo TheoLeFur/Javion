@@ -9,6 +9,8 @@ import javafx.scene.text.Text;
 
 
 /**
+ * @author Theo Le Fur
+ * SCIPER 363294
  * This class controls the status line in the final graphical interface. It will be displaying the number of visible
  * aircraft as well as the number of received messages.
  */

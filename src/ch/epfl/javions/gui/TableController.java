@@ -22,6 +22,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
+ * @author Theo Le Fur
+ * SCIPER = 363294
  * This class takes care of the display of the table of states of the aircraft.
  * It comes in conjunction with the map, whose logic is implemented in the AircraftController class.
  */
@@ -32,13 +34,7 @@ public final class TableController {
      */
 
     private enum WIDTH {
-        ICAO,
-        ID,
-        REGISTRATION,
-        MODEL,
-        TYPE,
-        DESCRIPTION,
-        NUMERIC;
+        ICAO, ID, REGISTRATION, MODEL, TYPE, DESCRIPTION, NUMERIC;
 
         /**
          * get width from enum instance
@@ -84,14 +80,12 @@ public final class TableController {
         this.tableView = new TableView<>();
         this.buildSceneGraph(this.tableView);
 
-        this.observableSet.addListener(
-                (SetChangeListener<ObservableAircraftState>) change -> {
-                    this.tableView.getItems().add(change.getElementAdded());
-                    this.tableView.getItems().remove(change.getElementRemoved());
+        this.observableSet.addListener((SetChangeListener<ObservableAircraftState>) change -> {
+            this.tableView.getItems().add(change.getElementAdded());
+            this.tableView.getItems().remove(change.getElementRemoved());
 
-                    if (change.wasAdded()) this.tableView.sort();
-                }
-        );
+            if (change.wasAdded()) this.tableView.sort();
+        });
 
     }
 
@@ -125,17 +119,12 @@ public final class TableController {
 
         this.pane.setCenter(tv);
 
-        this.selectedAircraft.addListener(
-                (p, oldVal, newVal) -> {
-                    tv.getSelectionModel().select(newVal);
-                    tv.scrollTo(newVal);
-                }
-        );
+        this.selectedAircraft.addListener((p, oldVal, newVal) -> {
+            tv.getSelectionModel().select(newVal);
+            tv.scrollTo(newVal);
+        });
 
-        tv.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((p, oldVal, newVal) ->
-                        this.selectedAircraft.setValue(newVal));
+        tv.getSelectionModel().selectedItemProperty().addListener((p, oldVal, newVal) -> this.selectedAircraft.setValue(newVal));
 
 
         tv.setOnMouseClicked(event -> {
@@ -165,46 +154,10 @@ public final class TableController {
     private void createTextColumns(TableView<ObservableAircraftState> tv) {
 
 
-        tv.getColumns().addAll(List.of(
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.ICAO),
-                                "ICAO",
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())
-                        )
-                        ,
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.ID),
-                                "CALL SIGN",
-                                f -> f.getValue().callSignProperty().map(CallSign::string)
-                        )
-                        ,
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.REGISTRATION),
-                                "REGISTRATION",
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())
-                        )
-                        ,
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.MODEL),
-                                "MODEL",
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)
-                        )
-                        ,
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.TYPE),
-                                "TYPE",
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())
-                        )
-                        ,
-                        this.createTextualColumn(
-                                WIDTH.getWidth(WIDTH.DESCRIPTION),
-                                "DESCRIPTION",
-                                f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
+        tv.getColumns().addAll(List.of(this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ICAO", f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.ID), "CALL SIGN", f -> f.getValue().callSignProperty().map(CallSign::string)), this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION), "REGISTRATION", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL), "MODEL", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)), this.createTextualColumn(WIDTH.getWidth(WIDTH.TYPE), "TYPE", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.DESCRIPTION), "DESCRIPTION", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
 
 
-                        )
-                )
-        );
+        )));
 
     }
 
@@ -215,29 +168,7 @@ public final class TableController {
      */
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
 
-        tv.getColumns().addAll(List.of(
-                        this.createNumericalColumn("LATITUDE",
-                                f -> f.getValue().positionProperty().map(GeoPos::latitude),
-                                4,
-                                Units.Angle.DEGREE
-                        ),
-                        this.createNumericalColumn("LONGITUDE",
-                                f -> f.getValue().positionProperty().map(GeoPos::longitude),
-                                4,
-                                Units.Angle.DEGREE
-                        ),
-                        this.createNumericalColumn("ALTITUDE",
-                                f -> f.getValue().altitudeProperty().map(Number::doubleValue),
-                                0,
-                                Units.Length.METER
-                        ),
-                        this.createNumericalColumn("VELOCITY",
-                                f -> f.getValue().velocityProperty().map(Number::doubleValue),
-                                0,
-                                Units.Speed.KILOMETER_PER_HOUR
-                        )
-                )
-        );
+        tv.getColumns().addAll(List.of(this.createNumericalColumn("LATITUDE", f -> f.getValue().positionProperty().map(GeoPos::latitude), 4, Units.Angle.DEGREE), this.createNumericalColumn("LONGITUDE", f -> f.getValue().positionProperty().map(GeoPos::longitude), 4, Units.Angle.DEGREE), this.createNumericalColumn("ALTITUDE", f -> f.getValue().altitudeProperty().map(Number::doubleValue), 0, Units.Length.METER), this.createNumericalColumn("VELOCITY", f -> f.getValue().velocityProperty().map(Number::doubleValue), 0, Units.Speed.KILOMETER_PER_HOUR)));
 
 
     }
@@ -251,10 +182,7 @@ public final class TableController {
      * @param map   function extracting values of the property
      * @return string column
      */
-    private TableColumn<ObservableAircraftState, String> createTextualColumn(
-            int width,
-            String title,
-            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> map) {
+    private TableColumn<ObservableAircraftState, String> createTextualColumn(int width, String title, Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> map) {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
@@ -273,12 +201,7 @@ public final class TableController {
      * @return numerical column
      */
 
-    private TableColumn<ObservableAircraftState, String> createNumericalColumn(
-            String title,
-            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<Double>> map,
-            int decimals,
-            double unit
-    ) {
+    private TableColumn<ObservableAircraftState, String> createNumericalColumn(String title, Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<Double>> map, int decimals, double unit) {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.getStyleClass().add("numeric");

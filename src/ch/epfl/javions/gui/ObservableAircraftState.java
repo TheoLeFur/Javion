@@ -323,6 +323,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
      *
      * @return track or heading property
      */
+
     public ReadOnlyDoubleProperty trackOrHeadingProperty() {
         return trackOrHeading;
     }

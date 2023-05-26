@@ -6,7 +6,6 @@ import java.util.Objects;
 
 /**
  * @param <T> Generic parameter, inherits from AircraftStateSetter.
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public class AircraftStateAccumulator<T extends AircraftStateSetter> {

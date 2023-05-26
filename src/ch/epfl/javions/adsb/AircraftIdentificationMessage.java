@@ -13,7 +13,6 @@ import static java.lang.String.valueOf;
  * @param icaoAddress of the aircraft
  * @param category    category of the aircraft which indicates its type
  * @param callSign    of the aircraft
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,

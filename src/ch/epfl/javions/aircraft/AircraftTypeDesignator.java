@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 /**
  *
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  * @param string aircraft's pattern
  */

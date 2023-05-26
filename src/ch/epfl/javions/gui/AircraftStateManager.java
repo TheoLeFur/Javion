@@ -60,11 +60,15 @@ public final class AircraftStateManager {
      * @param message sent by an aircraft
      */
     public void updateWithMessage(Message message) throws IOException {
+
         IcaoAddress address = message.icaoAddress();
-        if (!this.addressToAsmTable.containsKey(address)) {
-            this.addressToAsmTable.put(
-                    address, new AircraftStateAccumulator<>(new ObservableAircraftState(address, this.database.get(address))));
-        }
+        this.addressToAsmTable.computeIfAbsent(address, a -> {
+            try {
+                return new AircraftStateAccumulator<>(new ObservableAircraftState(address, this.database.get(a)));
+            } catch (IOException e) {
+                return null;
+            }
+        });
         AircraftStateAccumulator<ObservableAircraftState> stateAccumulator = this.addressToAsmTable.get(address);
         stateAccumulator.update(message);
         ObservableAircraftState stateSetter = stateAccumulator.stateSetter();

@@ -8,7 +8,6 @@ import java.util.Objects;
  * @param model                  model of aircraft
  * @param description            additional description of aircraft
  * @param wakeTurbulenceCategory category
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  * Record tracking data of the aircraft. Parameters' name state what is being tracked.
  */

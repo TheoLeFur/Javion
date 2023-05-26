@@ -3,7 +3,6 @@ package ch.epfl.javions;
 /**
  * @param longitudeT32 longitude in T32
  * @param latitudeT32  latitude in T32, throws Illegal Argument Exception if invalid
- * @author Rudolf Yazbeck (SCIPER: 360700)
  * @author Theo Le Fur (SCIPER: 363294)
  */
 public record GeoPos(int longitudeT32, int latitudeT32) {
