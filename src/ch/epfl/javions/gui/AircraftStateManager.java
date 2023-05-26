@@ -15,6 +15,8 @@ import java.util.Objects;
 
 
 /**
+ * @author Theo Le Fur
+ * SCIPER : 363294
  * Class managing the states of the aircraft that will be subsequently displayed on the map.
  */
 public final class AircraftStateManager {
@@ -35,8 +37,8 @@ public final class AircraftStateManager {
      * @param database database containing the essential data on aircraft.
      */
     public AircraftStateManager(AircraftDatabase database) {
-        this.database = database;
         this.addressToAsmTable = new HashMap<>();
+        this.database = database;
         this.observableAircraftSet = FXCollections.observableSet();
         this.readOnlyAircraftSet = FXCollections.unmodifiableObservableSet(this.observableAircraftSet);
     }
@@ -60,12 +62,8 @@ public final class AircraftStateManager {
     public void updateWithMessage(Message message) throws IOException {
         IcaoAddress address = message.icaoAddress();
         if (!this.addressToAsmTable.containsKey(address)) {
-            this.addressToAsmTable.put(address, new AircraftStateAccumulator<>(new ObservableAircraftState(
-                            address,
-                            this.database.get(address)
-                    )
-                    )
-            );
+            this.addressToAsmTable.put(
+                    address, new AircraftStateAccumulator<>(new ObservableAircraftState(address, this.database.get(address))));
         }
         AircraftStateAccumulator<ObservableAircraftState> stateAccumulator = this.addressToAsmTable.get(address);
         stateAccumulator.update(message);

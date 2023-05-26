@@ -13,6 +13,8 @@ import javafx.scene.canvas.Canvas;
 import java.io.IOException;
 
 /**
+ * @author Theo Le Fur
+ * SCIPER : 363294
  * Class that manages the display of the map background and the interactions with it. Deals with various types of events
  * like scrolling and zooming.
  */
@@ -21,14 +23,16 @@ public final class BaseMapController {
     // Side length of a tile
     private final static int PIXELS_IN_TILE = (int) Math.scalb(1, 8);
 
+    // time we wait during a mouse drag
+    private final int SCROLL_DELTA_T = 200;
     private final Pane pane;
     private final Canvas canvas;
     private final TileManager tileManager;
     private final MapParameters mapParameters;
-    private boolean redrawNeeded;
-    private final GraphicsContext contextOfMap;
     private Point2D mousePos;
     private final LongProperty scrollDeltaT;
+    private boolean redrawNeeded;
+    private final GraphicsContext contextOfMap;
 
 
     /**
@@ -105,7 +109,7 @@ public final class BaseMapController {
             if (dZoom == 0) return;
             long currentTime = System.currentTimeMillis();
             if (currentTime < this.scrollDeltaT.get()) return;
-            this.scrollDeltaT.set(currentTime + 200);
+            this.scrollDeltaT.set(currentTime + SCROLL_DELTA_T);
             this.mapParameters.scroll(event.getX(), event.getY());
             this.mapParameters.changeZoomLevel(dZoom);
             this.mapParameters.scroll(-event.getX(), -event.getY());

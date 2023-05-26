@@ -174,7 +174,7 @@ public final class TableController {
                         ,
                         this.createTextualColumn(
                                 WIDTH.getWidth(WIDTH.ID),
-                                "CALLSIGN",
+                                "CALL SIGN",
                                 f -> f.getValue().callSignProperty().map(CallSign::string)
                         )
                         ,

@@ -44,7 +44,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final DoubleProperty altitude;
     private final DoubleProperty velocity;
     private final DoubleProperty trackOrHeading;
-    private long lastTimeStampAddedToTrajectory;
 
     /**
      * Creates an instance of the state of the aircraft with states that can only be modified through setters (except the
@@ -64,7 +63,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.trajectory = observableArrayList();
         this.trajectoryView = unmodifiableObservableList(this.trajectory);
 
-        // both altitude and velocity are initialised to Nan, so that we can detect whenever
+        // both altitude and velocity are initialised to NaN, so that we can detect whenever
         // some data is absent from messages.
 
         this.altitude = new SimpleDoubleProperty(Double.NaN);
@@ -209,16 +208,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
     /**
-     * Access the property serving as placeholder to the value of the timestamp of the last message
-     *
-     * @return time stamp long property
-     */
-
-    public ReadOnlyLongProperty lastMessageTimeStampNsProperty() {
-        return this.lastMessageTimeStampNs;
-    }
-
-    /**
      * Access the value held in the position property.
      *
      * @return position in GeoPos coordinates.
@@ -270,7 +259,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.altitude.set(altitude);
         if (!Objects.isNull(this.getPosition())) {
             AirbornePos pos = new AirbornePos(this.getPosition(), altitude);
-            this.lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
+            long lastTimeStampAddedToTrajectory = this.getLastMessageTimeStampNs();
             if (trajectory.isEmpty()) {
                 this.trajectory.add(pos);
             } else if (lastTimeStampAddedToTrajectory == this.getLastMessageTimeStampNs()) {

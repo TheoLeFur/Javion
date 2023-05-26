@@ -104,7 +104,7 @@ public final class AircraftController {
      * @param s state setter
      */
     private void createSceneGraph(ObservableAircraftState s) {
-        
+
         Group annotatedAircraftGroup = this.createAnnotatedAircraftGroup(s);
         this.createTrajectoryGroup(s, annotatedAircraftGroup);
         Group labelIconGroup = this.createLabelIconGroup(s, annotatedAircraftGroup);
@@ -181,39 +181,32 @@ public final class AircraftController {
         icon.getStyleClass().add("aircraft");
         AircraftData ad = s.getAircraftData();
 
-        AircraftTypeDesignator atd;
-        AircraftDescription ads;
-        int cat;
-        WakeTurbulenceCategory wtc;
+        ObjectProperty<AircraftIcon> aircraftIconProperty = (ad == null)
+                ? new SimpleObjectProperty<>(AircraftIcon.iconFor(
+                new AircraftTypeDesignator(""),
+                new AircraftDescription(""),
+                0,
+                WakeTurbulenceCategory.UNKNOWN))
+                : new SimpleObjectProperty<>(AircraftIcon.iconFor(s.getTypeDesignator(),
+                s.getDescription(),
+                s.getCategory(),
+                s.getWakeTurbulenceCategory()));
 
-        if (ad == null) {
-            atd = new AircraftTypeDesignator("");
-            ads = new AircraftDescription("");
-            cat = 0;
-            wtc = WakeTurbulenceCategory.UNKNOWN;
-        } else {
-            atd = s.getTypeDesignator();
-            ads = s.getDescription();
-            cat = s.getCategory();
-            wtc = s.getWakeTurbulenceCategory();
-        }
+        aircraftIconProperty.bind(s.categoryProperty().map(d -> AircraftIcon.iconFor(
+                s.getTypeDesignator(),
+                s.getDescription(),
+                d.intValue(),
+                s.getWakeTurbulenceCategory())));
 
-        ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(AircraftIcon.iconFor(atd, ads, cat, wtc));
 
         // we bind the icon property to the category property, so that it tracks the changes.
-
-        aircraftIconProperty.bind(s.categoryProperty().map(d -> AircraftIcon.iconFor(atd, ads, d.intValue(), wtc)));
-
         // bind both the content and the can rotate properties to the methods in AircraftIcon.
 
         icon.contentProperty().bind(aircraftIconProperty.map(AircraftIcon::svgPath));
-        icon.rotateProperty().bind(Bindings.createDoubleBinding(() -> {
-            if (aircraftIconProperty.get().canRotate()) {
-                return Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE);
-            } else {
-                return 0d;
-            }
-        }, s.trackOrHeadingProperty(), aircraftIconProperty));
+        icon.rotateProperty().bind(Bindings.createDoubleBinding(() -> aircraftIconProperty.get().canRotate()
+                ? Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE)
+                : 0d, s.trackOrHeadingProperty(), aircraftIconProperty));
+
         icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
 
         return icon;
@@ -378,7 +371,7 @@ public final class AircraftController {
                         Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
                         Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
 
-                        line.setStroke(new LinearGradient(x, y, x_next, y_next, true, CycleMethod.NO_CYCLE, s1, s2));
+                        line.setStroke(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, s1, s2));
                         trajectoryGroup.getChildren().add(line);
                     }
 

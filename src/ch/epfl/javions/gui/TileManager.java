@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * @author Theo Le Fur
+ * SCIPER 363294
  * Class that manages the tile. As we zoom more into the OSM images, the number of pixels necessary to represent the image exponentially increases.
  * Instead, we cut the image into tiles of 256 x 256 pixels, that are accessed whenever we need them.
  */
@@ -123,7 +125,6 @@ public final class TileManager {
             TileId firstId = this.memoryCache.keySet().iterator().next();
             this.memoryCache.remove(firstId);
         }
-
         this.memoryCache.put(id, image);
     }
 
