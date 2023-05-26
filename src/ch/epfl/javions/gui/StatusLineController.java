@@ -14,7 +14,7 @@ import javafx.scene.text.Text;
  * This class controls the status line in the final graphical interface. It will be displaying the number of visible
  * aircraft as well as the number of received messages.
  */
-public class StatusLineController {
+public final class StatusLineController {
 
     private final BorderPane pane;
     private final IntegerProperty aircraftCountProperty;

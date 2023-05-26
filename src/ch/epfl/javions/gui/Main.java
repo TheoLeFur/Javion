@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -55,11 +54,11 @@ public final class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-
         URL u = getClass().getResource(MESSAGE_FILE_NAME);
         assert u != null;
         Path p = Path.of(u.toURI());
         AircraftDatabase db = new AircraftDatabase(p.toString());
+
 
         Path tileCache = Path.of(DISK_CACHE_NAME);
 
@@ -90,18 +89,16 @@ public final class Main extends Application {
         List<String> params = getParameters().getRaw();
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
-
         Thread messageAccumulationThread = new Thread(() -> {
-            if (params.isEmpty()) {
+            if (params.isEmpty())
                 this.demodulateMessages(messageQueue);
-            } else {
+            else
                 this.readMessagesFromFile(params.get(0), messageQueue);
-            }
-
         });
+
+
         messageAccumulationThread.setDaemon(true);
         messageAccumulationThread.start();
-
 
         new AnimationTimer() {
             private long prevMethodCallTimeStamp;
@@ -195,7 +192,6 @@ public final class Main extends Application {
         }
     }
 
-
     /**
      * Creates the final scene graph
      *
@@ -205,6 +201,7 @@ public final class Main extends Application {
      * @param tc       table controller
      * @param slc      status line controller
      */
+
 
     private void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
 

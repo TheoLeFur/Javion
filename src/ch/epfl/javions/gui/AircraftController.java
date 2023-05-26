@@ -59,7 +59,8 @@ public final class AircraftController {
     private final Pane pane;
 
     /**
-     * We instantiate an aircraft controller class, that will control the display of the aircraft on the map, their labels and their trajectories.
+     * We instantiate an aircraft controller class, that will control the display of the aircraft on the map,
+     * their labels and their trajectories.
      *
      * @param mapParams          parameters of the visible map (minX, minY and zoom value)
      * @param observableAircraft set of aircraft that are currently observable
@@ -79,7 +80,10 @@ public final class AircraftController {
 
         this.pane = new Pane();
         this.pane.setPickOnBounds(false);
-        this.pane.getStylesheets().add(Objects.requireNonNull(getClass().getResource(this.AircraftStyleSheetPath)).toString());
+        this.pane.getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource(
+                                this.AircraftStyleSheetPath)).toString());
 
         // We construct a graph for every state in the initial set of values passed into the constructor
         this.observableAircraft.forEach(this::createSceneGraph);
@@ -94,7 +98,7 @@ public final class AircraftController {
             }
             ObservableAircraftState elementRemoved = change.getElementRemoved();
             if (!Objects.isNull(elementRemoved)) {
-                this.pane.getChildren().removeIf(e -> Objects.equals(e.getId(), elementRemoved.getIcaoAddress().toString()));
+                this.pane.getChildren().removeIf(e -> e.getId().equals(elementRemoved.getIcaoAddress().string()));
             }
         });
 
@@ -122,7 +126,7 @@ public final class AircraftController {
      * @param s state setter
      */
     private void aircraftSelectionEventHandler(ObservableAircraftState s, SVGPath icon) {
-        icon.setOnMouseClicked((event) -> this.selectedAircraft.setValue(s));
+        icon.setOnMouseClicked(event -> this.selectedAircraft.setValue(s));
     }
 
 
@@ -156,14 +160,18 @@ public final class AircraftController {
         annotatedAircraftGroup.getChildren().add(labelIconGroup);
 
         labelIconGroup.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
-            double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
-            return projectedX - this.mapParams.getMinXValue();
-        }, this.mapParams.zoomProperty(), this.mapParams.minXProperty(), s.positionProperty()));
+                    double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
+                    return projectedX - this.mapParams.getMinXValue();
+                },
+                this.mapParams.zoomProperty(), this.mapParams.minXProperty(), s.positionProperty()));
+
 
         labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
-            double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
-            return projectedY - this.mapParams.getMinYValue();
-        }, this.mapParams.zoomProperty(), this.mapParams.minYProperty(), s.positionProperty()));
+                    double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
+                    return projectedY - this.mapParams.getMinYValue();
+                },
+                this.mapParams.zoomProperty(), this.mapParams.minYProperty(), s.positionProperty()));
+
         return labelIconGroup;
     }
 
@@ -180,9 +188,7 @@ public final class AircraftController {
         icon.getStyleClass().add("aircraft");
 
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(getOrDefaultIcon(s));
-
         aircraftIconProperty.bind(s.categoryProperty().map(d -> getOrDefaultIcon(s, d.intValue())));
-
 
         // we bind the icon property to the category property, so that it tracks the changes.
         // bind both the content and the can rotate properties to the methods in AircraftIcon.
@@ -191,9 +197,7 @@ public final class AircraftController {
         icon.rotateProperty().bind(
                 Bindings.createDoubleBinding(() -> aircraftIconProperty
                                 .get()
-                                .canRotate()
-                                ? Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE)
-                                : 0d,
+                                .canRotate() ? Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE) : 0d,
                         s.trackOrHeadingProperty(), aircraftIconProperty));
         icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
 
@@ -237,15 +241,21 @@ public final class AircraftController {
         Group labelGroup = new Group();
         labelGroup.getStyleClass().add("label");
         labelIconGroup.getChildren().add(labelGroup);
-        labelGroup.visibleProperty().bind(Bindings.createBooleanBinding(() -> this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD || s.equals(this.selectedAircraft.getValue()), this.mapParams.zoomProperty(), this.selectedAircraft));
-
+        labelGroup.visibleProperty().bind(Bindings.createBooleanBinding(
+                () -> this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD ||
+                        s.equals(this.selectedAircraft.getValue()), this.mapParams.zoomProperty(), this.selectedAircraft));
 
         Text text = new Text();
         Rectangle background = new Rectangle();
         labelGroup.getChildren().add(background);
         labelGroup.getChildren().add(text);
 
-        text.textProperty().bind(Bindings.createStringBinding(() -> String.format("%s \n %s (km/h) \u2002 %s (m) ", this.getAircraftIdForLabel(s), this.getVelocityForLabel(s), this.getAltitudeForLabel(s)), s.altitudeProperty(), s.velocityProperty(), s.callSignProperty()));
+        text.textProperty().bind(Bindings.createStringBinding(
+                () -> String.format("%s \n %s (km/h) \u2002 %s (m) ",
+                        this.getAircraftIdForLabel(s),
+                        this.getVelocityForLabel(s),
+                        this.getAltitudeForLabel(s)),
+                s.altitudeProperty(), s.velocityProperty(), s.callSignProperty()));
 
         background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
         background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
@@ -260,27 +270,21 @@ public final class AircraftController {
      * @return value of the velocity in km/h if available, else ?
      */
     private String getVelocityForLabel(ObservableAircraftState s) {
+        return !Objects.isNull(s.getAircraftData()) && !Double.isNaN(s.getVelocity())
+                ? String.valueOf((int) Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR))
+                : "?";
+    }
 
-        if (!Objects.isNull(s.getAircraftData())) {
-            if (!Double.isNaN(s.velocityProperty().getValue())) {
-                return String.valueOf((int) (Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR)));
-            }
-        }
-        return "?";
-    }/**
+    /**
      * Formats the altitude on the labels display
      *
      * @param s state setter
      * @return value of the velocity in km/h if available, else ?
      */
     private String getAltitudeForLabel(ObservableAircraftState s) {
-
-        if (!Objects.isNull(s.getAircraftData())) {
-            if (!Double.isNaN(s.altitudeProperty().getValue())) {
-                return String.valueOf(s.getAltitude());
-            }
-        }
-        return "?";
+        return !Objects.isNull(s.getAircraftData()) && !Double.isNaN(s.getAltitude())
+                ? String.valueOf((int) s.getAltitude())
+                : "?";
     }
 
 
@@ -325,18 +329,19 @@ public final class AircraftController {
             if (trajectoryGroup.isVisible()) {
                 trajectory.addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change -> {
                     trajectoryGroup.getChildren().clear();
-                    while (change.next()) {
-                        if (change.wasAdded()) {
+                    while (change.next())
+                        if (change.wasAdded())
                             this.computeTrajectory(trajectoryGroup, s.getTrajectory(), this.mapParams.getZoomValue());
-                        }
-                    }
+
                 });
 
                 this.mapParams.zoomProperty().addListener((p, oldVal, newVal) -> {
                     trajectoryGroup.getChildren().clear();
                     this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
-                });
+                }
+                );
 
+                // set the position of the trajectory
                 trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
                 trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
             }

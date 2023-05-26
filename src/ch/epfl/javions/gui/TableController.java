@@ -15,11 +15,13 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 
 import java.text.NumberFormat;
+
 import java.text.ParseException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
 
 /**
  * @author Theo Le Fur
@@ -27,11 +29,15 @@ import java.util.function.Function;
  * This class takes care of the display of the table of states of the aircraft.
  * It comes in conjunction with the map, whose logic is implemented in the AircraftController class.
  */
+
+
 public final class TableController {
+
 
     /**
      * Stores the widths of various columns.
      */
+
 
     private enum WIDTH {
         ICAO, ID, REGISTRATION, MODEL, TYPE, DESCRIPTION, NUMERIC;
@@ -42,6 +48,7 @@ public final class TableController {
          * @param width enum instance
          * @return width of column of the same name
          */
+
         private static int getWidth(WIDTH width) {
             return switch (width) {
                 case ICAO -> 60;
@@ -52,8 +59,8 @@ public final class TableController {
                 case NUMERIC -> 85;
             };
         }
-
     }
+
 
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
     private final BorderPane pane;
@@ -154,10 +161,20 @@ public final class TableController {
     private void createTextColumns(TableView<ObservableAircraftState> tv) {
 
 
-        tv.getColumns().addAll(List.of(this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ICAO", f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.ID), "CALL SIGN", f -> f.getValue().callSignProperty().map(CallSign::string)), this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION), "REGISTRATION", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL), "MODEL", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)), this.createTextualColumn(WIDTH.getWidth(WIDTH.TYPE), "TYPE", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())), this.createTextualColumn(WIDTH.getWidth(WIDTH.DESCRIPTION), "DESCRIPTION", f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
-
-
-        )));
+        tv.getColumns().addAll(List.of(
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ICAO",
+                        f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())),
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.ID), "CALL SIGN",
+                        f -> f.getValue().callSignProperty().map(CallSign::string)),
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION), "REGISTRATION",
+                        f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())),
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL), "MODEL",
+                        f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)),
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.TYPE), "TYPE",
+                        f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())),
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.DESCRIPTION), "DESCRIPTION",
+                        f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.description().string())
+                )));
 
     }
 
@@ -168,7 +185,17 @@ public final class TableController {
      */
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
 
-        tv.getColumns().addAll(List.of(this.createNumericalColumn("LATITUDE", f -> f.getValue().positionProperty().map(GeoPos::latitude), 4, Units.Angle.DEGREE), this.createNumericalColumn("LONGITUDE", f -> f.getValue().positionProperty().map(GeoPos::longitude), 4, Units.Angle.DEGREE), this.createNumericalColumn("ALTITUDE", f -> f.getValue().altitudeProperty().map(Number::doubleValue), 0, Units.Length.METER), this.createNumericalColumn("VELOCITY", f -> f.getValue().velocityProperty().map(Number::doubleValue), 0, Units.Speed.KILOMETER_PER_HOUR)));
+        tv.getColumns().addAll(List.of(
+                this.createNumericalColumn(
+                        "LATITUDE",
+                        f -> f.getValue().positionProperty().map(GeoPos::latitude),
+                        4, Units.Angle.DEGREE),
+                this.createNumericalColumn("LONGITUDE", f -> f.getValue().positionProperty().map(GeoPos::longitude),
+                        4, Units.Angle.DEGREE),
+                this.createNumericalColumn("ALTITUDE",
+                        f -> f.getValue().altitudeProperty().map(Number::doubleValue), 0, Units.Length.METER),
+                this.createNumericalColumn("VELOCITY",
+                        f -> f.getValue().velocityProperty().map(Number::doubleValue), 0, Units.Speed.KILOMETER_PER_HOUR)));
 
 
     }
@@ -182,7 +209,11 @@ public final class TableController {
      * @param map   function extracting values of the property
      * @return string column
      */
-    private TableColumn<ObservableAircraftState, String> createTextualColumn(int width, String title, Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<String>> map) {
+    private TableColumn<ObservableAircraftState, String> createTextualColumn(
+            int width,
+            String title,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>,
+                    ObservableValue<String>> map) {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.setPrefWidth(width);
@@ -201,7 +232,12 @@ public final class TableController {
      * @return numerical column
      */
 
-    private TableColumn<ObservableAircraftState, String> createNumericalColumn(String title, Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>, ObservableValue<Double>> map, int decimals, double unit) {
+    private TableColumn<ObservableAircraftState, String> createNumericalColumn(
+            String title,
+            Function<TableColumn.CellDataFeatures<ObservableAircraftState, String>,
+                    ObservableValue<Double>> map,
+            int decimals,
+            double unit) {
 
         TableColumn<ObservableAircraftState, String> column = new TableColumn<>(title);
         column.getStyleClass().add("numeric");
@@ -212,7 +248,6 @@ public final class TableController {
         nf.setMaximumFractionDigits(decimals);
 
         column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v, unit))));
-
 
         column.setComparator((s1, s2) -> {
             if (s1.isEmpty() || s2.isEmpty()) {
@@ -227,8 +262,8 @@ public final class TableController {
             }
         });
 
-
         return column;
+
     }
 
 
