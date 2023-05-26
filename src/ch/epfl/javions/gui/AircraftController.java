@@ -245,7 +245,7 @@ public final class AircraftController {
         labelGroup.getChildren().add(background);
         labelGroup.getChildren().add(text);
 
-        text.textProperty().bind(Bindings.createStringBinding(() -> String.format("%s \n %s (km/h) \u2002 %d (m) ", this.getAircraftIdForLabel(s), this.getVelocityForLabel(s), (int) (s.getAltitude())), s.altitudeProperty(), s.velocityProperty(), s.callSignProperty()));
+        text.textProperty().bind(Bindings.createStringBinding(() -> String.format("%s \n %s (km/h) \u2002 %s (m) ", this.getAircraftIdForLabel(s), this.getVelocityForLabel(s), this.getAltitudeForLabel(s)), s.altitudeProperty(), s.velocityProperty(), s.callSignProperty()));
 
         background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
         background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
@@ -264,6 +264,20 @@ public final class AircraftController {
         if (!Objects.isNull(s.getAircraftData())) {
             if (!Double.isNaN(s.velocityProperty().getValue())) {
                 return String.valueOf((int) (Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR)));
+            }
+        }
+        return "?";
+    }/**
+     * Formats the altitude on the labels display
+     *
+     * @param s state setter
+     * @return value of the velocity in km/h if available, else ?
+     */
+    private String getAltitudeForLabel(ObservableAircraftState s) {
+
+        if (!Objects.isNull(s.getAircraftData())) {
+            if (!Double.isNaN(s.altitudeProperty().getValue())) {
+                return String.valueOf(s.getAltitude());
             }
         }
         return "?";
@@ -345,7 +359,6 @@ public final class AircraftController {
 
         list.forEach(pos -> {
             if (iterator.hasNext()) {
-
                 Line line = new Line();
                 line.setStartX(WebMercator.x(zoomValue, pos.position().longitude()));
                 line.setStartY(WebMercator.y(zoomValue, pos.position().latitude()));
@@ -354,10 +367,11 @@ public final class AircraftController {
                 line.setEndX(WebMercator.x(zoomValue, nextPos.position().longitude()));
                 line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
 
+                // coloring of the trajectory
                 Stop s1 = new Stop(0, ColorRamp.PLASMA.at(this.computeColorIndex(pos.altitude())));
                 Stop s2 = new Stop(1, ColorRamp.PLASMA.at(this.computeColorIndex(nextPos.altitude())));
-
                 line.setStroke(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, s1, s2));
+
                 trajectoryGroup.getChildren().add(line);
             }
 
