@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * SCIPER : 363294
  * Main application threads
  */
-public final class Main extends Application {
+public class Main extends Application {
 
     // One second in nanoseconds
     private final long SECOND_NS = 1_000_000_000L;
@@ -131,7 +131,7 @@ public final class Main extends Application {
      *
      * @param messageQueue queue that stores the decoded messages.
      */
-    private void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
+    public void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
 
         try (InputStream s = System.in) {
             AdsbDemodulator adm = new AdsbDemodulator(s);
@@ -157,7 +157,7 @@ public final class Main extends Application {
      */
 
 
-    private void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
+    public void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
 
 
         try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
@@ -201,7 +201,7 @@ public final class Main extends Application {
      */
 
 
-    private void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
+    public void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
 
         StackPane aircraftPane = new StackPane(bmc.pane(), ac.pane());
         BorderPane metaPane = new BorderPane();

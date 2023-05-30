@@ -36,7 +36,6 @@ public final class TableController {
      * Stores the widths of various columns.
      */
 
-
     private enum WIDTH {
         ICAO, ID, REGISTRATION, MODEL, TYPE, DESCRIPTION, NUMERIC;
 
@@ -46,7 +45,6 @@ public final class TableController {
          * @param width enum instance
          * @return width of column of the same name
          */
-
         private static int getWidth(WIDTH width) {
             return switch (width) {
                 case ICAO -> 60;
@@ -69,9 +67,10 @@ public final class TableController {
     private final Consumer<ObservableAircraftState> cs;
 
     /**
-     * Instantiates a table controller.
-     *
-     * @param obsSet set of observable states passed into construction.
+     * Instantiates a table controller
+     * @param obsSet set of observable aircraft
+     * @param selectedAircraft selected aircraft
+     * @param cs consumer accepting the value of the selected aircraft when double-clicked on
      */
     public TableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft, Consumer<ObservableAircraftState> cs) {
 
@@ -236,12 +235,14 @@ public final class TableController {
         nf.setMaximumFractionDigits(decimals);
 
         column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v, unit))));
+
         column.setComparator((s1, s2) -> {
             try {
                 return (s1.isEmpty() || s2.isEmpty())
                         ? s1.compareTo(s2)
                         : Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
             } catch (ParseException e) {
+                System.out.println("Error : string cannot be parsed");
                 throw new RuntimeException(e);
             }
         });

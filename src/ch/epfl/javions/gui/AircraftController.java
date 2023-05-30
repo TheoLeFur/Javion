@@ -336,11 +336,10 @@ public final class AircraftController {
                             this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
                         }
                 );
-                // set the position of the trajectory
-                trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
-                trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
             }
         });
+        trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
+        trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
     }
 
     /**
@@ -352,17 +351,18 @@ public final class AircraftController {
      */
     private void computeTrajectory(Group trajectoryGroup, ObservableList<ObservableAircraftState.AirbornePos> list, int zoomValue) {
 
-        Iterator<ObservableAircraftState.AirbornePos> iterator = list.iterator();
+        Iterator<ObservableAircraftState.AirbornePos> it = list.iterator();
         // start wit an offset so that we can access the next point
-        iterator.next();
+        if (it.hasNext()) it.next();
 
         list.forEach(pos -> {
-            if (iterator.hasNext()) {
+            if (it.hasNext()) {
                 Line line = new Line();
                 line.setStartX(WebMercator.x(zoomValue, pos.position().longitude()));
                 line.setStartY(WebMercator.y(zoomValue, pos.position().latitude()));
 
-                ObservableAircraftState.AirbornePos nextPos = iterator.next();
+                ObservableAircraftState.AirbornePos nextPos = it.next();
+
                 line.setEndX(WebMercator.x(zoomValue, nextPos.position().longitude()));
                 line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
 

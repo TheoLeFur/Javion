@@ -223,6 +223,8 @@ public final class ObservableAircraftState implements AircraftStateSetter {
             this.trajectory.add(new AirbornePos(position, this.altitudeProperty().getValue()));
     }
 
+
+
     /**
      * Access the position property.
      *
