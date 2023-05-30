@@ -144,8 +144,8 @@ public final class BaseMapController {
         double minXValue = this.mapParameters.getMinXValue();
         double minYValue = this.mapParameters.getMinYValue();
 
-        for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); ++i) {
-            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); ++j) {
+        for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); i+=1) {
+            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); j+=1) {
                 TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
                         this.tileCoords(minXValue) + i,
                         this.tileCoords(minYValue) + j);

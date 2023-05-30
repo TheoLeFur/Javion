@@ -37,11 +37,6 @@ import java.util.Objects;
  */
 public final class AircraftController {
 
-    /**
-     * We will proceed the following way. Each part of the scene graph will be created using a private method :
-     * create ... that will init the group param, take care of its placement in the graph realize the desired bindings.
-     * Afterward, it will be placed in the constructor at the correct place.
-     */
 
     // Style sheet that will be used
     private final String AircraftStyleSheetPath = "/aircraft.css";
@@ -59,8 +54,7 @@ public final class AircraftController {
     private final Pane pane;
 
     /**
-     * We instantiate an aircraft controller class, that will control the display of the aircraft on the map,
-     * their labels and their trajectories.
+     * This module will control the display of the aircraft on the map, their labels and trajectories.
      *
      * @param mapParams          parameters of the visible map (minX, minY and zoom value)
      * @param observableAircraft set of aircraft that are currently observable
@@ -178,7 +172,7 @@ public final class AircraftController {
 
 
     /**
-     * Create the icon element in the scene graph
+     * Create the icon element in the scene graph.
      *
      * @param s state setter
      */
@@ -244,7 +238,9 @@ public final class AircraftController {
         labelIconGroup.getChildren().add(labelGroup);
         labelGroup.visibleProperty().bind(Bindings.createBooleanBinding(
                 () -> this.mapParams.zoomProperty().getValue() >= VISIBLE_LABEL_ZOOM_THRESHOLD ||
-                        s.equals(this.selectedAircraft.getValue()), this.mapParams.zoomProperty(), this.selectedAircraft));
+                        s.equals(this.selectedAircraft.getValue()),
+                this.mapParams.zoomProperty(),
+                this.selectedAircraft));
 
         Text text = new Text();
         Rectangle background = new Rectangle();
@@ -271,7 +267,7 @@ public final class AircraftController {
      * @return value of the velocity in km/h if available, else ?
      */
     private String getVelocityForLabel(ObservableAircraftState s) {
-        return !Objects.isNull(s.getAircraftData()) && !Double.isNaN(s.getVelocity())
+        return !Double.isNaN(s.getVelocity())
                 ? String.valueOf((int) Units.convertTo(s.getVelocity(), Units.Speed.KILOMETER_PER_HOUR))
                 : "?";
     }
@@ -283,7 +279,7 @@ public final class AircraftController {
      * @return value of the altitude in m if available, else ?
      */
     private String getAltitudeForLabel(ObservableAircraftState s) {
-        return !Objects.isNull(s.getAircraftData()) && !Double.isNaN(s.getAltitude())
+        return !Double.isNaN(s.getAltitude())
                 ? String.valueOf((int) s.getAltitude())
                 : "?";
     }
@@ -312,7 +308,8 @@ public final class AircraftController {
 
     /**
      * Creates the trajectory subgroup in the scene graph. A trajectory is a group of lines connecting
-     * the various positions contained in the list of positions accumulated by the state setter.
+     * the various positions contained in the list of positions accumulated by the state setter. The trajectory is
+     * computed only if necessary, that is, whenever an aircraft is selected.
      *
      * @param s state setter
      */
@@ -325,8 +322,7 @@ public final class AircraftController {
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
         trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
-
-            if (trajectoryGroup.isVisible()) {
+            if (nv) {
                 trajectory.addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change -> {
                     trajectoryGroup.getChildren().clear();
                     while (change.next())
@@ -348,7 +344,8 @@ public final class AircraftController {
     }
 
     /**
-     * Method for computing the trajectory
+     * Method for computing the trajectory. Propagates through the forward trajectory and creates lines
+     * joining every two point succeeding each other
      *
      * @param list      list of positions
      * @param zoomValue current zoom value
@@ -378,7 +375,8 @@ public final class AircraftController {
     }
 
     /**
-     * Handles the coloring of the trajectory
+     * Handles the coloring of the trajectory. Creates a linear gradient controlled by a function of
+     * the aircraft's altitude.
      *
      * @param line    line joining the points of coordinates pos and nextPos
      * @param pos     beginning of the line
