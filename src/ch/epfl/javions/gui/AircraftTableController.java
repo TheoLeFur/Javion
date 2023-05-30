@@ -29,7 +29,7 @@ import java.util.function.Function;
  */
 
 
-public final class TableController {
+public final class AircraftTableController {
 
 
     /**
@@ -72,7 +72,7 @@ public final class TableController {
      * @param selectedAircraft selected aircraft
      * @param cs consumer accepting the value of the selected aircraft when double-clicked on
      */
-    public TableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft, Consumer<ObservableAircraftState> cs) {
+    public AircraftTableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft, Consumer<ObservableAircraftState> cs) {
 
         this.observableSet = obsSet;
         this.selectedAircraft = selectedAircraft;

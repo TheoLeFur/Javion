@@ -46,8 +46,6 @@ public final class StatusLineController {
         this.pane.setRight(rightText);
         leftText.textProperty().bind(this.aircraftCountProperty().map(acp -> "AERONEFS VISIBLES : " + acp.doubleValue()));
         rightText.textProperty().bind(this.messageCountProperty().map(acp -> "MESSAGES RECUS : " + acp.doubleValue()));
-
-
     }
 
     /**

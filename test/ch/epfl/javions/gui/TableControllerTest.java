@@ -62,7 +62,7 @@ public final class TableControllerTest extends Application {
 
         AircraftStateManager asm = new AircraftStateManager(db);
         ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
-        TableController tab = new TableController(asm.states(), selectedAircraft, null);
+        AircraftTableController tab = new AircraftTableController(asm.states(), selectedAircraft, null);
         primaryStage.setScene(new Scene(tab.pane()));
         primaryStage.show();
         var mi = readAllMessages(message_dir).iterator();

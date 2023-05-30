@@ -71,7 +71,7 @@ public class Main extends Application {
         BaseMapController bmc = new BaseMapController(tm, mp);
         ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
         AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
-        TableController tc = new TableController(
+        AircraftTableController tc = new AircraftTableController(
                 asm.states(), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
 
 
@@ -201,7 +201,7 @@ public class Main extends Application {
      */
 
 
-    public void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, TableController tc, StatusLineController slc) {
+    public void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, AircraftTableController tc, StatusLineController slc) {
 
         StackPane aircraftPane = new StackPane(bmc.pane(), ac.pane());
         BorderPane metaPane = new BorderPane();
