@@ -17,7 +17,7 @@ import java.io.IOException;
  * Class that manages the display of the map background and the interactions with it. Deals with various types of events
  * like scrolling and zooming.
  */
-public final class BaseMapController {
+public final class BaseMapController{
 
     // Side length of a tile
     private final static int PIXELS_IN_TILE = (int) Math.scalb(1, 8);
@@ -45,30 +45,17 @@ public final class BaseMapController {
         this.tileManager = tileManager;
         this.mapParameters = mapParameters;
 
-        // Create the scene graph.
+        // Initialize the pane
         this.pane = new Pane();
         this.canvas = new Canvas();
-        this.pane.getChildren().add(this.canvas);
-
-        // Make the canvas follow the dimensions of the pane
-        this.canvas.heightProperty().bind(this.pane.heightProperty());
-        this.canvas.widthProperty().bind(this.pane.widthProperty());
-
-        // Get the graphic context of the map, that allows us to draw images subsequently
         this.contextOfMap = this.canvas.getGraphicsContext2D();
+        this.createSceneGraph();
+
 
         // So that we call the draw function at construction
         this.redrawNeeded = true;
         this.scrollDeltaT = new SimpleLongProperty();
 
-        // At each pulse, we draw the necessary images to match the desired display.
-        this.canvas.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        });
-
-        this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
-        this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.minXProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.minYProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.zoomProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
@@ -77,6 +64,25 @@ public final class BaseMapController {
         this.scrollEventHandler();
         this.dragEventHandler();
 
+    }
+
+    public Pane pane() {
+        return this.pane;
+    }
+
+    public void createSceneGraph() {
+
+        this.pane.getChildren().add(this.canvas);
+        this.canvas.heightProperty().bind(this.pane.heightProperty());
+        this.canvas.widthProperty().bind(this.pane.widthProperty());
+
+        // At each pulse, we draw the necessary images to match the desired display.
+        this.canvas.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+        this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
+        this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
     }
 
 
@@ -158,14 +164,7 @@ public final class BaseMapController {
         }
     }
 
-    /**
-     * getter for the main pane, where the map background is hosted
-     *
-     * @return the main pane
-     */
-    public Pane pane() {
-        return this.pane;
-    }
+
 
     /**
      * Centers the map at the following position

@@ -83,7 +83,7 @@ public final class AircraftTableController {
         // add a listener on the set of observable states :
 
         this.tableView = new TableView<>();
-        this.buildSceneGraph(this.tableView);
+        this.createSceneGraph(this.tableView);
 
         this.observableSet.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             this.tableView.getItems().add(change.getElementAdded());
@@ -114,7 +114,7 @@ public final class AircraftTableController {
      *
      * @param tv table view
      */
-    private void buildSceneGraph(TableView<ObservableAircraftState> tv) {
+    private void createSceneGraph(TableView<ObservableAircraftState> tv) {
 
         tv.getStylesheets().add(TABLE_STYLE_SHEET_PATH);
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
@@ -137,7 +137,6 @@ public final class AircraftTableController {
         });
         // Creates textual and numerical columns.
         this.createColumns(tv);
-
     }
 
     private void createColumns(TableView<ObservableAircraftState> tv) {

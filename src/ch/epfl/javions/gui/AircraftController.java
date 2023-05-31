@@ -71,7 +71,6 @@ public final class AircraftController {
         this.observableAircraft = observableAircraft;
 
         // Build the scene graph
-
         this.pane = new Pane();
         this.pane.setPickOnBounds(false);
         this.pane.getStylesheets().add(

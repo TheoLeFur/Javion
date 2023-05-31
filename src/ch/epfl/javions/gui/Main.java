@@ -39,8 +39,10 @@ public class Main extends Application {
 
     // name of the file containing the messages
     private final String MESSAGE_FILE_NAME = "/aircraft.zip";
+
     // name of te dir where we store tiles queried from the open street map server
     private final String DISK_CACHE_NAME = "tile-cache";
+
     // name of the server from which tiles are queried
     private final String TILE_SERVER_NAME = "tile.openstreetmap.org";
 
@@ -53,6 +55,7 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -72,8 +75,9 @@ public class Main extends Application {
         ObjectProperty<ObservableAircraftState> selectedAircraft = new SimpleObjectProperty<>();
         AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
         AircraftTableController tc = new AircraftTableController(
-                asm.states(), selectedAircraft, c -> bmc.centerOn(c.getPosition()));
-
+                asm.states(),
+                selectedAircraft, c -> bmc.centerOn(c.getPosition())
+        );
 
         SplitPane mainPane = new SplitPane();
         mainPane.setOrientation(Orientation.VERTICAL);
