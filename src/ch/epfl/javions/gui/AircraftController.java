@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-
 import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
 import ch.epfl.javions.aircraft.AircraftDescription;
@@ -10,6 +9,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -23,6 +23,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
+
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -65,6 +66,7 @@ public final class AircraftController {
             ObservableSet<ObservableAircraftState> observableAircraft,
             ObjectProperty<ObservableAircraftState> selectedAircraft) {
 
+
         // init the constructor params
         this.mapParams = mapParams;
         this.selectedAircraft = selectedAircraft;
@@ -94,7 +96,6 @@ public final class AircraftController {
                 this.pane.getChildren().removeIf(e -> e.getId().equals(elementRemoved.getIcaoAddress().string()));
             }
         });
-
 
     }
 
@@ -138,7 +139,6 @@ public final class AircraftController {
         annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
 
         return annotatedAircraftGroup;
-
     }
 
 
@@ -293,15 +293,15 @@ public final class AircraftController {
      */
     private String getAircraftIdForLabel(ObservableAircraftState s) {
 
+        String id = "";
         if (!(s.getAircraftData() == null)) {
-            String id = s.getRegistration().string();
+            id = s.getRegistration().string();
             if (id.isEmpty())
                 id = s.getCallSign().string();
             if (id.isEmpty())
                 id = s.getIcaoAddress().string();
-            return id;
         }
-        return "";
+        return (id.isEmpty()) ? s.getIcaoAddress().toString() : id;
     }
 
 
@@ -320,23 +320,33 @@ public final class AircraftController {
 
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
         trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
+
+        // TODO : look at this again.
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
+
+            ChangeListener<? super Number> lambda = (old, oldv, newv) -> {
+                trajectoryGroup.getChildren().clear();
+                this.computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
+            };
+
+            ListChangeListener<? super ObservableAircraftState.AirbornePos> lambda2 = (change) -> {
+                trajectoryGroup.getChildren().clear();
+                while (change.next())
+                    if (change.wasAdded())
+                        this.computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
+            };
+
             if (nv) {
-                trajectory.addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change -> {
-                    trajectoryGroup.getChildren().clear();
-                    while (change.next())
-                        if (change.wasAdded())
-                            this.computeTrajectory(trajectoryGroup, s.getTrajectory(), this.mapParams.getZoomValue());
+                computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
+                trajectory.addListener(lambda2);
+                this.mapParams.zoomProperty().addListener(lambda);
 
-                });
-
-                this.mapParams.zoomProperty().addListener((p, oldVal, newVal) -> {
-                            trajectoryGroup.getChildren().clear();
-                            this.computeTrajectory(trajectoryGroup, s.getTrajectory(), newVal.intValue());
-                        }
-                );
+            } else {
+                trajectory.removeListener(lambda2);
+                this.mapParams.zoomProperty().removeListener(lambda);
             }
         });
+
         trajectoryGroup.layoutXProperty().bind(this.mapParams.minXProperty().negate());
         trajectoryGroup.layoutYProperty().bind(this.mapParams.minYProperty().negate());
     }
@@ -355,22 +365,23 @@ public final class AircraftController {
         if (it.hasNext()) it.next();
 
         list.forEach(pos -> {
-            if (it.hasNext()) {
-                Line line = new Line();
-                line.setStartX(WebMercator.x(zoomValue, pos.position().longitude()));
-                line.setStartY(WebMercator.y(zoomValue, pos.position().latitude()));
+                    if (it.hasNext()) {
+                        Line line = new Line();
+                        line.setStartX(WebMercator.x(zoomValue, pos.position().longitude()));
+                        line.setStartY(WebMercator.y(zoomValue, pos.position().latitude()));
 
-                ObservableAircraftState.AirbornePos nextPos = it.next();
+                        ObservableAircraftState.AirbornePos nextPos = it.next();
 
-                line.setEndX(WebMercator.x(zoomValue, nextPos.position().longitude()));
-                line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
+                        line.setEndX(WebMercator.x(zoomValue, nextPos.position().longitude()));
+                        line.setEndY(WebMercator.y(zoomValue, nextPos.position().latitude()));
 
-                // coloring of the trajectory
-                this.trajectoryColorHandler(line, pos, nextPos);
-                trajectoryGroup.getChildren().add(line);
-            }
+                        // coloring of the trajectory
+                        this.trajectoryColorHandler(line, pos, nextPos);
+                        trajectoryGroup.getChildren().add(line);
+                    }
+                }
+        );
 
-        });
     }
 
     /**

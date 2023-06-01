@@ -34,7 +34,11 @@ public class Main extends Application {
 
     // One second in nanoseconds
     private final long SECOND_NS = 1_000_000_000L;
+
+    // Minimal preferred width for the display
     private final int MIN_WIDTH = 800;
+
+    // Minimal preferred height for the display
     private final int MIN_HEIGHT = 600;
 
     // name of the file containing the messages
@@ -76,8 +80,9 @@ public class Main extends Application {
         AircraftController ac = new AircraftController(mp, asm.states(), selectedAircraft);
         AircraftTableController tc = new AircraftTableController(
                 asm.states(),
-                selectedAircraft, c -> bmc.centerOn(c.getPosition())
+                selectedAircraft
         );
+        tc.setOnDoubleClick(c -> bmc.centerOn(c.getPosition()));
 
         SplitPane mainPane = new SplitPane();
         mainPane.setOrientation(Orientation.VERTICAL);
@@ -130,7 +135,7 @@ public class Main extends Application {
 
 
     /**
-     * This method demodulates messages received from antenna using an ADS-B demodulator. It places the demodulated messages
+     * This method demodulates messages received from radio using an ADS-B demodulator. It places the demodulated messages
      * in a queue.
      *
      * @param messageQueue queue that stores the decoded messages.
@@ -205,7 +210,12 @@ public class Main extends Application {
      */
 
 
-    public void createSceneGraph(SplitPane mainPane, BaseMapController bmc, AircraftController ac, AircraftTableController tc, StatusLineController slc) {
+    public void createSceneGraph(
+            SplitPane mainPane,
+            BaseMapController bmc,
+            AircraftController ac,
+            AircraftTableController tc,
+            StatusLineController slc) {
 
         StackPane aircraftPane = new StackPane(bmc.pane(), ac.pane());
         BorderPane metaPane = new BorderPane();

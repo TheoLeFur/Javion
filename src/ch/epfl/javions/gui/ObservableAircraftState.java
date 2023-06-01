@@ -7,8 +7,6 @@ import ch.epfl.javions.aircraft.*;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
-import java.util.Objects;
-
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 

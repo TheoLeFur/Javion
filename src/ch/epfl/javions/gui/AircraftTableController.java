@@ -64,7 +64,7 @@ public final class AircraftTableController {
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
-    private final Consumer<ObservableAircraftState> cs;
+    private Consumer<ObservableAircraftState> cs;
 
     /**
      * Instantiates a table controller
@@ -72,13 +72,13 @@ public final class AircraftTableController {
      * @param selectedAircraft selected aircraft
      * @param cs consumer accepting the value of the selected aircraft when double-clicked on
      */
-    public AircraftTableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft, Consumer<ObservableAircraftState> cs) {
+    public AircraftTableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft) {
 
         this.observableSet = obsSet;
         this.selectedAircraft = selectedAircraft;
 
         this.pane = new BorderPane();
-        this.cs = cs;
+
 
         // add a listener on the set of observable states :
 
@@ -106,7 +106,7 @@ public final class AircraftTableController {
      * @param cs consumer value.
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> cs) {
-        if (cs != null) cs.accept(this.selectedAircraft.getValue());
+        if (cs != null) this.cs = cs;
     }
 
     /**
@@ -132,8 +132,10 @@ public final class AircraftTableController {
         tv.setOnMouseClicked(event -> {
             int clickCount = event.getClickCount();
             MouseButton button = event.getButton();
-            if (clickCount == 2 && button.equals(MouseButton.PRIMARY))
+            if (clickCount == 2 && button.equals(MouseButton.PRIMARY)) {
                 this.setOnDoubleClick(this.cs);
+                this.cs.accept(this.selectedAircraft.getValue());
+            }
         });
         // Creates textual and numerical columns.
         this.createColumns(tv);
