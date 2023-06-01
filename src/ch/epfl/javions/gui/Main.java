@@ -32,6 +32,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Main extends Application {
 
+    // conversion factor from ns to ms
+    private final double NS_TO_MILLIS = 1_000_000d;
+
     // One second in nanoseconds
     private final long SECOND_NS = 1_000_000_000L;
 
@@ -100,10 +103,19 @@ public class Main extends Application {
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
         Thread messageAccumulationThread = new Thread(() -> {
-            if (params.isEmpty())
-                this.demodulateMessages(messageQueue);
-            else
-                this.readMessagesFromFile(params.get(0), messageQueue);
+            if (params.isEmpty()) {
+                try {
+                    this.demodulateMessages(messageQueue);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    this.readMessagesFromFile(params.get(0), messageQueue);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
 
         messageAccumulationThread.setDaemon(true);
@@ -115,15 +127,13 @@ public class Main extends Application {
             @Override
             public void handle(long now) {
                 try {
-                    for (int i = 0; i < 10; i++) {
-                        if (!messageQueue.isEmpty()) {
-                            slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
-                            Message m = messageQueue.remove();
-                            if (!Objects.isNull(m)) asm.updateWithMessage(m);
-                            if (now - prevMethodCallTimeStamp > SECOND_NS) {
-                                asm.purge();
-                                this.prevMethodCallTimeStamp = now;
-                            }
+                    while (!messageQueue.isEmpty()) {
+                        slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
+                        Message m = messageQueue.remove();
+                        if (!Objects.isNull(m)) asm.updateWithMessage(m);
+                        if (now - prevMethodCallTimeStamp > SECOND_NS) {
+                            asm.purge();
+                            this.prevMethodCallTimeStamp = now;
                         }
                     }
                 } catch (IOException e) {
@@ -139,8 +149,9 @@ public class Main extends Application {
      * in a queue.
      *
      * @param messageQueue queue that stores the decoded messages.
+     * @throws IOException whenever error reading the System.in stream occurs
      */
-    public void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) {
+    public void demodulateMessages(ConcurrentLinkedQueue<Message> messageQueue) throws IOException {
 
         try (InputStream s = System.in) {
             AdsbDemodulator adm = new AdsbDemodulator(s);
@@ -150,9 +161,6 @@ public class Main extends Application {
                 Message m = MessageParser.parse(nextMessage);
                 messageQueue.add(m);
             }
-        } catch (EOFException ignored) {
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -163,10 +171,11 @@ public class Main extends Application {
      *
      * @param fileName     name of file
      * @param messageQueue queue that stores messages from file.
+     * @throws IOException whenever error while reading the input file stream occurs
      */
 
 
-    public void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) {
+    public void readMessagesFromFile(String fileName, ConcurrentLinkedQueue<Message> messageQueue) throws IOException {
 
 
         try (DataInputStream s = new DataInputStream((new BufferedInputStream(new FileInputStream(Objects.requireNonNull(getClass().getResource(fileName)).getFile()))))) {
@@ -179,7 +188,7 @@ public class Main extends Application {
                 long currentTime = System.nanoTime();
 
                 Thread.sleep((long) (
-                        Math.max(0, (timeStampNs - (currentTime - start))) / 1000000d));
+                        Math.max(0, (timeStampNs - (currentTime - start))) / NS_TO_MILLIS));
 
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
@@ -187,14 +196,11 @@ public class Main extends Application {
                 Message m;
                 if (rm != null) {
                     m = MessageParser.parse(rm);
-                    if (m != null) {
+                    if (m != null)
                         messageQueue.add(m);
-                    }
                 }
             }
-        } catch (EOFException ignored) {
-        } catch (
-                IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

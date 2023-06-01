@@ -301,7 +301,7 @@ public final class AircraftController {
             if (id.isEmpty())
                 id = s.getIcaoAddress().string();
         }
-        return (id.isEmpty()) ? s.getIcaoAddress().toString() : id;
+        return (id.isEmpty()) ? s.getIcaoAddress().string() : id;
     }
 
 
@@ -321,7 +321,6 @@ public final class AircraftController {
         ObservableList<ObservableAircraftState.AirbornePos> trajectory = s.getTrajectory();
         trajectoryGroup.visibleProperty().bind(this.selectedAircraft.map(sp -> sp.equals(s)));
 
-        // TODO : look at this again.
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
 
             ChangeListener<? super Number> lambda = (old, oldv, newv) -> {

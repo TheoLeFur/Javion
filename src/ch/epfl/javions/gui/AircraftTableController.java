@@ -26,6 +26,7 @@ import java.util.function.Function;
  * SCIPER = 363294
  * This class takes care of the display of the table of states of the aircraft.
  * It comes in conjunction with the map, whose logic is implemented in the AircraftController class.
+ * It will be displayed below the map.
  */
 
 
@@ -33,7 +34,7 @@ public final class AircraftTableController {
 
 
     /**
-     * Stores the widths of various columns.
+     * Stores the widths of various type of columns.
      */
 
     private enum WIDTH {
@@ -57,8 +58,9 @@ public final class AircraftTableController {
         }
     }
 
-
+    // dir of style sheet for the table module
     private final String TABLE_STYLE_SHEET_PATH = "/table.css";
+    // make the table menu button visible on the display
     private final boolean TABLE_MENU_BUTTON_VISIBLE = true;
     private final BorderPane pane;
     private final TableView<ObservableAircraftState> tableView;
@@ -68,9 +70,9 @@ public final class AircraftTableController {
 
     /**
      * Instantiates a table controller
-     * @param obsSet set of observable aircraft
+     *
+     * @param obsSet           set of observable aircraft
      * @param selectedAircraft selected aircraft
-     * @param cs consumer accepting the value of the selected aircraft when double-clicked on
      */
     public AircraftTableController(ObservableSet<ObservableAircraftState> obsSet, ObjectProperty<ObservableAircraftState> selectedAircraft) {
 
@@ -137,6 +139,7 @@ public final class AircraftTableController {
                 this.cs.accept(this.selectedAircraft.getValue());
             }
         });
+
         // Creates textual and numerical columns.
         this.createColumns(tv);
     }
@@ -147,7 +150,7 @@ public final class AircraftTableController {
     }
 
     /**
-     * Handles teh creation of all the textual values
+     * Handles the creation of all the tables containing textual information.
      *
      * @param tv table view
      */
@@ -170,7 +173,7 @@ public final class AircraftTableController {
     }
 
     /**
-     * Handles the creation of all the numerical columns in the table
+     * Handles the creation of all the columns containing numeric information
      *
      * @param tv table view
      */
@@ -243,7 +246,7 @@ public final class AircraftTableController {
                         ? s1.compareTo(s2)
                         : Double.compare(nf.parse(s1).doubleValue(), nf.parse(s2).doubleValue());
             } catch (ParseException e) {
-                System.out.println("Error : string cannot be parsed");
+                System.out.println("error : string cannot be parsed");
                 throw new RuntimeException(e);
             }
         });
