@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.stream.IntStream;
 
 
 /**
@@ -21,11 +23,12 @@ import java.util.Objects;
  */
 public final class AircraftStateManager {
 
+    // One minute in nanoseconds
+    private final long MINUTE_NS = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> addressToAsmTable;
     private final ObservableSet<ObservableAircraftState> observableAircraftSet;
     private final ObservableSet<ObservableAircraftState> readOnlyAircraftSet;
     private final AircraftDatabase database;
-    private final long MINUTE_NS = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
 
     // attribute for storing the aircraft's previous message.
     private Message prevMessage;

@@ -39,6 +39,9 @@ import java.util.Objects;
 public final class AircraftController {
 
 
+    // max altitude of aircraft
+    private final double MAX_ALTITUDE = 12000.0;
+
     // Style sheet that will be used
     private final String AircraftStyleSheetPath = "/aircraft.css";
 
@@ -72,6 +75,7 @@ public final class AircraftController {
         this.selectedAircraft = selectedAircraft;
         this.observableAircraft = observableAircraft;
 
+
         // Build the scene graph
         this.pane = new Pane();
         this.pane.setPickOnBounds(false);
@@ -80,12 +84,13 @@ public final class AircraftController {
                         getClass().getResource(
                                 this.AircraftStyleSheetPath)).toString());
 
+
         // We construct a graph for every state in the initial set of values passed into the constructor
         this.observableAircraft.forEach(this::createSceneGraph);
 
+
         // track changes of the set of states, if element is added, we build its corresponding graph, if element
         // is removed, then we remove the graph of the removed states.
-
         this.observableAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             ObservableAircraftState elementAdded = change.getElementAdded();
             if (!Objects.isNull(elementAdded)) {
@@ -133,6 +138,7 @@ public final class AircraftController {
     private Group createAnnotatedAircraftGroup(ObservableAircraftState s) {
         Group annotatedAircraftGroup = new Group();
         annotatedAircraftGroup.setId(s.getIcaoAddress().string());
+
         this.pane.getChildren().add(annotatedAircraftGroup);
         annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
@@ -323,12 +329,12 @@ public final class AircraftController {
 
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
 
-            ChangeListener<? super Number> lambda = (old, oldv, newv) -> {
+            ChangeListener<? super Number> zoomListener = (old, oldv, newv) -> {
                 trajectoryGroup.getChildren().clear();
                 this.computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
             };
 
-            ListChangeListener<? super ObservableAircraftState.AirbornePos> lambda2 = (change) -> {
+            ListChangeListener<? super ObservableAircraftState.AirbornePos> trajListener = (change) -> {
                 trajectoryGroup.getChildren().clear();
                 while (change.next())
                     if (change.wasAdded())
@@ -337,12 +343,12 @@ public final class AircraftController {
 
             if (nv) {
                 computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
-                trajectory.addListener(lambda2);
-                this.mapParams.zoomProperty().addListener(lambda);
+                trajectory.addListener(trajListener);
+                this.mapParams.zoomProperty().addListener(zoomListener);
 
             } else {
-                trajectory.removeListener(lambda2);
-                this.mapParams.zoomProperty().removeListener(lambda);
+                trajectory.removeListener(trajListener);
+                this.mapParams.zoomProperty().removeListener(zoomListener);
             }
         });
 
@@ -406,7 +412,7 @@ public final class AircraftController {
      * @return index c, which determines the color from the spectrum that will be chosen.
      */
     private double computeColorIndex(double altitude) {
-        return Math.pow(altitude / 12000.0, 1d / 3d);
+        return Math.pow(altitude / MAX_ALTITUDE, 1d / 3d);
     }
 
 
