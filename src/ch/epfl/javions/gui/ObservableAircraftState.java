@@ -222,7 +222,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
 
-
     /**
      * Access the position property.
      *

@@ -17,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
@@ -165,9 +164,11 @@ public class Main extends Application {
             AdsbDemodulator adm = new AdsbDemodulator(s);
             while (true) {
                 RawMessage nextMessage = adm.nextMessage();
-                assert nextMessage != null;
-                Message m = MessageParser.parse(nextMessage);
-                messageQueue.add(m);
+                if (nextMessage != null) {
+                    Message m = MessageParser.parse(nextMessage);
+                    if (m != null)
+                        messageQueue.add(m);
+                }
             }
         }
     }

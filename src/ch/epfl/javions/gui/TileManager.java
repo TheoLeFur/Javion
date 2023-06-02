@@ -103,7 +103,7 @@ public final class TileManager {
                 }
 
                 Files.createDirectories(Path.of(this.cacheDiskPath + "/" +
-                                    tileId.zoomLevel() + "/" + tileId.x()));
+                        tileId.zoomLevel() + "/" + tileId.x()));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(byteBuffer);

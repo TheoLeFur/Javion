@@ -29,8 +29,8 @@ public final class StatusLineController {
     public StatusLineController() {
 
         this.pane = new BorderPane();
-        this.aircraftCountProperty = new SimpleIntegerProperty();
-        this.messageCountProperty = new SimpleLongProperty();
+        this.aircraftCountProperty = new SimpleIntegerProperty(0);
+        this.messageCountProperty = new SimpleLongProperty(0);
         this.createSceneGraph();
 
     }

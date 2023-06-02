@@ -14,6 +14,13 @@ import javafx.beans.property.SimpleIntegerProperty;
  */
 public final class MapParameters {
 
+
+    // minimal zoom threshold
+    private static final int MIN_ZOOM = 6;
+
+    // maximal zoom threshold
+    private static final int MAX_ZOOM = 19;
+
     private final IntegerProperty zoom;
     private final DoubleProperty minX;
     private final DoubleProperty minY;
@@ -27,7 +34,7 @@ public final class MapParameters {
      */
 
     public MapParameters(int zoom, double minX, double minY) {
-        Preconditions.checkArgument(zoom >= 6 && zoom <= 19);
+        Preconditions.checkArgument(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM);
         this.zoom = new SimpleIntegerProperty(zoom);
         this.minX = new SimpleDoubleProperty(minX);
         this.minY = new SimpleDoubleProperty(minY);
@@ -52,7 +59,7 @@ public final class MapParameters {
      */
     public void changeZoomLevel(int zoomIncrement) {
         int newZoomValue = zoomIncrement + getZoomValue();
-        if (newZoomValue <= 19 && newZoomValue >= 6) {
+        if (newZoomValue <= MAX_ZOOM && newZoomValue >= MIN_ZOOM) {
             zoom.set(newZoomValue);
             minX.set(getMinXValue() * Math.scalb(1, zoomIncrement));
             minY.set(getMinYValue() * Math.scalb(1, zoomIncrement));
