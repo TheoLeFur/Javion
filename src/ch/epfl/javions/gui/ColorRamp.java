@@ -56,18 +56,17 @@ public final class ColorRamp {
      */
     public Color at(double index) {
         int N = this.colorList.size();
-        if (index < 0) {
+        if (index < 0)
             return this.colorList.get(0);
-        } else if (index > 1) {
+        else if (index > 1)
             return this.colorList.get(N - 1);
-        } else {
+        else {
             double colorIndex = index * (N - 1);
             int c0Index = (int) Math.floor(colorIndex);
             int c1Index = (int) Math.ceil(colorIndex);
             Color c0 = this.colorList.get(c0Index);
             Color c1 = this.colorList.get(c1Index);
-            double c1Prop = c1Index - colorIndex;
-            return c0.interpolate(c1, c1Prop);
+            return c0.interpolate(c1, c1Index - colorIndex);
         }
     }
 }

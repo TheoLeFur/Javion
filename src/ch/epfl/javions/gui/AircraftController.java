@@ -40,16 +40,16 @@ public final class AircraftController {
 
 
     // max altitude of aircraft
-    private final double MAX_ALTITUDE = 12000.0;
+    private static final double MAX_ALTITUDE = 12000.0;
 
     // Style sheet that will be used
-    private final String AircraftStyleSheetPath = "/aircraft.css";
+    private static final String AIRCRAFT_STYLE_SHEET_PATH = "/aircraft.css";
 
     // Offset in for the margin in the rectangular label
-    private final int LABEL_OFFSET = 4;
+    private static final int LABEL_OFFSET = 4;
 
     // Minimal zoom level for making labels visible
-    private final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
+    private static final int VISIBLE_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mapParams;
     private final Property<ObservableAircraftState> selectedAircraft;
     private final ObservableSet<ObservableAircraftState> observableAircraft;
@@ -82,7 +82,7 @@ public final class AircraftController {
         this.pane.getStylesheets().add(
                 Objects.requireNonNull(
                         getClass().getResource(
-                                this.AircraftStyleSheetPath)).toString());
+                                this.AIRCRAFT_STYLE_SHEET_PATH)).toString());
 
 
         // We construct a graph for every state in the initial set of values passed into the constructor
@@ -140,7 +140,8 @@ public final class AircraftController {
         annotatedAircraftGroup.setId(s.getIcaoAddress().string());
 
         this.pane.getChildren().add(annotatedAircraftGroup);
-        annotatedAircraftGroup.getStylesheets().add(AircraftStyleSheetPath);
+        annotatedAircraftGroup.getStylesheets().add(AIRCRAFT_STYLE_SHEET_PATH);
+
         // This guarantees that we the display overlaps icon from the highest altitude to the lowest altitude
         annotatedAircraftGroup.viewOrderProperty().bind(s.altitudeProperty().negate());
 
@@ -159,13 +160,14 @@ public final class AircraftController {
         Group labelIconGroup = new Group();
         annotatedAircraftGroup.getChildren().add(labelIconGroup);
 
+        // relate position of group to current position of group : x coordinate
         labelIconGroup.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
                     double projectedX = WebMercator.x(this.mapParams.getZoomValue(), s.getPosition().longitude());
                     return projectedX - this.mapParams.getMinXValue();
                 },
                 this.mapParams.zoomProperty(), this.mapParams.minXProperty(), s.positionProperty()));
 
-
+        // relate position of group to current position of group : y coordinate
         labelIconGroup.layoutYProperty().bind(Bindings.createDoubleBinding(() -> {
                     double projectedY = WebMercator.y(this.mapParams.getZoomValue(), s.getPosition().latitude());
                     return projectedY - this.mapParams.getMinYValue();
@@ -199,6 +201,8 @@ public final class AircraftController {
                                 .get()
                                 .canRotate() ? Units.convertTo(s.getTrackOrHeading(), Units.Angle.DEGREE) : 0d,
                         s.trackOrHeadingProperty(), aircraftIconProperty));
+
+        // Color the icon with the appropriate tone.
         icon.fillProperty().bind(s.altitudeProperty().map(a -> ColorRamp.PLASMA.at(this.computeColorIndex(a.intValue()))));
 
         return icon;
@@ -252,6 +256,8 @@ public final class AircraftController {
         labelGroup.getChildren().add(background);
         labelGroup.getChildren().add(text);
 
+
+        // add the textual information to the label
         text.textProperty().bind(Bindings.createStringBinding(
                 () -> String.format("%s \n %s (km/h) \u2002 %s (m) ",
                         this.getAircraftIdForLabel(s),
@@ -259,8 +265,9 @@ public final class AircraftController {
                         this.getAltitudeForLabel(s)),
                 s.altitudeProperty(), s.velocityProperty(), s.callSignProperty()));
 
-        background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + this.LABEL_OFFSET));
-        background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + this.LABEL_OFFSET));
+        // structure the dimension of the frames
+        background.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + LABEL_OFFSET));
+        background.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + LABEL_OFFSET));
 
     }
 
@@ -300,12 +307,10 @@ public final class AircraftController {
     private String getAircraftIdForLabel(ObservableAircraftState s) {
 
         String id = "";
-        if (!(s.getAircraftData() == null)) {
+        if (s.getAircraftData() != null) {
             id = s.getRegistration().string();
             if (id.isEmpty())
                 id = s.getCallSign().string();
-            if (id.isEmpty())
-                id = s.getIcaoAddress().string();
         }
         return (id.isEmpty()) ? s.getIcaoAddress().string() : id;
     }
@@ -329,7 +334,9 @@ public final class AircraftController {
 
         trajectoryGroup.visibleProperty().addListener((o, ov, nv) -> {
 
-            ChangeListener<? super Number> zoomListener = (old, oldv, newv) -> {
+            // Define the two listener, computing the trajectory whenever a change occurs
+
+            ChangeListener<? super Number> zoomListener = (old, oldV, newV) -> {
                 trajectoryGroup.getChildren().clear();
                 this.computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
             };
@@ -342,11 +349,15 @@ public final class AircraftController {
             };
 
             if (nv) {
+
+                // add the listeners to the relevant properties, whenever the trajectory is visible
                 computeTrajectory(trajectoryGroup, trajectory, this.mapParams.getZoomValue());
                 trajectory.addListener(trajListener);
                 this.mapParams.zoomProperty().addListener(zoomListener);
 
             } else {
+
+                // remove the listeners, when the trajectories' visibility is not required anymore
                 trajectory.removeListener(trajListener);
                 this.mapParams.zoomProperty().removeListener(zoomListener);
             }

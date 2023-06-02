@@ -9,6 +9,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
+
 import java.io.IOException;
 
 /**
@@ -17,13 +18,13 @@ import java.io.IOException;
  * Class that manages the display of the map background and the interactions with it. Deals with various types of events
  * like scrolling and zooming.
  */
-public final class BaseMapController{
+public final class BaseMapController {
 
     // Side length of a tile
     private final static int PIXELS_IN_TILE = (int) Math.scalb(1, 8);
 
     // time we wait during a mouse drag
-    private final int SCROLL_DELTA_T = 200;
+    private final static int SCROLL_DELTA_T = 200;
     private final Pane pane;
     private final Canvas canvas;
     private final TileManager tileManager;
@@ -56,20 +57,29 @@ public final class BaseMapController{
         this.redrawNeeded = true;
         this.scrollDeltaT = new SimpleLongProperty();
 
+        // Add listeners to control properties to redraw whenever needed
         this.mapParameters.minXProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.minYProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.mapParameters.zoomProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
 
-
+        // handle scrolling and dragging
         this.scrollEventHandler();
         this.dragEventHandler();
-
     }
 
+
+    /**
+     * Access the main pane
+     *
+     * @return the main pane
+     */
     public Pane pane() {
         return this.pane;
     }
 
+    /**
+     * Creates the main scene graph for this module.
+     */
     public void createSceneGraph() {
 
         this.pane.getChildren().add(this.canvas);
@@ -81,6 +91,8 @@ public final class BaseMapController{
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
+
+
         this.canvas.heightProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
         this.canvas.widthProperty().addListener((p, oldVal, newVal) -> redrawOnNextPulse());
     }
@@ -91,9 +103,12 @@ public final class BaseMapController{
      */
     private void dragEventHandler() {
 
+        // track mouse position whenever it clicks on display
         this.pane.setOnMousePressed(
                 event -> this.mousePos = new Point2D(event.getX(), event.getY())
         );
+
+        // handles dragging of the map
         this.pane.setOnMouseDragged(event -> {
             Point2D newPoint = this.mousePos.subtract(new Point2D(event.getX(), event.getY()));
             this.mapParameters.scroll(newPoint.getX(), newPoint.getY());
@@ -131,6 +146,7 @@ public final class BaseMapController{
         Platform.requestNextPulse();
     }
 
+
     /**
      * Whenever redrawNeeded is true, we draw the image that has to be displayed. Else we do nothing.
      */
@@ -149,21 +165,28 @@ public final class BaseMapController{
         int zoom = this.mapParameters.getZoomValue();
         double minXValue = this.mapParameters.getMinXValue();
         double minYValue = this.mapParameters.getMinYValue();
+        int x, y = 0;
+        TileManager.TileId tileToDraw;
 
-        for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); i+=1) {
-            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); j+=1) {
-                TileManager.TileId tileToDraw = new TileManager.TileId(zoom,
-                        this.tileCoords(minXValue) + i,
-                        this.tileCoords(minYValue) + j);
-                try {
-                    this.contextOfMap.drawImage(this.tileManager.imageForTileAt(tileToDraw), tileToDraw.x() * PIXELS_IN_TILE
-                            - minXValue, tileToDraw.y() * PIXELS_IN_TILE - minYValue);
-                } catch (IOException ignored) {
+        for (int i = 0; i <= Math.ceil(this.canvas.getWidth() / PIXELS_IN_TILE); i += 1) {
+            for (int j = 0; j <= Math.ceil(this.canvas.getHeight() / PIXELS_IN_TILE); j += 1) {
+
+                x = this.tileCoords(minXValue) + i;
+                y = this.tileCoords(minYValue) + j;
+
+                // validate the tile
+                if (TileManager.TileId.isValid(zoom, x, y)) {
+                     tileToDraw = new TileManager.TileId(zoom,
+                            x, y);
+                    try {
+                        this.contextOfMap.drawImage(this.tileManager.imageForTileAt(tileToDraw), tileToDraw.x() * PIXELS_IN_TILE
+                                - minXValue, tileToDraw.y() * PIXELS_IN_TILE - minYValue);
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         }
     }
-
 
 
     /**

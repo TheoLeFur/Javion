@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 public final class AircraftStateManager {
 
     // One minute in nanoseconds
-    private final long MINUTE_NS = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
+    private static final long MINUTE_NS = (long) Units.convert(1, Units.Time.MINUTE, Units.Time.NANO_SECOND);
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> addressToAsmTable;
     private final ObservableSet<ObservableAircraftState> observableAircraftSet;
     private final ObservableSet<ObservableAircraftState> readOnlyAircraftSet;
@@ -65,6 +65,8 @@ public final class AircraftStateManager {
     public void updateWithMessage(Message message) throws IOException {
 
         IcaoAddress address = message.icaoAddress();
+
+        // associate icao address to state manager, in case it does not exist, create it.
         this.addressToAsmTable.computeIfAbsent(address, a -> {
             try {
                 return new AircraftStateAccumulator<>(new ObservableAircraftState(address, this.database.get(a)));
@@ -75,7 +77,7 @@ public final class AircraftStateManager {
         AircraftStateAccumulator<ObservableAircraftState> stateAccumulator = this.addressToAsmTable.get(address);
         stateAccumulator.update(message);
         ObservableAircraftState stateSetter = stateAccumulator.stateSetter();
-        if (!Objects.isNull(stateSetter.getPosition())) this.observableAircraftSet.add(stateSetter);
+        if (stateSetter.getPosition() != null) this.observableAircraftSet.add(stateSetter);
         this.prevMessage = message;
     }
 

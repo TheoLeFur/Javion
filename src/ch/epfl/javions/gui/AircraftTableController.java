@@ -59,9 +59,16 @@ public final class AircraftTableController {
     }
 
     // dir of style sheet for the table module
-    private final String TABLE_STYLE_SHEET_PATH = "/table.css";
+    private static final String TABLE_STYLE_SHEET_PATH = "/table.css";
     // make the table menu button visible on the display
-    private final boolean TABLE_MENU_BUTTON_VISIBLE = true;
+    private static final boolean TABLE_MENU_BUTTON_VISIBLE = true;
+
+    // number of decimals for latitude adn longitude
+    private static final int LAT_LONG_DECIMALS = 4;
+
+    // number of decimals for altitude and velocity
+    private static final int ALT_VEC_DECIMALS = 0;
+
     private final BorderPane pane;
     private final TableView<ObservableAircraftState> tableView;
     private final ObservableSet<ObservableAircraftState> observableSet;
@@ -129,6 +136,19 @@ public final class AircraftTableController {
         tv.getSelectionModel().selectedItemProperty().addListener(
                 (p, oldVal, newVal) -> this.selectedAircraft.setValue(newVal));
 
+
+        // handle events fired by mouse
+        this.mouseEventHandler(tv);
+        // Creates textual and numerical columns.
+        this.createColumns(tv);
+    }
+
+    /**
+     * Method that handles events fired by the mouse : clicking and double clicking
+     *
+     * @param tv table view
+     */
+    private void mouseEventHandler(TableView<ObservableAircraftState> tv) {
         tv.setOnMouseClicked(event -> {
             int clickCount = event.getClickCount();
             MouseButton button = event.getButton();
@@ -137,9 +157,6 @@ public final class AircraftTableController {
                 this.cs.accept(this.selectedAircraft.getValue());
             }
         });
-
-        // Creates textual and numerical columns.
-        this.createColumns(tv);
     }
 
     private void createColumns(TableView<ObservableAircraftState> tv) {
@@ -154,13 +171,13 @@ public final class AircraftTableController {
      */
     private void createTextColumns(TableView<ObservableAircraftState> tv) {
         tv.getColumns().addAll(List.of(
-                this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ICAO",
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.ICAO), "ADDRESSE ICAO",
                         f -> new ReadOnlyObjectWrapper<>(f.getValue()).map(e -> e.getIcaoAddress().string())),
                 this.createTextualColumn(WIDTH.getWidth(WIDTH.ID), "CALL SIGN",
                         f -> f.getValue().callSignProperty().map(CallSign::string)),
-                this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION), "REGISTRATION",
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.REGISTRATION), "REGISTRE",
                         f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.registration().string())),
-                this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL), "MODEL",
+                this.createTextualColumn(WIDTH.getWidth(WIDTH.MODEL), "MODELE",
                         f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(AircraftData::model)),
                 this.createTextualColumn(WIDTH.getWidth(WIDTH.TYPE), "TYPE",
                         f -> new ReadOnlyObjectWrapper<>(f.getValue().getAircraftData()).map(e -> e.typeDesignator().string())),
@@ -175,18 +192,20 @@ public final class AircraftTableController {
      *
      * @param tv table view
      */
+
+    // TODO : PUT CONSTANTS FOR DECIMAL VALUES
     private void createNumericColumns(TableView<ObservableAircraftState> tv) {
         tv.getColumns().addAll(List.of(
                 this.createNumericalColumn(
                         "LATITUDE",
                         f -> f.getValue().positionProperty().map(GeoPos::latitude),
-                        4, Units.Angle.DEGREE),
+                        LAT_LONG_DECIMALS, Units.Angle.DEGREE),
                 this.createNumericalColumn("LONGITUDE", f -> f.getValue().positionProperty().map(GeoPos::longitude),
-                        4, Units.Angle.DEGREE),
+                        LAT_LONG_DECIMALS, Units.Angle.DEGREE),
                 this.createNumericalColumn("ALTITUDE",
-                        f -> f.getValue().altitudeProperty().map(Number::doubleValue), 0, Units.Length.METER),
-                this.createNumericalColumn("VELOCITY",
-                        f -> f.getValue().velocityProperty().map(Number::doubleValue), 0, Units.Speed.KILOMETER_PER_HOUR)));
+                        f -> f.getValue().altitudeProperty().map(Number::doubleValue), ALT_VEC_DECIMALS, Units.Length.METER),
+                this.createNumericalColumn("VITESSE",
+                        f -> f.getValue().velocityProperty().map(Number::doubleValue), ALT_VEC_DECIMALS, Units.Speed.KILOMETER_PER_HOUR)));
 
 
     }

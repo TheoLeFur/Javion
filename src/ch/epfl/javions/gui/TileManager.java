@@ -52,10 +52,10 @@ public final class TileManager {
     private final String tileServerName;
 
     // max capacity of memory cache
-    private final int maxMemoryCacheCapacity = 100;
+    private final int MAX_MEMORY_CACHE_CAPACITY = 100;
 
     // memory cache
-    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(maxMemoryCacheCapacity, 0.75f, true);
+    private final Map<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_MEMORY_CACHE_CAPACITY, 0.75f, true);
 
 
     /**
@@ -103,7 +103,7 @@ public final class TileManager {
                 }
 
                 Files.createDirectories(Path.of(this.cacheDiskPath + "/" +
-                        tileId.zoomLevel() + "/" + tileId.x()));
+                                    tileId.zoomLevel() + "/" + tileId.x()));
 
                 try (OutputStream o = new FileOutputStream(imgPath.toString())) {
                     o.write(byteBuffer);
@@ -122,7 +122,7 @@ public final class TileManager {
      * @param image image of tile.
      */
     private void addToCacheMemory(TileId id, Image image) {
-        if (this.memoryCache.size() == 100)
+        if (this.memoryCache.size() == MAX_MEMORY_CACHE_CAPACITY)
             this.memoryCache.remove(
                     this.memoryCache.keySet().iterator().next());
         this.memoryCache.put(id, image);

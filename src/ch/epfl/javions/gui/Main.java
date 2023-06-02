@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
@@ -33,25 +34,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Main extends Application {
 
     // conversion factor from ns to ms
-    private final double NS_TO_MILLIS = 1_000_000d;
+    private static final double NS_TO_MILLIS = 1_000_000d;
 
     // One second in nanoseconds
-    private final long SECOND_NS = 1_000_000_000L;
+    private static final long SECOND_NS = 1_000_000_000L;
 
     // Minimal preferred width for the display
-    private final int MIN_WIDTH = 800;
+    private static final int MIN_WIDTH = 800;
 
     // Minimal preferred height for the display
-    private final int MIN_HEIGHT = 600;
+    private static final int MIN_HEIGHT = 600;
 
     // name of the file containing the messages
-    private final String MESSAGE_FILE_NAME = "/aircraft.zip";
+    private static final String MESSAGE_FILE_NAME = "/aircraft.zip";
 
     // name of te dir where we store tiles queried from the open street map server
-    private final String DISK_CACHE_NAME = "tile-cache";
+    private static final String DISK_CACHE_NAME = "tile-cache";
 
     // name of the server from which tiles are queried
-    private final String TILE_SERVER_NAME = "tile.openstreetmap.org";
+    private static final String TILE_SERVER_NAME = "tile.openstreetmap.org";
 
 
     /**
@@ -76,6 +77,9 @@ public class Main extends Application {
 
         TileManager tm = new TileManager(tileCache, TILE_SERVER_NAME);
         AircraftStateManager asm = new AircraftStateManager(db);
+
+
+        // instantiate the main components of the scene graph
         MapParameters mp = new MapParameters(8, 33530, 23070);
         StatusLineController slc = new StatusLineController();
         BaseMapController bmc = new BaseMapController(tm, mp);
@@ -85,12 +89,15 @@ public class Main extends Application {
                 asm.states(),
                 selectedAircraft
         );
+
+        // define the consumer in the table controller
         tc.setOnDoubleClick(c -> bmc.centerOn(c.getPosition()));
 
         SplitPane mainPane = new SplitPane();
         mainPane.setOrientation(Orientation.VERTICAL);
         this.createSceneGraph(mainPane, bmc, ac, tc, slc);
 
+        // handle dimensions
         primaryStage.setScene(new Scene(mainPane));
         primaryStage.setMinWidth(MIN_WIDTH);
         primaryStage.setMinHeight(MIN_HEIGHT);
@@ -102,6 +109,7 @@ public class Main extends Application {
         List<String> params = getParameters().getRaw();
         ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 
+        // define the concurrent message thread
         Thread messageAccumulationThread = new Thread(() -> {
             if (params.isEmpty()) {
                 try {
@@ -130,7 +138,7 @@ public class Main extends Application {
                     while (!messageQueue.isEmpty()) {
                         slc.messageCountProperty().setValue(slc.messageCountProperty().getValue() + 1);
                         Message m = messageQueue.remove();
-                        if (!Objects.isNull(m)) asm.updateWithMessage(m);
+                        if (m != null) asm.updateWithMessage(m);
                         if (now - prevMethodCallTimeStamp > SECOND_NS) {
                             asm.purge();
                             this.prevMethodCallTimeStamp = now;
