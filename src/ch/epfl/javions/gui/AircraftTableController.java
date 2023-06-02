@@ -81,12 +81,10 @@ public final class AircraftTableController {
 
         this.pane = new BorderPane();
 
-
-        // add a listener on the set of observable states :
-
         this.tableView = new TableView<>();
         this.createSceneGraph(this.tableView);
 
+        // add a listener on the set of observable states
         this.observableSet.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             this.tableView.getItems().add(change.getElementAdded());
             this.tableView.getItems().remove(change.getElementRemoved());
@@ -239,7 +237,19 @@ public final class AircraftTableController {
         nf.setMaximumFractionDigits(decimals);
 
         column.setCellValueFactory(f -> map.apply(f).map(v -> nf.format(Units.convertTo(v, unit))));
+        this.setNumericComparator(column, nf);
+        return column;
 
+    }
+
+    /**
+     * Creates a comparator for the numeric columns
+     *
+     * @param column numeric column
+     * @param nf     number formatter
+     */
+
+    private void setNumericComparator(TableColumn<ObservableAircraftState, String> column, NumberFormat nf) {
         column.setComparator((s1, s2) -> {
             try {
                 return (s1.isEmpty() || s2.isEmpty())
@@ -250,9 +260,5 @@ public final class AircraftTableController {
                 throw new RuntimeException(e);
             }
         });
-        return column;
-
     }
-
-
 }
